@@ -1,0 +1,49 @@
+{
+  "announcement": {
+    "enabled": true,
+    "text": "2026 İlkbahar / Yaz Koleksiyonu İçin Butik & Toptan Siparişler Açıldı • Özel Üretim Teklifi Alın",
+    "link": "/inquiry"
+  },
+  "hero": {
+    "badge": "SS26 ATELIER KOLEKSİYONU",
+    "title": "ZAMANSIZ DERİ ZANAATI & MİMARİ SİLÜETLER",
+    "subtitle": "Geleneksel saraç işçiliğini modern editoryal çizgilerle buluşturan el yapımı lüks çanta koleksiyonu.",
+    "ctaText": "Koleksiyonu Keşfet",
+    "ctaLink": "#koleksiyon",
+    "imageUrl": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1600&auto=format&fit=crop",
+    "slides": [
+      {
+        "id": "slide-1",
+        "title": "ZAMANSIZ DERİ ZANAATI",
+        "subtitle": "Usta ellerde şekillenen el yapımı lüks çanta koleksiyonu.",
+        "imageUrl": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1600&auto=format&fit=crop",
+        "badge": "SS26 KOLEKSİYONU",
+        "ctaText": "Koleksiyonu İncele",
+        "ctaLink": "#koleksiyon"
+      },
+      {
+        "id": "slide-2",
+        "title": "MİMARİ BAGET & TOTE",
+        "subtitle": "Gün boyu zarafeti taşıyan hakiki deri silüetler.",
+        "imageUrl": "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=1600&auto=format&fit=crop",
+        "badge": "ÖZEL İŞÇİLİK",
+        "ctaText": "Teklif İste",
+        "ctaLink": "/inquiry"
+      }
+    ]
+  },
+  "atelier": {
+    "name": "ÇANTA ATELIER",
+    "tagline": "Hakiki Deri ve Zanaatkâr El İşçiliği",
+    "phone": "+90 (212) 555 01 23",
+    "whatsapp": "905555550123",
+    "whatsappDefaultMessage": "Merhaba, çanta modelleriniz ve özel üretim teklifleri hakkında bilgi almak istiyorum.",
+    "email": "info@cantaatelier.com",
+    "address": "Nişantaşı / Teşvikiye Cad. No: 42, Şişli, İstanbul",
+    "workingHours": "Pazartesi - Cumartesi: 09:30 - 19:00",
+    "catalogPdfUrl": "/katalog-2026.pdf",
+    "instagramUrl": "https://instagram.com",
+    "pinterestUrl": "https://pinterest.com",
+    "linkedinUrl": "https://linkedin.com"
+  }
+}

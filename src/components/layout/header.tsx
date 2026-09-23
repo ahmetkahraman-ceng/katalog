@@ -18,11 +18,41 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [announcement, setAnnouncement] = useState<{
+    enabled: boolean
+    text: string
+    link?: string
+  }>({
+    enabled: true,
+    text: '2026 İlkbahar / Yaz Koleksiyonu İçin Butik & Toptan Siparişler Açıldı • Özel Üretim Teklifi Alın',
+    link: '/inquiry',
+  })
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 30)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    async function loadBannerSettings() {
+      try {
+        const res = await fetch('/api/settings/banner')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.announcement) {
+            setAnnouncement({
+              enabled: Boolean(data.announcement.enabled),
+              text: data.announcement.text || '',
+              link: data.announcement.link || '/inquiry',
+            })
+          }
+        }
+      } catch {
+        // silent fail
+      }
+    }
+    loadBannerSettings()
   }, [])
 
   return (
@@ -35,12 +65,23 @@ export function Header() {
             : 'bg-white'
         )}
       >
-        {/* Top Editorial Monospace Announcement Bar */}
-        <div className="w-full bg-black text-white py-1.5 px-4 text-center border-b border-neutral-800">
-          <p className="text-[10px] sm:text-[11px] font-light tracking-[0.2em] uppercase">
-            2025 SONBAHAR / KIŞ KOLEKSİYONU — ÖZEL ATÖLYE & KURUMSAL TEKLİFLER
-          </p>
-        </div>
+        {/* Dynamic Editorial Monospace Announcement Bar */}
+        {announcement.enabled && announcement.text && (
+          <div className="w-full bg-black text-white py-1.5 px-4 text-center border-b border-neutral-800">
+            {announcement.link ? (
+              <Link
+                href={announcement.link}
+                className="text-[10px] sm:text-[11px] font-light tracking-[0.2em] uppercase hover:underline inline-block"
+              >
+                {announcement.text}
+              </Link>
+            ) : (
+              <p className="text-[10px] sm:text-[11px] font-light tracking-[0.2em] uppercase">
+                {announcement.text}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
           <div className="flex items-center justify-between h-16 lg:h-20">

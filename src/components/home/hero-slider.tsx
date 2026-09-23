@@ -6,34 +6,82 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const slides = [
+interface SlideItem {
+  id: string | number
+  subtitle: string
+  title: string
+  description: string
+  cta: string
+  secondaryCta: string
+  href: string
+  image: string
+}
+
+const DEFAULT_SLIDES: SlideItem[] = [
   {
     id: 1,
-    subtitle: 'YENİ KOLEKSİYON • LIMITED RUN',
-    title: '2025 SONBAHAR / KIŞ',
-    description: 'Zamana meydan okuyan hakiki İtalyan dana derisi ve zanaatkâr el işçiliğinin mimari birlikteliği.',
+    subtitle: 'SS26 ATELIER KOLEKSİYONU',
+    title: 'ZAMANSIZ DERİ ZANAATI',
+    description:
+      'Geleneksel saraç işçiliğini modern editoryal çizgilerle buluşturan el yapımı lüks çanta koleksiyonu.',
     cta: 'KOLEKSİYONU KEŞFET',
     secondaryCta: 'ÖZEL ATÖLYE TEKLİFİ',
     href: '/categories/el-cantasi',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBZ5pQ3MkUNKLQ8ToAHl-9Kp0tC-KKvwFf9dPvnB8HL-tzR2XFQC-bBt5HArzWMTUED8aGP6vSK52dMxOXOnVVzRHKz-VY_SBoUtIEwOy8nVUjOf65VCBfXJugVW9xn2hfJywq5xIL_fEEI1HAP68E7vtQBV53wI6O0EaX933LHSsK4x6fzjfrtsp8vnkzfjgDfBla5PwuKzMos9E8ZIspmfHiEPNk6DW9Hi9IGJ3eOC7qWf9IBe2a6JQ',
+      'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1600&auto=format&fit=crop',
   },
   {
     id: 2,
     subtitle: 'MİMARİ FORMLAR • SIRTLIK ARŞİVİ',
     title: 'FONKSİYONEL SİLÜETLER',
-    description: 'Şehir yaşamı ve modern mobilite için tasarlanan minimalist deri sırt çantası koleksiyonu.',
+    description:
+      'Şehir yaşamı ve modern mobilite için tasarlanan minimalist deri sırt ve omuz çantaları.',
     cta: 'SIRT ÇANTALARI',
     secondaryCta: 'TEKLİF AL',
     href: '/categories/sirt-cantasi',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAkUAog-7HxagmQWR8K_BrWPWD22H-mmwLv7h0J6-9PKWHadPhYE9Pa6CPwAxQIPp6n060FJv0oSNa2fPEqkHjj3HhnxHBRB1zrYmPTx0huK8FZpLkxRn7QU1AQA55c4z1vLuEdanyITCjB60yO0J8CyJvQl6pseDbeIBjY8af93aeo4Jp8rJoNdUBjHGKsxOiZc9tSKoqNLuV8uSvybKXey58YHNNOyYewycZOKNXgDIbyTRsf7TWkwA',
+      'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=1600&auto=format&fit=crop',
   },
 ]
 
 export function HeroSlider() {
+  const [slides, setSlides] = useState<SlideItem[]>(DEFAULT_SLIDES)
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
+
+  // Fetch dynamic banner settings
+  useEffect(() => {
+    async function loadBanner() {
+      try {
+        const res = await fetch('/api/settings/banner')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.hero) {
+            setSlides([
+              {
+                id: 1,
+                subtitle: data.hero.badge || 'SS26 ATELIER KOLEKSİYONU',
+                title: data.hero.title || 'ZAMANSIZ DERİ ZANAATI',
+                description:
+                  data.hero.subtitle ||
+                  'Geleneksel saraç işçiliğini modern editoryal çizgilerle buluşturan el yapımı lüks çanta koleksiyonu.',
+                cta: data.hero.ctaText || 'KOLEKSİYONU KEŞFET',
+                secondaryCta: 'ÖZEL TEKLİF AL',
+                href: data.hero.ctaLink || '#koleksiyon',
+                image:
+                  data.hero.imageUrl ||
+                  'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1600&auto=format&fit=crop',
+              },
+              DEFAULT_SLIDES[1],
+            ])
+          }
+        }
+      } catch {
+        // silent fail
+      }
+    }
+    loadBanner()
+  }, [])
 
   const goTo = useCallback(
     (index: number) => {
@@ -47,14 +95,14 @@ export function HeroSlider() {
 
   const goNext = useCallback(() => {
     goTo((current + 1) % slides.length)
-  }, [current, goTo])
+  }, [current, goTo, slides.length])
 
   const goPrev = useCallback(() => {
     goTo((current - 1 + slides.length) % slides.length)
-  }, [current, goTo])
+  }, [current, goTo, slides.length])
 
   useEffect(() => {
-    const timer = setInterval(goNext, 6000)
+    const timer = setInterval(goNext, 6500)
     return () => clearInterval(timer)
   }, [goNext])
 
@@ -74,12 +122,12 @@ export function HeroSlider() {
               src={slide.image}
               alt={slide.title}
               fill
-              className="object-cover object-center brightness-[0.85]"
+              className="object-cover object-center brightness-[0.80]"
               priority={index === 0}
               sizes="100vw"
             />
             {/* Cinematic Gradient Vignette */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
           </div>
 
           {/* Editorial Content Overlay */}
@@ -122,14 +170,14 @@ export function HeroSlider() {
       {/* Navigation arrows */}
       <button
         onClick={goPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all hidden sm:flex z-10"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all hidden sm:flex z-10 cursor-pointer"
         aria-label="Önceki Slayt"
       >
         <ChevronLeft size={22} strokeWidth={1.5} />
       </button>
       <button
         onClick={goNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all hidden sm:flex z-10"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all hidden sm:flex z-10 cursor-pointer"
         aria-label="Sonraki Slayt"
       >
         <ChevronRight size={22} strokeWidth={1.5} />
@@ -142,7 +190,7 @@ export function HeroSlider() {
             key={index}
             onClick={() => goTo(index)}
             className={cn(
-              'h-1 transition-all duration-300',
+              'h-1 transition-all duration-300 cursor-pointer',
               index === current ? 'w-10 bg-white' : 'w-4 bg-white/40 hover:bg-white/70'
             )}
             aria-label={`Slayt ${index + 1}`}
