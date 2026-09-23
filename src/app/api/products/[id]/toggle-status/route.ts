@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 
 interface Props {
@@ -10,7 +11,7 @@ export async function PATCH(request: NextRequest, { params }: Props) {
     const { id } = await params
     const product = await prisma.product.findUnique({
       where: { id },
-      select: { status: true },
+      select: { status: true, slug: true },
     })
 
     if (!product) {
@@ -24,6 +25,14 @@ export async function PATCH(request: NextRequest, { params }: Props) {
       data: { status: nextStatus },
       select: { id: true, status: true },
     })
+
+    try {
+      revalidatePath('/', 'layout')
+      revalidatePath(`/products/${product.slug}`)
+      revalidatePath('/admin/products')
+    } catch {
+      // ignore
+    }
 
     return NextResponse.json(updated)
   } catch (error: any) {

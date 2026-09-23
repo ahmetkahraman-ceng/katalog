@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getSiteSettings, updateSiteSettings } from '@/lib/site-settings'
 import { isAuthenticated } from '@/lib/auth'
 
@@ -24,6 +25,14 @@ export async function POST(request: NextRequest) {
       hero: hero ? { ...getSiteSettings().hero, ...hero } : undefined,
       announcement: announcement ? { ...getSiteSettings().announcement, ...announcement } : undefined,
     })
+
+    // Instant On-Demand Revalidation for live URL
+    try {
+      revalidatePath('/', 'layout')
+      revalidatePath('/')
+    } catch {
+      // ignore
+    }
 
     return NextResponse.json({ success: true, settings: updated })
   } catch (error: any) {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getSiteSettings, updateSiteSettings } from '@/lib/site-settings'
 import { isAuthenticated } from '@/lib/auth'
 
@@ -16,6 +17,15 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const updated = updateSiteSettings(body)
+
+    // Instant On-Demand Revalidation
+    try {
+      revalidatePath('/', 'layout')
+      revalidatePath('/')
+    } catch {
+      // ignore
+    }
+
     return NextResponse.json({ success: true, settings: updated })
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Hata oluştu' }, { status: 500 })

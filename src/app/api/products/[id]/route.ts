@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 
 interface Props {
@@ -73,6 +74,14 @@ export async function PATCH(request: NextRequest, { params }: Props) {
       },
     })
 
+    try {
+      revalidatePath('/', 'layout')
+      revalidatePath(`/products/${updated.slug}`)
+      revalidatePath('/admin/products')
+    } catch {
+      // ignore
+    }
+
     return NextResponse.json(updated)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -85,6 +94,14 @@ export async function DELETE(request: NextRequest, { params }: Props) {
     await prisma.productImage.deleteMany({ where: { productId: id } })
     await prisma.inquiryItem.deleteMany({ where: { productId: id } })
     await prisma.product.delete({ where: { id } })
+
+    try {
+      revalidatePath('/', 'layout')
+      revalidatePath('/admin/products')
+    } catch {
+      // ignore
+    }
+
     return NextResponse.json({ success: true })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })

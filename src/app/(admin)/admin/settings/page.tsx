@@ -133,9 +133,20 @@ export default function AdminSettingsPage() {
 
       {/* Mesaj Bildirimleri */}
       {successMsg && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-light rounded-sm flex items-center gap-2">
-          <CheckCircle size={16} className="text-emerald-600 shrink-0" />
-          <span>{successMsg}</span>
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-light rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle size={17} className="text-emerald-600 shrink-0" />
+            <span>{successMsg}</span>
+          </div>
+          <a
+            href={`/?t=${Date.now()}`}
+            target="_blank"
+            rel="noreferrer"
+            className="px-3 py-1.5 bg-emerald-700 text-white text-[11px] font-mono tracking-wider uppercase hover:bg-emerald-800 transition-colors inline-flex items-center gap-1.5 shrink-0 self-start sm:self-auto rounded-xs shadow-xs"
+          >
+            <span>Canlı URL'yi Aç</span>
+            <ExternalLink size={13} />
+          </a>
         </div>
       )}
 
