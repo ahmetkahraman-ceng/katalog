@@ -38,7 +38,7 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const res = await fetch('/api/settings')
+        const res = await fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
           if (data.atelier) {

@@ -49,31 +49,50 @@ export function HeroSlider() {
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
-  // Fetch dynamic banner settings
+  const applyHeroData = useCallback((hero: any) => {
+    if (!hero) return
+    setSlides([
+      {
+        id: 1,
+        subtitle: hero.badge || 'SS26 ATELIER KOLEKSİYONU',
+        title: hero.title || 'ZAMANSIZ DERİ ZANAATI',
+        description:
+          hero.subtitle ||
+          'Geleneksel saraç işçiliğini modern editoryal çizgilerle buluşturan el yapımı lüks çanta koleksiyonu.',
+        cta: hero.ctaText || 'KOLEKSİYONU KEŞFET',
+        secondaryCta: 'ÖZEL TEKLİF AL',
+        href: hero.ctaLink || '#koleksiyon',
+        image:
+          hero.imageUrl ||
+          'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1600&auto=format&fit=crop',
+      },
+      DEFAULT_SLIDES[1],
+    ])
+  }, [])
+
+  // Dynamic banner settings with instant local-storage cache and no-store network fetch
   useEffect(() => {
+    // 1. Instant local render if available
+    try {
+      const cached = localStorage.getItem('site_hero_settings')
+      if (cached) {
+        applyHeroData(JSON.parse(cached))
+      }
+    } catch {
+      // ignore
+    }
+
+    // 2. Fetch fresh banner from server API (with timestamp to prevent browser caching)
     async function loadBanner() {
       try {
-        const res = await fetch('/api/settings/banner')
+        const res = await fetch(`/api/settings/banner?t=${Date.now()}`, { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
           if (data.hero) {
-            setSlides([
-              {
-                id: 1,
-                subtitle: data.hero.badge || 'SS26 ATELIER KOLEKSİYONU',
-                title: data.hero.title || 'ZAMANSIZ DERİ ZANAATI',
-                description:
-                  data.hero.subtitle ||
-                  'Geleneksel saraç işçiliğini modern editoryal çizgilerle buluşturan el yapımı lüks çanta koleksiyonu.',
-                cta: data.hero.ctaText || 'KOLEKSİYONU KEŞFET',
-                secondaryCta: 'ÖZEL TEKLİF AL',
-                href: data.hero.ctaLink || '#koleksiyon',
-                image:
-                  data.hero.imageUrl ||
-                  'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1600&auto=format&fit=crop',
-              },
-              DEFAULT_SLIDES[1],
-            ])
+            applyHeroData(data.hero)
+            try {
+              localStorage.setItem('site_hero_settings', JSON.stringify(data.hero))
+            } catch {}
           }
         }
       } catch {
@@ -81,7 +100,19 @@ export function HeroSlider() {
       }
     }
     loadBanner()
-  }, [])
+
+    // 3. Listen to storage changes from admin tabs in real time
+    const handleStorageChange = () => {
+      try {
+        const updated = localStorage.getItem('site_hero_settings')
+        if (updated) {
+          applyHeroData(JSON.parse(updated))
+        }
+      } catch {}
+    }
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [applyHeroData])
 
   const goTo = useCallback(
     (index: number) => {
@@ -101,99 +132,105 @@ export function HeroSlider() {
     goTo((current - 1 + slides.length) % slides.length)
   }, [current, goTo, slides.length])
 
+  // Autoplay
   useEffect(() => {
-    const timer = setInterval(goNext, 6500)
+    const timer = setInterval(goNext, 8000)
     return () => clearInterval(timer)
   }, [goNext])
 
   return (
     <section className="relative w-full h-[75vh] sm:h-[85vh] lg:h-[90vh] overflow-hidden bg-black text-white">
-      {slides.map((slide, index) => (
-        <div
-          key={slide.id}
-          className={cn(
-            'absolute inset-0 transition-opacity duration-1000 ease-out',
-            index === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          )}
-        >
-          {/* Background Image */}
-          <div className="absolute inset-0">
-            <Image
-              src={slide.image}
-              alt={slide.title}
-              fill
-              className="object-cover object-center brightness-[0.80]"
-              priority={index === 0}
-              sizes="100vw"
-            />
-            {/* Cinematic Gradient Vignette */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-          </div>
+      {slides.map((slide, index) => {
+        const isDataUrl = typeof slide.image === 'string' && slide.image.startsWith('data:')
+        return (
+          <div
+            key={slide.id}
+            className={cn(
+              'absolute inset-0 transition-opacity duration-1000 ease-out',
+              index === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            )}
+          >
+            {/* Background Image */}
+            <div className="absolute inset-0">
+              <Image
+                src={slide.image}
+                alt={slide.title}
+                fill
+                className="object-cover object-center brightness-[0.80]"
+                priority={index === 0}
+                sizes="100vw"
+                unoptimized={isDataUrl}
+              />
+              {/* Cinematic Gradient Vignette */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
+            </div>
 
-          {/* Editorial Content Overlay */}
-          <div className="relative h-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 pb-16 flex flex-col justify-end">
-            <div className="max-w-2xl flex flex-col items-start gap-3">
-              <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-white inline-block"></span>
-                <span className="text-[10px] sm:text-xs font-light tracking-[0.25em] uppercase text-neutral-300">
-                  {slide.subtitle}
-                </span>
-              </div>
+            {/* Editorial Content Overlay */}
+            <div className="relative h-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 pb-16 flex flex-col justify-end">
+              <div className="max-w-2xl flex flex-col items-start gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-2 h-2 rounded-full bg-white inline-block"></span>
+                  <span className="text-[10px] sm:text-xs font-light tracking-[0.25em] uppercase text-neutral-300">
+                    {slide.subtitle}
+                  </span>
+                </div>
 
-              <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extralight tracking-[0.1em] uppercase text-white leading-[1.05]">
-                {slide.title}
-              </h1>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-light tracking-tight leading-tight uppercase font-serif">
+                  {slide.title}
+                </h1>
 
-              <p className="text-xs sm:text-sm font-light text-neutral-300 max-w-lg leading-relaxed pt-1">
-                {slide.description}
-              </p>
+                <p className="text-sm sm:text-base font-light text-neutral-300 max-w-lg leading-relaxed line-clamp-2 sm:line-clamp-none">
+                  {slide.description}
+                </p>
 
-              <div className="pt-4 flex flex-wrap items-center gap-4">
-                <Link
-                  href={slide.href}
-                  className="px-6 sm:px-8 py-3.5 bg-transparent border border-white text-white text-xs font-light tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300"
-                >
-                  {slide.cta}
-                </Link>
-                <Link
-                  href="/inquiry"
-                  className="px-6 py-3.5 bg-white text-black text-xs font-light tracking-[0.2em] uppercase hover:bg-neutral-200 transition-colors"
-                >
-                  {slide.secondaryCta}
-                </Link>
+                <div className="flex flex-wrap items-center gap-4 mt-4">
+                  <Link
+                    href={slide.href}
+                    className="px-6 sm:px-8 py-3.5 bg-white text-black text-xs font-light tracking-widest uppercase hover:bg-neutral-200 transition-colors"
+                  >
+                    {slide.cta}
+                  </Link>
+                  <Link
+                    href="/inquiry"
+                    className="px-6 sm:px-8 py-3.5 border border-white/60 text-white text-xs font-light tracking-widest uppercase hover:bg-white hover:text-black transition-colors"
+                  >
+                    {slide.secondaryCta}
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
 
-      {/* Navigation arrows */}
+      {/* Navigation Arrows */}
       <button
         onClick={goPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all hidden sm:flex z-10 cursor-pointer"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 flex items-center justify-center text-white/70 hover:text-white border border-white/20 hover:border-white/60 bg-black/30 backdrop-blur-xs transition-colors rounded-full"
         aria-label="Önceki Slayt"
       >
-        <ChevronLeft size={22} strokeWidth={1.5} />
-      </button>
-      <button
-        onClick={goNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all hidden sm:flex z-10 cursor-pointer"
-        aria-label="Sonraki Slayt"
-      >
-        <ChevronRight size={22} strokeWidth={1.5} />
+        <ChevronLeft size={20} />
       </button>
 
-      {/* Slide Indicators */}
-      <div className="absolute bottom-8 right-6 lg:right-12 z-10 flex items-center gap-3">
-        {slides.map((_, index) => (
+      <button
+        onClick={goNext}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 flex items-center justify-center text-white/70 hover:text-white border border-white/20 hover:border-white/60 bg-black/30 backdrop-blur-xs transition-colors rounded-full"
+        aria-label="Sonraki Slayt"
+      >
+        <ChevronRight size={20} />
+      </button>
+
+      {/* Progress Dots */}
+      <div className="absolute bottom-6 right-6 lg:right-12 z-20 flex items-center gap-3">
+        {slides.map((_, i) => (
           <button
-            key={index}
-            onClick={() => goTo(index)}
+            key={i}
+            onClick={() => goTo(i)}
+            aria-label={`Slayt ${i + 1}`}
             className={cn(
-              'h-1 transition-all duration-300 cursor-pointer',
-              index === current ? 'w-10 bg-white' : 'w-4 bg-white/40 hover:bg-white/70'
+              'h-0.5 transition-all duration-500',
+              i === current ? 'w-10 bg-white' : 'w-4 bg-white/40 hover:bg-white/70'
             )}
-            aria-label={`Slayt ${index + 1}`}
           />
         ))}
       </div>

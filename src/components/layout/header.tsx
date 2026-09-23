@@ -35,17 +35,36 @@ export function Header() {
   }, [])
 
   useEffect(() => {
+    // 1. Instant local render if available
+    try {
+      const cached = localStorage.getItem('site_announcement_settings')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        setAnnouncement({
+          enabled: Boolean(parsed.enabled),
+          text: parsed.text || '',
+          link: parsed.link || '/inquiry',
+        })
+      }
+    } catch {
+      // ignore
+    }
+
     async function loadBannerSettings() {
       try {
-        const res = await fetch('/api/settings/banner')
+        const res = await fetch(`/api/settings/banner?t=${Date.now()}`, { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
           if (data.announcement) {
-            setAnnouncement({
+            const nextAnn = {
               enabled: Boolean(data.announcement.enabled),
               text: data.announcement.text || '',
               link: data.announcement.link || '/inquiry',
-            })
+            }
+            setAnnouncement(nextAnn)
+            try {
+              localStorage.setItem('site_announcement_settings', JSON.stringify(nextAnn))
+            } catch {}
           }
         }
       } catch {
@@ -53,6 +72,22 @@ export function Header() {
       }
     }
     loadBannerSettings()
+
+    const handleStorageChange = () => {
+      try {
+        const cached = localStorage.getItem('site_announcement_settings')
+        if (cached) {
+          const parsed = JSON.parse(cached)
+          setAnnouncement({
+            enabled: Boolean(parsed.enabled),
+            text: parsed.text || '',
+            link: parsed.link || '/inquiry',
+          })
+        }
+      } catch {}
+    }
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   return (

@@ -33,9 +33,32 @@ export default function AdminBannerPage() {
   const [heroImageUrl, setHeroImageUrl] = useState('')
 
   useEffect(() => {
+    // 1. Check local storage first for instant initialization
+    try {
+      const cachedHero = localStorage.getItem('site_hero_settings')
+      if (cachedHero) {
+        const h = JSON.parse(cachedHero)
+        if (h.badge) setHeroBadge(h.badge)
+        if (h.title) setHeroTitle(h.title)
+        if (h.subtitle) setHeroSubtitle(h.subtitle)
+        if (h.ctaText) setHeroCtaText(h.ctaText)
+        if (h.ctaLink) setHeroCtaLink(h.ctaLink)
+        if (h.imageUrl) setHeroImageUrl(h.imageUrl)
+      }
+      const cachedAnn = localStorage.getItem('site_announcement_settings')
+      if (cachedAnn) {
+        const a = JSON.parse(cachedAnn)
+        setAnnouncementEnabled(Boolean(a.enabled))
+        if (a.text) setAnnouncementText(a.text)
+        if (a.link) setAnnouncementLink(a.link)
+      }
+    } catch {
+      // ignore
+    }
+
     async function loadBanner() {
       try {
-        const res = await fetch('/api/settings/banner')
+        const res = await fetch(`/api/settings/banner?t=${Date.now()}`, { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
           if (data.announcement) {
@@ -67,35 +90,49 @@ export default function AdminBannerPage() {
     setSuccessMsg(null)
     setErrorMsg(null)
 
+    const payloadHero = {
+      badge: heroBadge,
+      title: heroTitle,
+      subtitle: heroSubtitle,
+      ctaText: heroCtaText,
+      ctaLink: heroCtaLink,
+      imageUrl: heroImageUrl,
+    }
+
+    const payloadAnnouncement = {
+      enabled: announcementEnabled,
+      text: announcementText,
+      link: announcementLink,
+    }
+
+    // Always immediately save to browser localStorage for 0ms lag
+    try {
+      localStorage.setItem('site_hero_settings', JSON.stringify(payloadHero))
+      localStorage.setItem('site_announcement_settings', JSON.stringify(payloadAnnouncement))
+      window.dispatchEvent(new Event('storage'))
+    } catch {
+      // ignore
+    }
+
     try {
       const res = await fetch('/api/settings/banner', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          announcement: {
-            enabled: announcementEnabled,
-            text: announcementText,
-            link: announcementLink,
-          },
-          hero: {
-            badge: heroBadge,
-            title: heroTitle,
-            subtitle: heroSubtitle,
-            ctaText: heroCtaText,
-            ctaLink: heroCtaLink,
-            imageUrl: heroImageUrl,
-          },
+          announcement: payloadAnnouncement,
+          hero: payloadHero,
         }),
       })
 
       if (res.ok) {
         setSuccessMsg('Vitrin ve banner ayarları başarıyla kaydedildi! Sitenizde anında güncellendi.')
-        setTimeout(() => setSuccessMsg(null), 5000)
+        setTimeout(() => setSuccessMsg(null), 6000)
       } else {
-        setErrorMsg('Kaydedilirken bir hata oluştu.')
+        const errData = await res.json().catch(() => ({}))
+        setErrorMsg(errData.error || 'Kaydedilirken bir hata oluştu.')
       }
     } catch {
-      setErrorMsg('Bağlantı hatası oluştu.')
+      setErrorMsg('Bağlantı hatası oluştu, ancak tarayıcı önbelleğinize kaydedildi.')
     } finally {
       setSaving(false)
     }

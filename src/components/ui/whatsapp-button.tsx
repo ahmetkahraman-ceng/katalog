@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { MessageCircle } from 'lucide-react'
 
 export function WhatsAppFloatingButton() {
-  const [whatsapp, setWhatsapp] = useState('905555550123')
+  const [whatsapp, setWhatsapp] = useState('905555555555')
   const [message, setMessage] = useState(
     'Merhaba, çanta modelleriniz ve özel üretim teklifleri hakkında bilgi almak istiyorum.'
   )
@@ -12,7 +12,7 @@ export function WhatsAppFloatingButton() {
   useEffect(() => {
     async function loadAtelier() {
       try {
-        const res = await fetch('/api/settings')
+        const res = await fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
           if (data.atelier?.whatsapp) {
