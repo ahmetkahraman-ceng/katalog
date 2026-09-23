@@ -1,7 +1,9 @@
 import { prisma } from '@/lib/prisma'
-import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { ProductGrid } from '@/components/product/product-grid'
 import { ProductFilters } from '@/components/product/product-filters'
+import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
+import { Sparkles, MessageCircle, FileText, ArrowRight } from 'lucide-react'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -10,16 +12,11 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params
-  let category
-  try {
-    category = await prisma.category.findUnique({ where: { slug } })
-  } catch {
-    return { title: 'Kategori' }
-  }
-  if (!category) return { title: 'Kategori Bulunamadı' }
+  const matched = MANUAL_CATEGORIES.find(c => c.slug === slug || c.id === slug)
+  const title = matched ? matched.name : slug.replace(/-/g, ' ')
   return {
-    title: `${category.name} | ÇANTA`,
-    description: category.description || `${category.name} koleksiyonumuzu keşfedin`,
+    title: `${title} | ÇANTA Atölye Koleksiyonu`,
+    description: `${title} lüks el yapımı deri çanta siluetleri ve özel üretim kataloğu.`,
   }
 }
 
@@ -27,22 +24,36 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params
   const search = await searchParams
 
-  let category
+  // 1. Try DB lookup first, fallback cleanly to MANUAL_CATEGORIES (never crashes)
+  let category: { id: string; name: string; slug: string; description?: string | null } | null = null
   try {
     category = await prisma.category.findUnique({ where: { slug } })
   } catch {
-    // DB not connected
-    return (
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 className="text-2xl font-extralight tracking-[0.2em] uppercase text-center mb-8">
-          {slug.replace(/-/g, ' ')}
-        </h1>
-        <p className="text-center text-sm text-neutral-400">Veritabanı bağlantısı bekleniyor...</p>
-      </div>
-    )
+    category = null
   }
 
-  if (!category) notFound()
+  if (!category) {
+    const matched = MANUAL_CATEGORIES.find(c => c.slug === slug || c.id === slug)
+    if (matched) {
+      category = {
+        id: matched.id,
+        name: matched.name,
+        slug: matched.slug,
+        description: `${matched.name} siluetinde geleneksel deri işçiliği ile üretilen koleksiyonumuz.`,
+      }
+    } else {
+      const formattedName = slug
+        .split('-')
+        .map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1))
+        .join(' ')
+      category = {
+        id: slug,
+        name: formattedName,
+        slug: slug,
+        description: `${formattedName} serisi deri çanta koleksiyonu.`,
+      }
+    }
+  }
 
   const page = Number(search.page) || 1
   const limit = 12
@@ -52,92 +63,173 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     ? Array.isArray(search.color) ? search.color : [search.color]
     : undefined
 
-  const where: any = {
-    categoryId: category.id,
-    status: 'ACTIVE' as const,
-  }
+  let products: any[] = []
+  let total = 0
+  let allColors: string[] = []
 
-  if (colorFilter) {
-    where.colors = { hasSome: colorFilter }
-  }
+  try {
+    const where: any = {
+      OR: [
+        { categoryId: category.id },
+        { category: { slug } },
+      ],
+      status: 'ACTIVE' as const,
+    }
 
-  if (search.priceMin || search.priceMax) {
-    where.priceMin = {}
-    if (search.priceMin) where.priceMin.gte = Number(search.priceMin)
-    if (search.priceMax) where.priceMax = { lte: Number(search.priceMax) }
-  }
+    if (colorFilter) {
+      where.colors = { hasSome: colorFilter }
+    }
 
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      include: {
-        images: { orderBy: { order: 'asc' }, take: 1 },
-      },
-      skip,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.product.count({ where }),
-  ])
+    if (search.priceMin || search.priceMax) {
+      where.priceMin = {}
+      if (search.priceMin) where.priceMin.gte = Number(search.priceMin)
+      if (search.priceMax) where.priceMax = { lte: Number(search.priceMax) }
+    }
+
+    const [dbProducts, dbTotal, allProducts] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: {
+          images: { orderBy: { order: 'asc' }, take: 1 },
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where: {
+          OR: [{ categoryId: category.id }, { category: { slug } }],
+          status: 'ACTIVE',
+        },
+        select: { colors: true },
+      }),
+    ])
+
+    products = dbProducts
+    total = dbTotal
+    allColors = [...new Set(allProducts.flatMap(p => p.colors))]
+  } catch {
+    // Database query failed or table empty, fallback gracefully
+    products = []
+    total = 0
+    allColors = []
+  }
 
   const totalPages = Math.ceil(total / limit)
 
-  // Get unique colors for filter
-  const allProducts = await prisma.product.findMany({
-    where: { categoryId: category.id, status: 'ACTIVE' },
-    select: { colors: true },
-  })
-  const allColors = [...new Set(allProducts.flatMap(p => p.colors))]
-
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
-      {/* Category Title */}
-      <div className="text-center mb-12">
-        <h1 className="text-2xl lg:text-3xl font-extralight tracking-[0.2em] uppercase">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-10 lg:py-16">
+      {/* Category Header */}
+      <div className="text-center mb-10 pb-6 border-b border-neutral-100">
+        <span className="text-[11px] font-mono tracking-[0.25em] text-neutral-400 uppercase block mb-2">
+          ATÖLYE SİLÜETİ • {category.slug.toUpperCase()}
+        </span>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light tracking-[0.15em] uppercase font-serif">
           {category.name}
         </h1>
         {category.description && (
-          <p className="mt-3 text-sm font-light text-neutral-500">{category.description}</p>
+          <p className="mt-3 text-xs sm:text-sm font-light text-neutral-500 max-w-xl mx-auto leading-relaxed">
+            {category.description}
+          </p>
         )}
-        <p className="mt-2 text-xs font-light text-neutral-400">{total} ürün</p>
       </div>
 
-      <div className="lg:flex lg:gap-12">
-        {/* Filters */}
-        <aside className="lg:w-56 flex-shrink-0 mb-8 lg:mb-0">
-          <ProductFilters
-            colors={allColors}
-            currentColors={colorFilter}
-            currentPriceMin={search.priceMin as string | undefined}
-            currentPriceMax={search.priceMax as string | undefined}
-            basePath={`/categories/${slug}`}
-          />
-        </aside>
+      {products.length > 0 ? (
+        <div className="lg:flex lg:gap-12">
+          {/* Filters */}
+          <aside className="lg:w-56 flex-shrink-0 mb-8 lg:mb-0">
+            <ProductFilters
+              colors={allColors}
+              currentColors={colorFilter}
+              currentPriceMin={search.priceMin as string | undefined}
+              currentPriceMax={search.priceMax as string | undefined}
+              basePath={`/categories/${slug}`}
+            />
+          </aside>
 
-        {/* Products */}
-        <div className="flex-1">
-          <ProductGrid products={products} />
+          {/* Products */}
+          <div className="flex-1">
+            <ProductGrid products={products} />
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-16">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <a
-                  key={p}
-                  href={`/categories/${slug}?page=${p}${colorFilter ? colorFilter.map(c => `&color=${c}`).join('') : ''}${search.priceMin ? `&priceMin=${search.priceMin}` : ''}${search.priceMax ? `&priceMax=${search.priceMax}` : ''}`}
-                  className={`px-4 py-2 text-xs font-light tracking-wider ${
-                    p === page
-                      ? 'bg-black text-white'
-                      : 'text-neutral-500 hover:text-black border border-neutral-200 hover:border-black'
-                  } transition-colors`}
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-16">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <a
+                    key={p}
+                    href={`/categories/${slug}?page=${p}${colorFilter ? colorFilter.map(c => `&color=${c}`).join('') : ''}${search.priceMin ? `&priceMin=${search.priceMin}` : ''}${search.priceMax ? `&priceMax=${search.priceMax}` : ''}`}
+                    className={`px-4 py-2 text-xs font-light tracking-wider ${
+                      p === page
+                        ? 'bg-black text-white'
+                        : 'text-neutral-500 hover:text-black border border-neutral-200 hover:border-black'
+                    } transition-colors`}
+                  >
+                    {p}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* Luxury Editorial Empty State */
+        <div className="max-w-2xl mx-auto py-12 px-4 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-100 rounded-full text-[10px] font-mono tracking-widest text-neutral-600 uppercase mb-6">
+            <Sparkles size={12} className="text-black" />
+            <span>2026 ATÖLYE SERİSİ • BUTİK ÜRETİM</span>
+          </div>
+
+          <h2 className="text-xl sm:text-2xl font-light font-serif tracking-wide uppercase text-neutral-800 mb-3">
+            {category.name} Modellerimiz Atölyemizde Hazırlanıyor
+          </h2>
+
+          <p className="text-xs sm:text-sm font-light text-neutral-500 max-w-lg mx-auto leading-relaxed mb-8">
+            Bu siluete ait yeni sezon tasarımlarımız saraç ustalarımız tarafından işlenmektedir. Özel deri tercihi, kurumsal sipariş veya toptan butik üretim talebiniz için doğrudan atölyemizden teklif alabilirsiniz.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
+            <Link
+              href="/inquiry"
+              className="px-6 py-3.5 bg-black hover:bg-neutral-800 text-white text-xs font-light tracking-widest uppercase inline-flex items-center gap-2 transition-colors shadow-sm"
+            >
+              <FileText size={15} />
+              <span>Özel Teklif & Sipariş Talebi</span>
+            </Link>
+            <a
+              href="https://wa.me/905555555555?text=Merhaba,%20çanta%20modelleri%20hakkında%20bilgi%20almak%20istiyorum."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3.5 border border-neutral-300 hover:border-black text-black text-xs font-light tracking-widest uppercase inline-flex items-center gap-2 transition-colors"
+            >
+              <MessageCircle size={15} className="text-emerald-600" />
+              <span>WhatsApp Teklif Hattı</span>
+            </a>
+          </div>
+
+          {/* Diğer Siluetleri Keşfet */}
+          <div className="pt-10 border-t border-neutral-200">
+            <span className="text-[11px] font-mono tracking-[0.2em] text-neutral-400 uppercase block mb-6">
+              DİĞER ATÖLYE SİLÜETLERİNİ İNCELEYİN
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {MANUAL_CATEGORIES.filter(c => c.slug !== slug).slice(0, 4).map(other => (
+                <Link
+                  key={other.slug}
+                  href={`/categories/${other.slug}`}
+                  className="p-4 bg-white border border-neutral-200 hover:border-black transition-all text-left group rounded-xs shadow-2xs"
                 >
-                  {p}
-                </a>
+                  <span className="text-[10px] font-mono text-neutral-400 block mb-1">SİLÜET</span>
+                  <span className="text-xs font-light text-black group-hover:underline flex items-center justify-between">
+                    <span>{other.name}</span>
+                    <ArrowRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </span>
+                </Link>
               ))}
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { Package, MessageSquare, FolderOpen, Bell, ArrowUpRight, CheckCircle, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { DashboardRecentTables } from '@/components/admin/dashboard-recent-tables'
+import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,12 +45,14 @@ async function getDashboardData() {
       }),
     ])
 
+    const safeCategoryCount = categoryCount > 0 ? categoryCount : MANUAL_CATEGORIES.length
+
     return {
       stats: {
         totalProducts,
         activeProducts,
         draftProducts,
-        categoryCount,
+        categoryCount: safeCategoryCount,
         totalInquiries,
         newInquiries,
       },
@@ -80,7 +83,7 @@ async function getDashboardData() {
         totalProducts: 0,
         activeProducts: 0,
         draftProducts: 0,
-        categoryCount: 0,
+        categoryCount: MANUAL_CATEGORIES.length,
         totalInquiries: 0,
         newInquiries: 0,
       },
