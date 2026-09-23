@@ -30,7 +30,7 @@ export function UserDropdown() {
         className={cn(
           'w-10 h-10 rounded-xl border border-neutral-300 flex items-center justify-center transition-all bg-white hover:border-black text-neutral-800 shadow-2xs',
           isOpen && 'border-black ring-1 ring-black',
-          user && 'border-emerald-600 bg-emerald-50/50 text-emerald-800'
+          user && 'border-black bg-neutral-100 text-black'
         )}
         title={user ? `${user.name} (Hesabım)` : 'Giriş Yap / Üye Ol'}
         aria-label="Kullanıcı Menüsü"
@@ -38,19 +38,19 @@ export function UserDropdown() {
         <UserIcon size={19} strokeWidth={1.75} />
       </button>
 
-      {/* Dropdown Menu (Matching Image 2) */}
+      {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-neutral-200/80 p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
           {!user ? (
             <div className="flex flex-col gap-1.5">
-              {/* Green "Giriş Yap" button matching image */}
+              {/* Sleek Black "Giriş Yap" button */}
               <button
                 type="button"
                 onClick={() => {
                   setIsOpen(false)
                   openAuthModal('login')
                 }}
-                className="w-full py-2.5 px-4 bg-[#2ba366] hover:bg-[#238a55] text-white text-xs sm:text-[13px] font-medium rounded-lg text-center transition-colors shadow-2xs"
+                className="w-full py-2.5 px-4 bg-[#18181b] hover:bg-black text-white text-xs sm:text-[13px] font-medium rounded-lg text-center transition-colors shadow-2xs"
               >
                 Giriş Yap
               </button>

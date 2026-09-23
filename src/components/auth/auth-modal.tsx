@@ -157,7 +157,7 @@ export function AuthModal() {
                   type="checkbox"
                   checked={kvkkAccepted}
                   onChange={(e) => setKvkkAccepted(e.target.checked)}
-                  className="mt-0.5 w-3.5 h-3.5 text-emerald-600 rounded-xs border-neutral-300 focus:ring-0"
+                  className="mt-0.5 w-3.5 h-3.5 text-black rounded-xs border-neutral-300 focus:ring-0"
                 />
                 <span>Kişisel verilerimin işlenmesine yönelik aydınlatma metnini okudum ve anladım.</span>
               </label>
@@ -167,7 +167,7 @@ export function AuthModal() {
                   type="checkbox"
                   checked={marketingAccepted}
                   onChange={(e) => setMarketingAccepted(e.target.checked)}
-                  className="mt-0.5 w-3.5 h-3.5 text-emerald-600 rounded-xs border-neutral-300 focus:ring-0"
+                  className="mt-0.5 w-3.5 h-3.5 text-black rounded-xs border-neutral-300 focus:ring-0"
                 />
                 <span>Kampanyalardan haberdar olabilmem için tarafıma elektronik ileti gönderilmesini kabul ediyorum.</span>
               </label>
@@ -178,7 +178,7 @@ export function AuthModal() {
                 <input
                   type="checkbox"
                   defaultChecked
-                  className="w-3.5 h-3.5 text-emerald-600 rounded-xs border-neutral-300"
+                  className="w-3.5 h-3.5 text-black rounded-xs border-neutral-300"
                 />
                 <span>Beni Hatırla</span>
               </label>
@@ -192,11 +192,11 @@ export function AuthModal() {
             </div>
           )}
 
-          {/* Green Submit Button Matching Image 1 */}
+          {/* Sleek Black Primary Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 mt-2 bg-[#2ba366] hover:bg-[#238a55] text-white text-sm font-medium rounded-xl transition-colors flex items-center justify-center gap-2 shadow-xs disabled:opacity-60"
+            className="w-full py-3.5 mt-2 bg-[#18181b] hover:bg-black text-white text-sm font-medium rounded-xl transition-colors flex items-center justify-center gap-2 shadow-xs disabled:opacity-60"
           >
             {loading ? (
               <>

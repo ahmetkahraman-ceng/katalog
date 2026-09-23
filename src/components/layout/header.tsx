@@ -269,15 +269,15 @@ export function Header() {
                 )}
               </Link>
 
-              {/* Teklif Listesi Button (Matching Image 2 with orange count badge) */}
+              {/* Teklif Listesi Button (Sleek Luxury Black / Zara & Promozone style) */}
               <button
                 onClick={openDrawer}
-                className="relative flex items-center gap-2.5 px-4 py-2.5 bg-[#2ba366] hover:bg-[#238a55] text-white rounded-xl transition-all shadow-2xs font-medium text-xs sm:text-[13px]"
+                className="relative flex items-center gap-2.5 px-4 py-2.5 bg-[#18181b] hover:bg-black text-white rounded-xl transition-all shadow-xs font-medium text-xs sm:text-[13px]"
                 title="Teklif Listesi"
               >
                 <div className="relative">
                   <ShoppingBag size={18} />
-                  <span className="absolute -top-2 -left-2 w-4 h-4 bg-[#f59e0b] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-2 -left-2 w-4 h-4 bg-[#d97706] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
                     {quoteItems.length}
                   </span>
                 </div>

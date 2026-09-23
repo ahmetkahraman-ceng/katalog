@@ -7,6 +7,7 @@ import { Heart, Plus, Check } from 'lucide-react'
 import { cn, formatPriceRange } from '@/lib/utils'
 import { useQuote } from '@/context/quote-context'
 import { useFavorites } from '@/context/favorites-context'
+import { useAuth } from '@/context/auth-context'
 
 interface ProductCardProps {
   id: string
@@ -38,6 +39,7 @@ export function ProductCard({
   const [isHovered, setIsHovered] = useState(false)
   const { addItem, isInQuote } = useQuote()
   const { isFavorite, toggleFavorite } = useFavorites()
+  const { user } = useAuth()
 
   const formattedPrice = formatPriceRange(priceMin, priceMax)
   const addedToQuote = isInQuote(id)
@@ -60,7 +62,7 @@ export function ProductCard({
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    toggleFavorite(id)
+    toggleFavorite(id, Boolean(user))
   }
 
   return (
