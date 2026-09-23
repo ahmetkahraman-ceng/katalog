@@ -48,6 +48,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
           src={images[activeIndex]?.url || images[0].url}
           alt={images[activeIndex]?.alt || productName || 'Çanta Görseli'}
           fill
+          unoptimized={Boolean((images[activeIndex]?.url || images[0]?.url)?.startsWith('data:'))}
           className={cn(
             'object-cover object-center transition-transform duration-500 ease-out',
             isZoomed ? 'scale-[2.2]' : 'group-hover:scale-105'

@@ -30,6 +30,8 @@ export default function NewProductPage() {
   const [status, setStatus] = useState('ACTIVE')
   const [error, setError] = useState('')
 
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+
   useEffect(() => {
     async function loadCategories() {
       try {
@@ -43,6 +45,8 @@ export default function NewProductPage() {
         }
       } catch (err) {
         console.error('Kategoriler yüklenemedi:', err)
+      } finally {
+        setCategoriesLoading(false)
       }
     }
     loadCategories()
@@ -115,8 +119,10 @@ export default function NewProductPage() {
             className="w-full border-b border-neutral-300 bg-transparent py-3 text-sm font-light focus:border-black focus:outline-none"
             required
           >
-            {categories.length === 0 ? (
+            {categoriesLoading ? (
               <option value="">Kategoriler yükleniyor...</option>
+            ) : categories.length === 0 ? (
+              <option value="cat-el">Genel Koleksiyon (Varsayılan)</option>
             ) : (
               categories.map(cat => (
                 <option key={cat.id} value={cat.id}>
