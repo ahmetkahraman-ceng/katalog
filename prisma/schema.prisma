@@ -129,3 +129,16 @@ model SiteSetting {
   value     String   @db.Text
   updatedAt DateTime @updatedAt
 }
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  company   String?
+  role      String   @default("CUSTOMER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+

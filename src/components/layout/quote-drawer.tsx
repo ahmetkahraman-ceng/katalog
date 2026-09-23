@@ -1,22 +1,38 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { X, Trash2, CheckCircle2, MessageCircle, ArrowRight, Loader2, Plus, Minus, ShoppingBag } from 'lucide-react'
 import { useQuote } from '@/context/quote-context'
+import { useAuth } from '@/context/auth-context'
 
 export function QuoteDrawer() {
   const { items, removeItem, updateQuantity, clearQuote, isDrawerOpen, closeDrawer } = useQuote()
+  const { user } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [formData, setFormData] = useState({
-    customerName: '',
-    phone: '',
-    email: '',
-    companyName: '',
+    customerName: user?.name || '',
+    phone: user?.phone || '',
+    email: user?.email || '',
+    companyName: user?.company || '',
     message: '',
   })
+
+  // Keep synced if user logs in
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        customerName: prev.customerName || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+        companyName: prev.companyName || user.company || '',
+      }))
+    }
+  }, [user])
+
   const [errorMsg, setErrorMsg] = useState('')
 
   if (!isDrawerOpen) return null

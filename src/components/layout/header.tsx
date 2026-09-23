@@ -8,6 +8,7 @@ import { Search, Menu, Heart, ShoppingBag, ChevronDown, Phone, Clock, HelpCircle
 import { cn } from '@/lib/utils'
 import { useQuote } from '@/context/quote-context'
 import { useFavorites } from '@/context/favorites-context'
+import { UserDropdown } from '@/components/auth/user-dropdown'
 import { MobileMenu } from './mobile-menu'
 
 interface MegaCategory {
@@ -268,37 +269,23 @@ export function Header() {
                 )}
               </Link>
 
-              {/* Teklif Listesi Button (Sepet yerine - rozetli) */}
+              {/* Teklif Listesi Button (Matching Image 2 with orange count badge) */}
               <button
                 onClick={openDrawer}
-                className="relative flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-neutral-800 hover:text-black hover:bg-neutral-100 transition-colors"
+                className="relative flex items-center gap-2.5 px-4 py-2.5 bg-[#2ba366] hover:bg-[#238a55] text-white rounded-xl transition-all shadow-2xs font-medium text-xs sm:text-[13px]"
                 title="Teklif Listesi"
               >
                 <div className="relative">
-                  <ShoppingBag size={20} />
-                  {quoteItems.length > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-black text-white text-[9px] font-medium rounded-full flex items-center justify-center animate-in zoom-in-50">
-                      {quoteItems.length}
-                    </span>
-                  )}
-                </div>
-                <div className="hidden xl:flex flex-col text-left">
-                  <span className="text-[11px] font-medium tracking-wider uppercase leading-none">
-                    TEKLİF LİSTEM
-                  </span>
-                  <span className="text-[10px] text-neutral-400 font-light mt-0.5">
-                    {quoteItems.length > 0 ? `${quoteItems.length} Ürün` : 'Talep Oluştur'}
+                  <ShoppingBag size={18} />
+                  <span className="absolute -top-2 -left-2 w-4 h-4 bg-[#f59e0b] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                    {quoteItems.length}
                   </span>
                 </div>
+                <span className="tracking-wide">Teklif Listesi</span>
               </button>
 
-              {/* Teklif Al Hızlı Buton */}
-              <button
-                onClick={openDrawer}
-                className="hidden sm:inline-flex items-center px-4 py-2.5 bg-black text-white text-[11px] font-light tracking-[0.2em] uppercase hover:bg-neutral-800 transition-colors"
-              >
-                TEKLİF AL
-              </button>
+              {/* User Dropdown Button (Matching Image 2 positioned right of Teklif Listesi) */}
+              <UserDropdown />
             </div>
           </div>
         </div>
