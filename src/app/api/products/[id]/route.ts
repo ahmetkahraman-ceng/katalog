@@ -55,6 +55,12 @@ export async function PATCH(request: NextRequest, { params }: Props) {
       })
     }
 
+    let categoryIdToSet: string | undefined = undefined
+    if (body.categoryId) {
+      const { resolveCategoryId } = await import('@/lib/category-service')
+      categoryIdToSet = await resolveCategoryId(body.categoryId, body.categoryName)
+    }
+
     const updated = await prisma.product.update({
       where: { id },
       data: {
@@ -65,7 +71,7 @@ export async function PATCH(request: NextRequest, { params }: Props) {
         priceMax: body.priceMax !== undefined ? (body.priceMax ? Number(body.priceMax) : null) : undefined,
         colors: body.colors,
         status: body.status,
-        categoryId: body.categoryId,
+        categoryId: categoryIdToSet,
         featured: body.featured !== undefined ? Boolean(body.featured) : undefined,
       },
       include: {

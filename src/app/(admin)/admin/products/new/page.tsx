@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ImageUploader } from '@/components/ui/image-uploader'
 import { slugify } from '@/lib/utils'
+import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
+import { PlusCircle } from 'lucide-react'
 
-interface Category {
+interface CategoryItem {
   id: string
   name: string
   slug: string
@@ -17,8 +19,13 @@ interface Category {
 export default function NewProductPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [categories, setCategories] = useState<Category[]>([])
-  const [categoryId, setCategoryId] = useState('')
+  
+  // Manuel ve hemen seçilebilir hazır kategoriler (asla yükleme beklemez)
+  const [categories, setCategories] = useState<CategoryItem[]>(MANUAL_CATEGORIES)
+  const [categoryId, setCategoryId] = useState(MANUAL_CATEGORIES[0].id)
+  const [isCustomCategory, setIsCustomCategory] = useState(false)
+  const [customCategoryName, setCustomCategoryName] = useState('')
+
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [description, setDescription] = useState('')
@@ -30,26 +37,28 @@ export default function NewProductPage() {
   const [status, setStatus] = useState('ACTIVE')
   const [error, setError] = useState('')
 
-  const [categoriesLoading, setCategoriesLoading] = useState(true)
-
   useEffect(() => {
-    async function loadCategories() {
+    async function syncExistingCategories() {
       try {
         const res = await fetch('/api/categories')
         if (res.ok) {
           const data = await res.json()
-          setCategories(data)
-          if (data.length > 0) {
-            setCategoryId(data[0].id)
+          if (Array.isArray(data) && data.length > 0) {
+            // Mevcut veritabanı kategorilerini hazır listeyle birleştir
+            const combined = [...MANUAL_CATEGORIES]
+            data.forEach((dbCat: CategoryItem) => {
+              if (!combined.some(c => c.slug === dbCat.slug || c.id === dbCat.id)) {
+                combined.push(dbCat)
+              }
+            })
+            setCategories(combined)
           }
         }
       } catch (err) {
-        console.error('Kategoriler yüklenemedi:', err)
-      } finally {
-        setCategoriesLoading(false)
+        console.error('Kategori senkronizasyon:', err)
       }
     }
-    loadCategories()
+    syncExistingCategories()
   }, [])
 
   const handleNameChange = (value: string) => {
@@ -62,8 +71,14 @@ export default function NewProductPage() {
     setLoading(true)
     setError('')
 
-    if (!categoryId) {
-      setError('Lütfen bir kategori seçin.')
+    const selectedCat = categories.find(c => c.id === categoryId)
+    const effectiveCategoryId = isCustomCategory ? customCategoryName.trim() : categoryId
+    const effectiveCategoryName = isCustomCategory 
+      ? customCategoryName.trim() 
+      : (selectedCat ? selectedCat.name : categoryId)
+
+    if (!effectiveCategoryId) {
+      setError('Lütfen bir kategori seçin veya yeni bir kategori adı yazın.')
       setLoading(false)
       return
     }
@@ -75,7 +90,8 @@ export default function NewProductPage() {
         body: JSON.stringify({
           name,
           slug,
-          categoryId,
+          categoryId: effectiveCategoryId,
+          categoryName: effectiveCategoryName,
           description,
           priceMin: priceMin ? Number(priceMin) : null,
           priceMax: priceMax ? Number(priceMax) : null,
@@ -108,29 +124,63 @@ export default function NewProductPage() {
       <h1 className="text-2xl font-light tracking-wider mb-8">Yeni Ürün Ekle</h1>
 
       <form onSubmit={handleSubmit} className="space-y-8 bg-white rounded-xl p-8 shadow-sm">
-        {/* Kategori Seçimi */}
-        <div>
-          <label className="block text-xs font-light tracking-wider uppercase text-neutral-500 mb-2">
-            Kategori *
-          </label>
-          <select
-            value={categoryId}
-            onChange={e => setCategoryId(e.target.value)}
-            className="w-full border-b border-neutral-300 bg-transparent py-3 text-sm font-light focus:border-black focus:outline-none"
-            required
-          >
-            {categoriesLoading ? (
-              <option value="">Kategoriler yükleniyor...</option>
-            ) : categories.length === 0 ? (
-              <option value="cat-el">Genel Koleksiyon (Varsayılan)</option>
-            ) : (
-              categories.map(cat => (
+        {/* Manuel Kategori Seçimi */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-light tracking-wider uppercase text-neutral-500">
+              Kategori / Siluet *
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                setIsCustomCategory(!isCustomCategory)
+                if (!isCustomCategory) {
+                  setCustomCategoryName('')
+                }
+              }}
+              className="text-xs text-neutral-600 hover:text-black flex items-center gap-1 transition-colors"
+            >
+              <PlusCircle size={13} />
+              {isCustomCategory ? 'Listeden Seç' : '+ Farklı Kategori Yaz'}
+            </button>
+          </div>
+
+          {!isCustomCategory ? (
+            <select
+              value={categoryId}
+              onChange={e => {
+                if (e.target.value === '__custom__') {
+                  setIsCustomCategory(true)
+                } else {
+                  setCategoryId(e.target.value)
+                }
+              }}
+              className="w-full border-b border-neutral-300 bg-transparent py-3 text-sm font-light focus:border-black focus:outline-none"
+              required
+            >
+              {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>
-              ))
-            )}
-          </select>
+              ))}
+              <option value="__custom__">+ Yeni Kategori / Siluet Tanımla...</option>
+            </select>
+          ) : (
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={customCategoryName}
+                onChange={e => setCustomCategoryName(e.target.value)}
+                placeholder="Örn: Mini Bag, Portföy Çanta, Plaj Çantası..."
+                className="w-full border-b border-neutral-400 bg-neutral-50 px-3 py-2.5 text-sm font-light focus:border-black focus:outline-none rounded-t"
+                autoFocus
+                required
+              />
+              <p className="text-xs text-neutral-400">
+                Girdiğiniz kategori otomatik olarak veritabanına kaydedilip ürünle ilişkilendirilecektir.
+              </p>
+            </div>
+          )}
         </div>
 
         <Input

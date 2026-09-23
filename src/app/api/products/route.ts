@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
+import { resolveCategoryId } from '@/lib/category-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,12 +14,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!body.categoryId) {
-      return NextResponse.json(
-        { error: 'Lütfen ürün için bir kategori seçin' },
-        { status: 400 }
-      )
-    }
+    // Resolve or find-or-create category so foreign key never fails
+    const validCategoryId = await resolveCategoryId(body.categoryId, body.categoryName)
 
     // Process images if provided
     const imageList: string[] = Array.isArray(body.images)
@@ -35,7 +33,7 @@ export async function POST(request: NextRequest) {
         priceMax: body.priceMax !== null && body.priceMax !== undefined ? Number(body.priceMax) : null,
         colors: body.colors || [],
         status: body.status || 'ACTIVE',
-        categoryId: body.categoryId,
+        categoryId: validCategoryId,
         featured: Boolean(body.featured),
         images: imageList.length > 0 ? {
           create: imageList.map((url: string, idx: number) => ({
@@ -50,6 +48,14 @@ export async function POST(request: NextRequest) {
         images: true,
       },
     })
+
+    try {
+      revalidatePath('/', 'layout')
+      revalidatePath('/products')
+      revalidatePath('/admin/products')
+    } catch {
+      // ignore
+    }
 
     return NextResponse.json(product, { status: 201 })
   } catch (error: any) {
