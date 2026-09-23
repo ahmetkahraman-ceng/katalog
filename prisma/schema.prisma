@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Product {
+  id           String          @id @default(cuid())
+  name         String
+  slug         String          @unique
+  description  String?
+  priceMin     Decimal?
+  priceMax     Decimal?
+  colors       String[]
+  featured     Boolean         @default(false)
+  status       ProductStatus   @default(ACTIVE)
+  categoryId   String
+  category     Category        @relation(fields: [categoryId], references: [id])
+  images       ProductImage[]
+  inquiryItems InquiryItem[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([featured])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  order     Int      @default(0)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  ARCHIVED
+}
+
+model Inquiry {
+  id           String        @id @default(cuid())
+  customerName String
+  phone        String
+  email        String
+  message      String?
+  status       InquiryStatus @default(NEW)
+  items        InquiryItem[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model InquiryItem {
+  id        String  @id @default(cuid())
+  inquiryId String
+  inquiry   Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([inquiryId])
+  @@index([productId])
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
