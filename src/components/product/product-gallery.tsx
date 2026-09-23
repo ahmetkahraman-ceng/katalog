@@ -125,6 +125,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                   src={image.url}
                   alt={image.alt || `Açı ${index + 1}`}
                   fill
+                  unoptimized={Boolean(image.url.startsWith('data:'))}
                   className="object-cover"
                   sizes="(max-width: 768px) 25vw, 120px"
                 />

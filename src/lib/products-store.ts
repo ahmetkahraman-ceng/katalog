@@ -421,7 +421,7 @@ export async function saveProductToStore(productData: {
   try {
     const { resolveCategoryId } = await import('./category-service')
     const validCatId = await resolveCategoryId(productData.categoryId, categoryName)
-    await prisma.product.create({
+    const dbCreated = await prisma.product.create({
       data: {
         name: productData.name,
         slug: productData.slug,
@@ -441,6 +441,9 @@ export async function saveProductToStore(productData: {
         } : undefined,
       },
     })
+    if (dbCreated?.id) {
+      newProduct.id = dbCreated.id
+    }
   } catch (err) {
     console.warn('DB product creation bypassed or failed, saved to store:', err)
   }
@@ -448,7 +451,7 @@ export async function saveProductToStore(productData: {
   // Always update persistent store
   const current = readLocalStoredProducts()
   // Add to beginning of array
-  const updated = [newProduct, ...current.filter((p) => p.slug !== newProduct.slug)]
+  const updated = [newProduct, ...current.filter((p) => p.slug !== newProduct.slug && p.id !== newProduct.id)]
   persistStoredProducts(updated)
 
   return newProduct
@@ -466,21 +469,47 @@ export async function updateProductInStore(
 
   // Try updating in DB
   try {
-    await prisma.product.update({
-      where: { id },
-      data: {
-        name: partial.name,
-        slug: partial.slug,
-        description: partial.description,
-        priceMin: partial.priceMin !== undefined ? (partial.priceMin ? Number(partial.priceMin) : null) : undefined,
-        priceMax: partial.priceMax !== undefined ? (partial.priceMax ? Number(partial.priceMax) : null) : undefined,
-        colors: partial.colors,
-        status: partial.status as any,
-        featured: partial.featured,
-      },
+    const existingDb = await prisma.product.findFirst({
+      where: { OR: [{ id }, { slug: id }] },
+      select: { id: true },
     })
-  } catch {
-    // ignore DB error
+
+    if (existingDb) {
+      let validCatId: string | undefined = undefined
+      if (partial.categoryId) {
+        const { resolveCategoryId } = await import('./category-service')
+        validCatId = await resolveCategoryId(partial.categoryId, partial.categoryName)
+      }
+
+      await prisma.product.update({
+        where: { id: existingDb.id },
+        data: {
+          name: partial.name,
+          slug: partial.slug,
+          description: partial.description,
+          priceMin: partial.priceMin !== undefined ? (partial.priceMin ? Number(partial.priceMin) : null) : undefined,
+          priceMax: partial.priceMax !== undefined ? (partial.priceMax ? Number(partial.priceMax) : null) : undefined,
+          colors: partial.colors,
+          status: partial.status as any,
+          featured: partial.featured,
+          categoryId: validCatId,
+        },
+      })
+
+      if (partial.images && partial.images.length > 0) {
+        await prisma.productImage.deleteMany({ where: { productId: existingDb.id } })
+        await prisma.productImage.createMany({
+          data: partial.images.map((img, idx) => ({
+            productId: existingDb.id,
+            url: img.url,
+            alt: img.alt || partial.name || 'Çanta Görseli',
+            order: idx,
+          })),
+        })
+      }
+    }
+  } catch (err) {
+    console.warn('DB product update bypassed or failed:', err)
   }
 
   if (existingIdx === -1) {
@@ -504,10 +533,17 @@ export async function updateProductInStore(
  */
 export async function deleteProductFromStore(id: string): Promise<boolean> {
   try {
-    await prisma.productImage.deleteMany({ where: { productId: id } })
-    await prisma.product.delete({ where: { id } })
-  } catch {
-    // ignore DB error
+    const existingDb = await prisma.product.findFirst({
+      where: { OR: [{ id }, { slug: id }] },
+      select: { id: true },
+    })
+    if (existingDb) {
+      await prisma.inquiryItem.deleteMany({ where: { productId: existingDb.id } })
+      await prisma.productImage.deleteMany({ where: { productId: existingDb.id } })
+      await prisma.product.delete({ where: { id: existingDb.id } })
+    }
+  } catch (err) {
+    console.warn('DB product delete bypassed or failed:', err)
   }
 
   const current = readLocalStoredProducts()

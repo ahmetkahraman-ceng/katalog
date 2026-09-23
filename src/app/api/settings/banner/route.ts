@@ -13,7 +13,7 @@ const NO_CACHE_HEADERS = {
 }
 
 export async function GET() {
-  const settings = getSiteSettings()
+  const settings = await getSiteSettings()
   return NextResponse.json(
     {
       announcement: settings.announcement,
@@ -33,9 +33,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { hero, announcement } = body
 
-    const updated = updateSiteSettings({
-      hero: hero ? { ...getSiteSettings().hero, ...hero } : undefined,
-      announcement: announcement ? { ...getSiteSettings().announcement, ...announcement } : undefined,
+    const current = await getSiteSettings()
+    const updated = await updateSiteSettings({
+      hero: hero ? { ...current.hero, ...hero } : undefined,
+      announcement: announcement ? { ...current.announcement, ...announcement } : undefined,
     })
 
     // Instant On-Demand Revalidation

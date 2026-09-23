@@ -5,10 +5,14 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
+const DEFAULT_DATABASE_URL =
+  'postgresql://postgres.gvdigwwufllbmlmxxjdf:159263Ahmetcan@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true'
+
 function createPrismaClient(): PrismaClient {
   const connectionString =
-    process.env.DATABASE_URL ||
-    'postgresql://postgres:postgres@localhost:5432/postgres'
+    process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost')
+      ? process.env.DATABASE_URL
+      : DEFAULT_DATABASE_URL
 
   const adapter = new PrismaPg(connectionString)
   return new PrismaClient({ adapter })

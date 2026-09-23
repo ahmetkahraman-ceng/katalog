@@ -213,6 +213,7 @@ export default async function ProductDetailPage({ params }: Props) {
                           src={relImage}
                           alt={rel.name}
                           fill
+                          unoptimized={Boolean(relImage.startsWith('data:'))}
                           className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                           sizes="(max-width: 640px) 50vw, 25vw"
                         />

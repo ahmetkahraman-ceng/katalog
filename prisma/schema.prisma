@@ -85,3 +85,9 @@ enum InquiryStatus {
   CONTACTED
   CLOSED
 }
+
+model SiteSetting {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}

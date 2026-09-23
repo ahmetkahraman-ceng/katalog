@@ -13,7 +13,7 @@ const NO_CACHE_HEADERS = {
 }
 
 export async function GET() {
-  const settings = getSiteSettings()
+  const settings = await getSiteSettings()
   return NextResponse.json(settings, { headers: NO_CACHE_HEADERS })
 }
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const updated = updateSiteSettings(body)
+    const updated = await updateSiteSettings(body)
 
     // Instant On-Demand Revalidation
     try {

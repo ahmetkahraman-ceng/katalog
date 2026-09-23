@@ -1,0 +1,182 @@
+[
+  {
+    "id": "prod-muenw8ko-oyoz",
+    "name": "weewweew",
+    "slug": "weewweew",
+    "description": "werewrewr",
+    "priceMin": null,
+    "priceMax": null,
+    "colors": [],
+    "featured": true,
+    "status": "ACTIVE",
+    "categoryId": "el-cantasi",
+    "category": {
+      "id": "el-cantasi",
+      "name": "El Çantası & Tote",
+      "slug": "el-cantasi"
+    },
+    "images": [
+      {
+        "id": "img-1790201741928-0",
+        "url": "/uploads/localhost-admin-inquiries_1790201736036_auf44.png",
+        "alt": "weewweew",
+        "order": 0
+      }
+    ],
+    "createdAt": "2026-09-23T22:15:41.928Z",
+    "updatedAt": "2026-09-23T22:15:41.928Z"
+  },
+  {
+    "id": "prod-el-minimal",
+    "name": "Atelier Minimal Deri El Çantası",
+    "slug": "atelier-minimal-deri-el-cantasi",
+    "description": "İtalyan dana derisinden üretilmiş, zarif dikiş detayları ve minimalist formuyla öne çıkan el çantası.\n\nÖzellikler:\n- %100 Hakiki Deri\n- Manyetik kilit mekanizması\n- Çıkarılabilir omuz askısı\n- İç fermuarlı cep",
+    "priceMin": 3500,
+    "priceMax": 4800,
+    "colors": [
+      "Siyah",
+      "Kahverengi",
+      "Bej"
+    ],
+    "featured": true,
+    "status": "ACTIVE",
+    "categoryId": "el-cantasi",
+    "category": {
+      "id": "el-cantasi",
+      "name": "El Çantası & Tote",
+      "slug": "el-cantasi"
+    },
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1591561954557-26941169b49e?q=80&w=1000&auto=format&fit=crop",
+        "alt": "Atelier Minimal Deri El Çantası Ön Görünüm",
+        "order": 0
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop",
+        "alt": "Atelier Minimal Deri El Çantası Detay",
+        "order": 1
+      }
+    ],
+    "createdAt": "2026-09-23T22:15:41.926Z",
+    "updatedAt": "2026-09-23T22:15:41.926Z"
+  },
+  {
+    "id": "prod-el-tote",
+    "name": "Monochrome Geometrik Tote Çanta",
+    "slug": "monochrome-geometrik-tote-canta",
+    "description": "Geniş iç hacmi ve mimari hatlarıyla günlük kullanım ve seyahatler için mükemmel bir seçenek. Birinci sınıf dokulu deri gövde.",
+    "priceMin": 2800,
+    "priceMax": 3600,
+    "colors": [
+      "Siyah",
+      "Beyaz"
+    ],
+    "featured": true,
+    "status": "ACTIVE",
+    "categoryId": "el-cantasi",
+    "category": {
+      "id": "el-cantasi",
+      "name": "El Çantası & Tote",
+      "slug": "el-cantasi"
+    },
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1000&auto=format&fit=crop",
+        "alt": "Monochrome Tote Çanta",
+        "order": 0
+      }
+    ],
+    "createdAt": "2026-09-23T22:15:41.926Z",
+    "updatedAt": "2026-09-23T22:15:41.926Z"
+  },
+  {
+    "id": "prod-sirt-nordic",
+    "name": "Nordic Deri Şehir Sırt Çantası",
+    "slug": "nordic-deri-sehir-sirt-cantasi",
+    "description": "İskandinav estetiğini yansıtan temiz çizgiler. Su geçirmez astar ve 14 inç korumalı laptop bölmesi içerir.",
+    "priceMin": 4200,
+    "priceMax": 5500,
+    "colors": [
+      "Siyah",
+      "Gri",
+      "Lacivert"
+    ],
+    "featured": true,
+    "status": "ACTIVE",
+    "categoryId": "sirt-cantasi",
+    "category": {
+      "id": "sirt-cantasi",
+      "name": "Sırt Çantası",
+      "slug": "sirt-cantasi"
+    },
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=1000&auto=format&fit=crop",
+        "alt": "Nordic Sırt Çantası",
+        "order": 0
+      }
+    ],
+    "createdAt": "2026-09-23T22:15:41.926Z",
+    "updatedAt": "2026-09-23T22:15:41.926Z"
+  },
+  {
+    "id": "prod-evrak-exec",
+    "name": "Executive Slim Evrak Çantası",
+    "slug": "executive-slim-evrak-cantasi",
+    "description": "İnce silüeti ve yüksek dayanımlı deri yapısıyla profesyonellerin tercihi. A4 belgeler ve 15.6 inç bilgisayarlar için ideal.",
+    "priceMin": 5000,
+    "priceMax": 6500,
+    "colors": [
+      "Kahverengi",
+      "Siyah"
+    ],
+    "featured": true,
+    "status": "ACTIVE",
+    "categoryId": "evrak-cantasi",
+    "category": {
+      "id": "evrak-cantasi",
+      "name": "Executive Evrak Çantası",
+      "slug": "evrak-cantasi"
+    },
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=1000&auto=format&fit=crop",
+        "alt": "Executive Evrak Çantası",
+        "order": 0
+      }
+    ],
+    "createdAt": "2026-09-23T22:15:41.926Z",
+    "updatedAt": "2026-09-23T22:15:41.926Z"
+  },
+  {
+    "id": "prod-laptop-metro",
+    "name": "Metropolitan Deri Laptop Kılıf Çanta",
+    "slug": "metropolitan-deri-laptop-kilif-canta",
+    "description": "Hafif, taşınabilir ve dolgulu koruyucu iç katman. Şarj kabloları ve aksesuarlar için ön fermuarlı cep.",
+    "priceMin": 2200,
+    "priceMax": 3100,
+    "colors": [
+      "Siyah",
+      "Lacivert",
+      "Bordo"
+    ],
+    "featured": true,
+    "status": "ACTIVE",
+    "categoryId": "laptop-cantasi",
+    "category": {
+      "id": "laptop-cantasi",
+      "name": "Laptop & Tablet Çantası",
+      "slug": "laptop-cantasi"
+    },
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?q=80&w=1000&auto=format&fit=crop",
+        "alt": "Metropolitan Laptop Çantası",
+        "order": 0
+      }
+    ],
+    "createdAt": "2026-09-23T22:15:41.926Z",
+    "updatedAt": "2026-09-23T22:15:41.926Z"
+  }
+]

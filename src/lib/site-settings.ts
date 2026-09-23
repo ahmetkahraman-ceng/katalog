@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
+import { prisma } from './prisma'
 import {
   SiteSettings,
   DEFAULT_SITE_SETTINGS,
@@ -8,7 +9,7 @@ import {
 
 export * from './site-settings-constants'
 
-// Global in-memory instance to persist across serverless invocations within the warm container
+// Global in-memory instance to persist across serverless invocations within warm container
 const globalWithSettings = globalThis as unknown as {
   __ACTIVE_SITE_SETTINGS__?: SiteSettings
 }
@@ -16,13 +17,34 @@ const globalWithSettings = globalThis as unknown as {
 const LOCAL_SETTINGS_FILE = path.join(process.cwd(), 'src', 'data', 'site-settings.json')
 const TMP_SETTINGS_FILE = path.join(os.tmpdir(), 'site-settings.json')
 
-export function getSiteSettings(): SiteSettings {
-  // 1. Return in-memory cached settings if available
+export async function getSiteSettings(): Promise<SiteSettings> {
+  // 1. Try reading from PostgreSQL database first (single source of truth for Vercel)
+  try {
+    const record = await prisma.siteSetting.findUnique({
+      where: { key: 'site_settings' },
+    })
+    if (record && record.value) {
+      const parsed = JSON.parse(record.value)
+      const merged: SiteSettings = {
+        ...DEFAULT_SITE_SETTINGS,
+        ...parsed,
+        announcement: { ...DEFAULT_SITE_SETTINGS.announcement, ...(parsed.announcement || {}) },
+        hero: { ...DEFAULT_SITE_SETTINGS.hero, ...(parsed.hero || {}) },
+        atelier: { ...DEFAULT_SITE_SETTINGS.atelier, ...(parsed.atelier || {}) },
+      }
+      globalWithSettings.__ACTIVE_SITE_SETTINGS__ = merged
+      return merged
+    }
+  } catch (dbErr) {
+    console.warn('Prisma getSiteSettings error, falling back to cache/file:', dbErr)
+  }
+
+  // 2. Return in-memory cached settings if available
   if (globalWithSettings.__ACTIVE_SITE_SETTINGS__) {
     return globalWithSettings.__ACTIVE_SITE_SETTINGS__
   }
 
-  // 2. Try reading from /tmp/site-settings.json (writable on Vercel AWS Lambda)
+  // 3. Try reading from /tmp/site-settings.json
   try {
     if (fs.existsSync(TMP_SETTINGS_FILE)) {
       const data = fs.readFileSync(TMP_SETTINGS_FILE, 'utf-8')
@@ -41,7 +63,7 @@ export function getSiteSettings(): SiteSettings {
     console.warn('Could not read from tmp settings file:', error)
   }
 
-  // 3. Try reading from local project path (for development)
+  // 4. Try reading from local project path (for development)
   try {
     if (fs.existsSync(LOCAL_SETTINGS_FILE)) {
       const data = fs.readFileSync(LOCAL_SETTINGS_FILE, 'utf-8')
@@ -60,13 +82,13 @@ export function getSiteSettings(): SiteSettings {
     console.warn('Could not read from local settings file:', error)
   }
 
-  // 4. Fallback to default constants
+  // 5. Fallback to default constants
   globalWithSettings.__ACTIVE_SITE_SETTINGS__ = DEFAULT_SITE_SETTINGS
   return DEFAULT_SITE_SETTINGS
 }
 
-export function updateSiteSettings(partial: Partial<SiteSettings>): SiteSettings {
-  const current = getSiteSettings()
+export async function updateSiteSettings(partial: Partial<SiteSettings>): Promise<SiteSettings> {
+  const current = await getSiteSettings()
   const updated: SiteSettings = {
     ...current,
     ...partial,
@@ -75,17 +97,28 @@ export function updateSiteSettings(partial: Partial<SiteSettings>): SiteSettings
     atelier: { ...current.atelier, ...(partial.atelier || {}) },
   }
 
-  // ALWAYS update in-memory state FIRST so all subsequent reads are instant and guaranteed
+  // ALWAYS update in-memory state FIRST
   globalWithSettings.__ACTIVE_SITE_SETTINGS__ = updated
 
-  // ALWAYS write to /tmp (fully writable on Vercel serverless environment)
+  // ALWAYS save to PostgreSQL Database (so all Vercel Lambdas share the exact same state)
+  try {
+    await prisma.siteSetting.upsert({
+      where: { key: 'site_settings' },
+      update: { value: JSON.stringify(updated) },
+      create: { key: 'site_settings', value: JSON.stringify(updated) },
+    })
+  } catch (dbErr) {
+    console.warn('Prisma updateSiteSettings upsert failed:', dbErr)
+  }
+
+  // Also write to /tmp
   try {
     fs.writeFileSync(TMP_SETTINGS_FILE, JSON.stringify(updated, null, 2), 'utf-8')
   } catch (error) {
     console.warn('Failed writing settings to tmpdir:', error)
   }
 
-  // Attempt writing to local project directory (safely ignored if Vercel read-only filesystem)
+  // Attempt writing to local project directory
   try {
     const dir = path.dirname(LOCAL_SETTINGS_FILE)
     if (!fs.existsSync(dir)) {
@@ -93,7 +126,7 @@ export function updateSiteSettings(partial: Partial<SiteSettings>): SiteSettings
     }
     fs.writeFileSync(LOCAL_SETTINGS_FILE, JSON.stringify(updated, null, 2), 'utf-8')
   } catch {
-    // Expected on Vercel serverless read-only filesystem (/var/task). Safely ignored.
+    // Expected on Vercel serverless read-only filesystem
   }
 
   return updated
