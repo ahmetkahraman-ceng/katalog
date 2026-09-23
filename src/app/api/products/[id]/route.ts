@@ -37,6 +37,8 @@ export async function PATCH(request: NextRequest, { params }: Props) {
       priceMin: body.priceMin !== undefined ? (body.priceMin ? Number(body.priceMin) : null) : undefined,
       priceMax: body.priceMax !== undefined ? (body.priceMax ? Number(body.priceMax) : null) : undefined,
       colors: body.colors,
+      badge: body.badge !== undefined ? body.badge : undefined,
+      tags: body.tags !== undefined ? body.tags : undefined,
       status: body.status,
       categoryId: body.categoryId,
       categoryName: body.categoryName,
@@ -44,6 +46,9 @@ export async function PATCH(request: NextRequest, { params }: Props) {
       images: Array.isArray(body.images)
         ? body.images.map((url: string, idx: number) => ({ url, order: idx }))
         : undefined,
+      specs: body.specs,
+      examples: body.examples,
+      faqs: body.faqs,
     })
 
     try {

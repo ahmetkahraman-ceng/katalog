@@ -1,6 +1,28 @@
-import type { Product, Category, ProductImage, Inquiry, InquiryItem, ProductStatus, InquiryStatus } from '@prisma/client'
+import type {
+  Product,
+  Category,
+  ProductImage,
+  ProductSpec,
+  ProductExample,
+  ProductFaq,
+  Inquiry,
+  InquiryItem,
+  ProductStatus,
+  InquiryStatus,
+} from '@prisma/client'
 
-export type { Product, Category, ProductImage, Inquiry, InquiryItem, ProductStatus, InquiryStatus }
+export type {
+  Product,
+  Category,
+  ProductImage,
+  ProductSpec,
+  ProductExample,
+  ProductFaq,
+  Inquiry,
+  InquiryItem,
+  ProductStatus,
+  InquiryStatus,
+}
 
 // Product with relations
 export type ProductWithImages = Product & {
@@ -10,6 +32,17 @@ export type ProductWithImages = Product & {
 export type ProductWithCategory = Product & {
   category: Category
   images: ProductImage[]
+  specs?: ProductSpec[]
+  examples?: ProductExample[]
+  faqs?: ProductFaq[]
+}
+
+export type ProductDetail = Product & {
+  category: Category
+  images: ProductImage[]
+  specs: ProductSpec[]
+  examples: ProductExample[]
+  faqs: ProductFaq[]
 }
 
 // Inquiry with relations
@@ -26,6 +59,8 @@ export interface InquiryFormData {
   email: string
   message?: string
   productIds: string[]
+  companyName?: string
+  estimatedQuantity?: string
 }
 
 // Filter types
@@ -34,6 +69,8 @@ export interface ProductFilters {
   colors?: string[]
   priceMin?: number
   priceMax?: number
+  badge?: string
+  search?: string
   page?: number
   limit?: number
 }

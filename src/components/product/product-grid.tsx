@@ -1,13 +1,14 @@
 import { ProductCard } from './product-card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface Product {
   id: string
   name: string
   slug: string
+  description?: string | null
   priceMin?: any
   priceMax?: any
+  badge?: string | null
   images: { url: string; alt?: string | null }[]
 }
 
@@ -35,10 +36,13 @@ export function ProductGrid({ products, onInquiry }: ProductGridProps) {
           id={product.id}
           name={product.name}
           slug={product.slug}
+          description={product.description}
           priceMin={product.priceMin ? Number(product.priceMin) : null}
           priceMax={product.priceMax ? Number(product.priceMax) : null}
           imageUrl={product.images[0]?.url}
+          secondImageUrl={product.images[1]?.url}
           imageAlt={product.images[0]?.alt || undefined}
+          badge={product.badge}
           onInquiry={onInquiry}
         />
       ))}

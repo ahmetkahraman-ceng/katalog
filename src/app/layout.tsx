@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   description: 'El çantası, sırt çantası, laptop çantası ve evrak çantası koleksiyonumuzu keşfedin. Teklif almak için bizimle iletişime geçin.',
 }
 
+import { RootProviders } from '@/components/providers/root-providers'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="tr" data-scroll-behavior="smooth">
       <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+        <RootProviders>{children}</RootProviders>
       </body>
     </html>
   )

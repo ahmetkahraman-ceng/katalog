@@ -11,6 +11,27 @@ export interface StoredProductImage {
   order?: number
 }
 
+export interface StoredProductSpec {
+  id?: string
+  specKey: string
+  specValue: string
+  sortOrder?: number
+}
+
+export interface StoredProductExample {
+  id?: string
+  imageUrl: string
+  title?: string | null
+  sortOrder?: number
+}
+
+export interface StoredProductFaq {
+  id?: string
+  question: string
+  answer: string
+  sortOrder?: number
+}
+
 export interface StoredProduct {
   id: string
   name: string
@@ -19,6 +40,8 @@ export interface StoredProduct {
   priceMin?: number | null
   priceMax?: number | null
   colors: string[]
+  badge?: string | null // "Yeni", "Popüler", "Sınırlı Stok"
+  tags?: string[]
   featured: boolean
   status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
   categoryId: string
@@ -28,66 +51,87 @@ export interface StoredProduct {
     slug: string
   }
   images: StoredProductImage[]
+  specs?: StoredProductSpec[]
+  examples?: StoredProductExample[]
+  faqs?: StoredProductFaq[]
   createdAt: string
   updatedAt: string
 }
 
-// Initial curated luxury bag catalog
+// Initial curated luxury bag catalog with H&M/Zara & Promozone B2B specs, examples, and faqs
 export const INITIAL_PRODUCTS: StoredProduct[] = [
   {
     id: 'prod-el-minimal',
-    name: 'Atelier Minimal Deri El Çantası',
-    slug: 'atelier-minimal-deri-el-cantasi',
+    name: 'Ham Pamuklu Kurumsal Tote Bez Çanta',
+    slug: 'ham-pamuklu-kurumsal-tote-bez-canta',
     description:
-      'İtalyan dana derisinden üretilmiş, zarif dikiş detayları ve minimalist formuyla öne çıkan el çantası.\n\nÖzellikler:\n- %100 Hakiki Deri\n- Manyetik kilit mekanizması\n- Çıkarılabilir omuz askısı\n- İç fermuarlı cep',
-    priceMin: 3500,
-    priceMax: 4800,
-    colors: ['Siyah', 'Kahverengi', 'Bej'],
+      'Geniş iç hacmi, güçlendirilmiş kulpları ve doğal pamuk dokusu ile şirket etkinlikleri, fuarlar ve kurumsal hediyeler için mükemmel bir seçenek.\n\nÖzellikler:\n- %100 Doğal Ham Pamuk (140 gr/m²)\n- Çift dikiş takviyeli taşıma sapları\n- İki yönlü yüksek çözünürlüklü serigrafi veya DTF baskı imkanı',
+    priceMin: 35,
+    priceMax: 65,
+    colors: ['Ham Bej', 'Siyah', 'Lacivert'],
+    badge: 'Popüler',
+    tags: ['Ham Bez', 'Tote', 'Promosyon Bez Çanta', 'Fuar Çantası'],
     featured: true,
     status: 'ACTIVE',
     categoryId: 'el-cantasi',
     category: {
       id: 'el-cantasi',
-      name: 'El Çantası & Tote',
+      name: 'Bez Çanta & Tote',
       slug: 'el-cantasi',
     },
     images: [
       {
         url: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?q=80&w=1000&auto=format&fit=crop',
-        alt: 'Atelier Minimal Deri El Çantası Ön Görünüm',
+        alt: 'Ham Pamuklu Bez Çanta Ön Görünüm',
         order: 0,
       },
       {
-        url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
-        alt: 'Atelier Minimal Deri El Çantası Detay',
+        url: 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=1000&auto=format&fit=crop',
+        alt: 'Ham Pamuklu Bez Çanta Detay ve Dikiş',
         order: 1,
       },
     ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prod-el-tote',
-    name: 'Monochrome Geometrik Tote Çanta',
-    slug: 'monochrome-geometrik-tote-canta',
-    description:
-      'Geniş iç hacmi ve mimari hatlarıyla günlük kullanım ve seyahatler için mükemmel bir seçenek. Birinci sınıf dokulu deri gövde.',
-    priceMin: 2800,
-    priceMax: 3600,
-    colors: ['Siyah', 'Beyaz'],
-    featured: true,
-    status: 'ACTIVE',
-    categoryId: 'el-cantasi',
-    category: {
-      id: 'el-cantasi',
-      name: 'El Çantası & Tote',
-      slug: 'el-cantasi',
-    },
-    images: [
+    specs: [
+      { specKey: 'Kumaş Türü', specValue: '%100 Doğal Ham Pamuk (140 gr/m²)', sortOrder: 0 },
+      { specKey: 'Ölçüler', specValue: '35 x 40 cm (Tabansız veya Körüklü opsiyon)', sortOrder: 1 },
+      { specKey: 'Taşıma Kapasitesi', specValue: '10 - 12 kg', sortOrder: 2 },
+      { specKey: 'Askı / Kulp Tipi', specValue: '70 cm omuz askılı, çapraz takviyeli dikiş', sortOrder: 3 },
+      { specKey: 'Baskı Seçenekleri', specValue: 'Serigrafi, DTF Transfer, Nakış veya Transfer Baskı', sortOrder: 4 },
+      { specKey: 'Minimum Sipariş', specValue: '100 Adet (Baskılı)', sortOrder: 5 },
+      { specKey: 'Termin Süresi', specValue: '5 - 7 İş Günü', sortOrder: 6 },
+    ],
+    examples: [
       {
-        url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1000&auto=format&fit=crop',
-        alt: 'Monochrome Tote Çanta',
-        order: 0,
+        imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=600&auto=format&fit=crop',
+        title: 'Örnek 2 Renk Serigrafi Uygulama',
+        sortOrder: 0,
+      },
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=600&auto=format&fit=crop',
+        title: 'Kurumsal Kongre Baskısı',
+        sortOrder: 1,
+      },
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=600&auto=format&fit=crop',
+        title: 'Renkli DTF Transfer Baskı',
+        sortOrder: 2,
+      },
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600&auto=format&fit=crop',
+        title: 'Özel Kulp ve Etiket İmalatı',
+        sortOrder: 3,
+      },
+    ],
+    faqs: [
+      {
+        question: 'Ham bez çantanın gramaj seçenekleri nelerdir?',
+        answer: 'Standart olarak 140 gr/m² ham bez kullanmaktayız. Talep üzerine 220 gr gabardin veya 320 gr kanvas kumaş seçeneklerimiz de mevcuttur.',
+        sortOrder: 0,
+      },
+      {
+        question: 'Yıkandığında çekme yapar mı?',
+        answer: '%100 doğal pamuk olduğu için 30 derecede elde veya hassas yıkama önerilir. Yüksek sıcaklıkta kurutma yapılmamalıdır.',
+        sortOrder: 1,
       },
     ],
     createdAt: new Date().toISOString(),
@@ -95,13 +139,15 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
   },
   {
     id: 'prod-sirt-nordic',
-    name: 'Nordic Deri Şehir Sırt Çantası',
-    slug: 'nordic-deri-sehir-sirt-cantasi',
+    name: 'Nordic Korumalı Laptop Sırt Çantası',
+    slug: 'nordic-korumali-laptop-sirt-cantasi',
     description:
-      'İskandinav estetiğini yansıtan temiz çizgiler. Su geçirmez astar ve 14 inç korumalı laptop bölmesi içerir.',
-    priceMin: 4200,
-    priceMax: 5500,
-    colors: ['Siyah', 'Gri', 'Lacivert'],
+      'İskandinav estetiğini yansıtan fonksiyonel ve minimalist şehir sırt çantası. Suya dayanıklı imperteks kumaş, 15.6 inç sünger dolgulu laptop bölmesi ve ergonomik sırt desteği.',
+    priceMin: 280,
+    priceMax: 420,
+    colors: ['Siyah', 'Antrasit Gri', 'Lacivert'],
+    badge: 'Yeni',
+    tags: ['Sırt Çantası', 'Laptop', 'Promosyon Sırt Çantası', 'Su Geçirmez'],
     featured: true,
     status: 'ACTIVE',
     categoryId: 'sirt-cantasi',
@@ -113,8 +159,41 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
     images: [
       {
         url: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=1000&auto=format&fit=crop',
-        alt: 'Nordic Sırt Çantası',
+        alt: 'Nordic Sırt Çantası Ön Görünüm',
         order: 0,
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
+        alt: 'Nordic Sırt Çantası İç Bölme ve Sırt Desteği',
+        order: 1,
+      },
+    ],
+    specs: [
+      { specKey: 'Kumaş / Dış Malzeme', specValue: '600D Su Geçirmez İmperteks Kumaş', sortOrder: 0 },
+      { specKey: 'İç Hacim & Kapasite', specValue: '18 Litre (15.6 inç Laptop uyumlu)', sortOrder: 1 },
+      { specKey: 'Fermuar & Aksesuar', specValue: 'Tip 8 Kaliteli Metal Başlıklı Fermuar', sortOrder: 2 },
+      { specKey: 'Bölmeler', specValue: 'Ana bölme, ön fermuarlı cep, 2 yan matara cebi', sortOrder: 3 },
+      { specKey: 'Baskı Seçenekleri', specValue: 'Kauçuk Etiket, Nakış, Reflektörlü Baskı veya Serigrafi', sortOrder: 4 },
+      { specKey: 'Minimum Sipariş', specValue: '50 Adet', sortOrder: 5 },
+      { specKey: 'Termin Süresi', specValue: '7 - 10 İş Günü', sortOrder: 6 },
+    ],
+    examples: [
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600&auto=format&fit=crop',
+        title: 'Kauçuk Logo Uygulaması',
+        sortOrder: 0,
+      },
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=600&auto=format&fit=crop',
+        title: 'Şirket Çalışanlarına Özel Nakış',
+        sortOrder: 1,
+      },
+    ],
+    faqs: [
+      {
+        question: 'Yağmurda su geçirir mi?',
+        answer: 'Dış imperteks kumaşı ve içindeki su itici astarı sayesinde yoğun yağış hariç günlük su sıçramalarına ve yağmura karşı tam koruma sağlar.',
+        sortOrder: 0,
       },
     ],
     createdAt: new Date().toISOString(),
@@ -122,13 +201,15 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
   },
   {
     id: 'prod-evrak-exec',
-    name: 'Executive Slim Evrak Çantası',
-    slug: 'executive-slim-evrak-cantasi',
+    name: 'Executive Seminer & Evrak Çantası',
+    slug: 'executive-seminer-evrak-cantasi',
     description:
-      'İnce silüeti ve yüksek dayanımlı deri yapısıyla profesyonellerin tercihi. A4 belgeler ve 15.6 inç bilgisayarlar için ideal.',
-    priceMin: 5000,
-    priceMax: 6500,
-    colors: ['Kahverengi', 'Siyah'],
+      'İnce silüeti, sünger destekli koruyucu gövdesi ve ayarlanabilir omuz askısı ile kongre, seminer ve yönetim kurulu toplantıları için tasarlanmış kurumsal evrak çantası.',
+    priceMin: 180,
+    priceMax: 310,
+    colors: ['Siyah', 'Koyu Gri'],
+    badge: 'Popüler',
+    tags: ['Evrak Çantası', 'Seminer', 'Kongre', 'Kurumsal'],
     featured: true,
     status: 'ACTIVE',
     categoryId: 'evrak-cantasi',
@@ -143,19 +224,33 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
         alt: 'Executive Evrak Çantası',
         order: 0,
       },
+      {
+        url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1000&auto=format&fit=crop',
+        alt: 'Executive Evrak Çantası Yan ve İç Cep',
+        order: 1,
+      },
+    ],
+    specs: [
+      { specKey: 'Malzeme', specValue: 'Lüks Keten Dokulu Su İtici Kumaş', sortOrder: 0 },
+      { specKey: 'Ölçüler', specValue: '39 x 29 x 6 cm (A4 ve 14 inç uyumlu)', sortOrder: 1 },
+      { specKey: 'İç Yapı', specValue: 'Darbeye dayanıklı 8mm eva sünger destekli astar', sortOrder: 2 },
+      { specKey: 'Baskı Alanı', specValue: 'Ön kapak merkez (12 x 8 cm logo alanı)', sortOrder: 3 },
+      { specKey: 'Minimum Sipariş', specValue: '50 Adet', sortOrder: 4 },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'prod-laptop-metro',
-    name: 'Metropolitan Deri Laptop Kılıf Çanta',
-    slug: 'metropolitan-deri-laptop-kilif-canta',
+    name: 'Metropolitan Dolgulu Laptop Kılıf Çanta',
+    slug: 'metropolitan-dolgulu-laptop-kilif-canta',
     description:
-      'Hafif, taşınabilir ve dolgulu koruyucu iç katman. Şarj kabloları ve aksesuarlar için ön fermuarlı cep.',
-    priceMin: 2200,
-    priceMax: 3100,
-    colors: ['Siyah', 'Lacivert', 'Bordo'],
+      'Hafif, taşınabilir ve dolgulu koruyucu iç katman. Şarj adaptörü, mouse ve kablolar için ön fermuarlı ek aksesuar cebi.',
+    priceMin: 140,
+    priceMax: 240,
+    colors: ['Siyah', 'Bej', 'Füme'],
+    badge: 'Sınırlı Stok',
+    tags: ['Laptop', 'Kılıf', 'Promosyon Laptop', 'Süngerli'],
     featured: true,
     status: 'ACTIVE',
     categoryId: 'laptop-cantasi',
@@ -170,6 +265,17 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
         alt: 'Metropolitan Laptop Çantası',
         order: 0,
       },
+      {
+        url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
+        alt: 'Metropolitan Laptop Çantası İç Yumuşak Astar',
+        order: 1,
+      },
+    ],
+    specs: [
+      { specKey: 'Malzeme', specValue: 'Neopren & Su Geçirmez Kumaş Kombinasyonu', sortOrder: 0 },
+      { specKey: 'Ölçü Uyumluluğu', specValue: '13.3 inç - 14.1 inç ve 15.6 inç alternatifler', sortOrder: 1 },
+      { specKey: 'İç Kaplama', specValue: 'Çizilmez kadife peluş iç koruma', sortOrder: 2 },
+      { specKey: 'Minimum Sipariş', specValue: '50 Adet', sortOrder: 3 },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -253,6 +359,9 @@ export async function getAllProducts(): Promise<StoredProduct[]> {
       include: {
         category: true,
         images: { orderBy: { order: 'asc' } },
+        specs: { orderBy: { sortOrder: 'asc' } },
+        examples: { orderBy: { sortOrder: 'asc' } },
+        faqs: { orderBy: { sortOrder: 'asc' } },
       },
       orderBy: { createdAt: 'desc' },
     })
@@ -266,6 +375,8 @@ export async function getAllProducts(): Promise<StoredProduct[]> {
         priceMin: p.priceMin ? Number(p.priceMin) : null,
         priceMax: p.priceMax ? Number(p.priceMax) : null,
         colors: p.colors || [],
+        badge: (p as any).badge || null,
+        tags: (p as any).tags || [],
         featured: Boolean(p.featured),
         status: p.status as 'ACTIVE' | 'DRAFT' | 'ARCHIVED',
         categoryId: p.categoryId,
@@ -282,6 +393,24 @@ export async function getAllProducts(): Promise<StoredProduct[]> {
           alt: img.alt,
           order: img.order,
         })),
+        specs: (p as any).specs?.map((s: any) => ({
+          id: s.id,
+          specKey: s.specKey,
+          specValue: s.specValue,
+          sortOrder: s.sortOrder,
+        })) || [],
+        examples: (p as any).examples?.map((e: any) => ({
+          id: e.id,
+          imageUrl: e.imageUrl,
+          title: e.title,
+          sortOrder: e.sortOrder,
+        })) || [],
+        faqs: (p as any).faqs?.map((f: any) => ({
+          id: f.id,
+          question: f.question,
+          answer: f.answer,
+          sortOrder: f.sortOrder,
+        })) || [],
         createdAt: p.createdAt.toISOString(),
         updatedAt: p.updatedAt.toISOString(),
       }))
@@ -305,6 +434,9 @@ export async function getProductByIdOrSlug(idOrSlug: string): Promise<StoredProd
       include: {
         category: true,
         images: { orderBy: { order: 'asc' } },
+        specs: { orderBy: { sortOrder: 'asc' } },
+        examples: { orderBy: { sortOrder: 'asc' } },
+        faqs: { orderBy: { sortOrder: 'asc' } },
       },
     })
 
@@ -317,6 +449,8 @@ export async function getProductByIdOrSlug(idOrSlug: string): Promise<StoredProd
         priceMin: p.priceMin ? Number(p.priceMin) : null,
         priceMax: p.priceMax ? Number(p.priceMax) : null,
         colors: p.colors || [],
+        badge: (p as any).badge || null,
+        tags: (p as any).tags || [],
         featured: Boolean(p.featured),
         status: p.status as 'ACTIVE' | 'DRAFT' | 'ARCHIVED',
         categoryId: p.categoryId,
@@ -333,6 +467,24 @@ export async function getProductByIdOrSlug(idOrSlug: string): Promise<StoredProd
           alt: img.alt,
           order: img.order,
         })),
+        specs: (p as any).specs?.map((s: any) => ({
+          id: s.id,
+          specKey: s.specKey,
+          specValue: s.specValue,
+          sortOrder: s.sortOrder,
+        })) || [],
+        examples: (p as any).examples?.map((e: any) => ({
+          id: e.id,
+          imageUrl: e.imageUrl,
+          title: e.title,
+          sortOrder: e.sortOrder,
+        })) || [],
+        faqs: (p as any).faqs?.map((f: any) => ({
+          id: f.id,
+          question: f.question,
+          answer: f.answer,
+          sortOrder: f.sortOrder,
+        })) || [],
         createdAt: p.createdAt.toISOString(),
         updatedAt: p.updatedAt.toISOString(),
       }
@@ -377,11 +529,16 @@ export async function saveProductToStore(productData: {
   priceMin?: number | null
   priceMax?: number | null
   colors?: string[]
+  badge?: string | null
+  tags?: string[]
   featured?: boolean
   status?: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
   categoryId: string
   categoryName?: string
   images: string[]
+  specs?: { specKey: string; specValue: string; sortOrder?: number }[]
+  examples?: { imageUrl: string; title?: string | null; sortOrder?: number }[]
+  faqs?: { question: string; answer: string; sortOrder?: number }[]
 }): Promise<StoredProduct> {
   const newId = `prod-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
   const matchedCategory = MANUAL_CATEGORIES.find(
@@ -399,6 +556,8 @@ export async function saveProductToStore(productData: {
     priceMin: productData.priceMin || null,
     priceMax: productData.priceMax || null,
     colors: productData.colors || [],
+    badge: productData.badge || null,
+    tags: productData.tags || [],
     featured: Boolean(productData.featured),
     status: productData.status || 'ACTIVE',
     categoryId: productData.categoryId,
@@ -413,6 +572,9 @@ export async function saveProductToStore(productData: {
       alt: productData.name,
       order: idx,
     })),
+    specs: productData.specs || [],
+    examples: productData.examples || [],
+    faqs: productData.faqs || [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
@@ -429,6 +591,8 @@ export async function saveProductToStore(productData: {
         priceMin: productData.priceMin !== null && productData.priceMin !== undefined ? Number(productData.priceMin) : null,
         priceMax: productData.priceMax !== null && productData.priceMax !== undefined ? Number(productData.priceMax) : null,
         colors: productData.colors || [],
+        badge: productData.badge || null,
+        tags: productData.tags || [],
         status: (productData.status as any) || 'ACTIVE',
         categoryId: validCatId,
         featured: Boolean(productData.featured),
@@ -437,6 +601,27 @@ export async function saveProductToStore(productData: {
             url,
             alt: productData.name,
             order: idx,
+          })),
+        } : undefined,
+        specs: productData.specs && productData.specs.length > 0 ? {
+          create: productData.specs.map((s, idx) => ({
+            specKey: s.specKey,
+            specValue: s.specValue,
+            sortOrder: s.sortOrder ?? idx,
+          })),
+        } : undefined,
+        examples: productData.examples && productData.examples.length > 0 ? {
+          create: productData.examples.map((e, idx) => ({
+            imageUrl: e.imageUrl,
+            title: e.title || null,
+            sortOrder: e.sortOrder ?? idx,
+          })),
+        } : undefined,
+        faqs: productData.faqs && productData.faqs.length > 0 ? {
+          create: productData.faqs.map((f, idx) => ({
+            question: f.question,
+            answer: f.answer,
+            sortOrder: f.sortOrder ?? idx,
           })),
         } : undefined,
       },
@@ -450,7 +635,6 @@ export async function saveProductToStore(productData: {
 
   // Always update persistent store
   const current = readLocalStoredProducts()
-  // Add to beginning of array
   const updated = [newProduct, ...current.filter((p) => p.slug !== newProduct.slug && p.id !== newProduct.id)]
   persistStoredProducts(updated)
 
@@ -490,6 +674,8 @@ export async function updateProductInStore(
           priceMin: partial.priceMin !== undefined ? (partial.priceMin ? Number(partial.priceMin) : null) : undefined,
           priceMax: partial.priceMax !== undefined ? (partial.priceMax ? Number(partial.priceMax) : null) : undefined,
           colors: partial.colors,
+          badge: partial.badge,
+          tags: partial.tags,
           status: partial.status as any,
           featured: partial.featured,
           categoryId: validCatId,
@@ -506,6 +692,48 @@ export async function updateProductInStore(
             order: idx,
           })),
         })
+      }
+
+      if (partial.specs) {
+        await prisma.productSpec.deleteMany({ where: { productId: existingDb.id } })
+        if (partial.specs.length > 0) {
+          await prisma.productSpec.createMany({
+            data: partial.specs.map((s, idx) => ({
+              productId: existingDb.id,
+              specKey: s.specKey,
+              specValue: s.specValue,
+              sortOrder: s.sortOrder ?? idx,
+            })),
+          })
+        }
+      }
+
+      if (partial.examples) {
+        await prisma.productExample.deleteMany({ where: { productId: existingDb.id } })
+        if (partial.examples.length > 0) {
+          await prisma.productExample.createMany({
+            data: partial.examples.map((e, idx) => ({
+              productId: existingDb.id,
+              imageUrl: e.imageUrl,
+              title: e.title || null,
+              sortOrder: e.sortOrder ?? idx,
+            })),
+          })
+        }
+      }
+
+      if (partial.faqs) {
+        await prisma.productFaq.deleteMany({ where: { productId: existingDb.id } })
+        if (partial.faqs.length > 0) {
+          await prisma.productFaq.createMany({
+            data: partial.faqs.map((f, idx) => ({
+              productId: existingDb.id,
+              question: f.question,
+              answer: f.answer,
+              sortOrder: f.sortOrder ?? idx,
+            })),
+          })
+        }
       }
     }
   } catch (err) {
@@ -538,8 +766,11 @@ export async function deleteProductFromStore(id: string): Promise<boolean> {
       select: { id: true },
     })
     if (existingDb) {
-      await prisma.inquiryItem.deleteMany({ where: { productId: existingDb.id } })
-      await prisma.productImage.deleteMany({ where: { productId: existingDb.id } })
+      await prisma.productSpec.deleteMany({ where: { productId: existingDb.id } }).catch(() => {})
+      await prisma.productExample.deleteMany({ where: { productId: existingDb.id } }).catch(() => {})
+      await prisma.productFaq.deleteMany({ where: { productId: existingDb.id } }).catch(() => {})
+      await prisma.inquiryItem.deleteMany({ where: { productId: existingDb.id } }).catch(() => {})
+      await prisma.productImage.deleteMany({ where: { productId: existingDb.id } }).catch(() => {})
       await prisma.product.delete({ where: { id: existingDb.id } })
     }
   } catch (err) {

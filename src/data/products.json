@@ -1,32 +1,5 @@
 [
   {
-    "id": "prod-muenw8ko-oyoz",
-    "name": "weewweew",
-    "slug": "weewweew",
-    "description": "werewrewr",
-    "priceMin": null,
-    "priceMax": null,
-    "colors": [],
-    "featured": true,
-    "status": "ACTIVE",
-    "categoryId": "el-cantasi",
-    "category": {
-      "id": "el-cantasi",
-      "name": "El Çantası & Tote",
-      "slug": "el-cantasi"
-    },
-    "images": [
-      {
-        "id": "img-1790201741928-0",
-        "url": "/uploads/localhost-admin-inquiries_1790201736036_auf44.png",
-        "alt": "weewweew",
-        "order": 0
-      }
-    ],
-    "createdAt": "2026-09-23T22:15:41.928Z",
-    "updatedAt": "2026-09-23T22:15:41.928Z"
-  },
-  {
     "id": "prod-el-minimal",
     "name": "Atelier Minimal Deri El Çantası",
     "slug": "atelier-minimal-deri-el-cantasi",

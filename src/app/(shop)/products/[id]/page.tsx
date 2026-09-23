@@ -1,11 +1,13 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
-import { ProductGallery } from '@/components/product/product-gallery'
-import { InquiryModal } from '@/components/inquiry/inquiry-modal'
-import { formatPriceRange } from '@/lib/utils'
-import { ArrowRight, Check } from 'lucide-react'
+import { ArrowRight, Check, ShieldCheck } from 'lucide-react'
 import { getProductByIdOrSlug, getAllProducts } from '@/lib/products-store'
+import { ProductGallery } from '@/components/product/product-gallery'
+import { ProductExamples } from '@/components/product/product-examples'
+import { ProductTabs } from '@/components/product/product-tabs'
+import { ProductDetailActions } from '@/components/product/product-detail-actions'
+import { ProductGrid } from '@/components/product/product-grid'
+import { formatPriceRange } from '@/lib/utils'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -16,8 +18,8 @@ export async function generateMetadata({ params }: Props) {
   const product = await getProductByIdOrSlug(id)
   if (!product) return { title: 'Ürün Bulunamadı' }
   return {
-    title: `${product.name} | ÇANTA Atölye Koleksiyonu`,
-    description: product.description || `${product.name} detayları ve teklif formu.`,
+    title: `${product.name} | ÇANTA Kurumsal Toptan Koleksiyonu`,
+    description: product.description || `${product.name} özellikleri ve kurumsal toptan teklif formu.`,
   }
 }
 
@@ -27,45 +29,52 @@ export default async function ProductDetailPage({ params }: Props) {
   const product = await getProductByIdOrSlug(id)
   if (!product) notFound()
 
-  // Related products from store
+  // Related products from same category
   const all = await getAllProducts()
   const relatedProducts = all
-    .filter((p) => p.id !== product.id && p.status === 'ACTIVE')
+    .filter((p) => p.id !== product.id && p.status === 'ACTIVE' && p.categoryId === product.categoryId)
     .slice(0, 4)
 
-  const categoryName = product.category?.name || 'Koleksiyon'
+  const fallbackRelated = relatedProducts.length > 0
+    ? relatedProducts
+    : all.filter((p) => p.id !== product.id && p.status === 'ACTIVE').slice(0, 4)
+
+  const categoryName = product.category?.name || 'Çanta Koleksiyonu'
   const categorySlug = product.category?.slug || 'el-cantasi'
+  const formattedPrice = formatPriceRange(
+    product.priceMin ? Number(product.priceMin) : null,
+    product.priceMax ? Number(product.priceMax) : null
+  )
 
   return (
-    <div className="w-full bg-[#f9f9f8] min-h-screen">
-      {/* Minimalist Top Breadcrumb Bar */}
-      <div className="w-full border-b border-neutral-200 bg-neutral-100/70 px-4 sm:px-6 lg:px-12 py-3 flex items-center justify-between text-[11px] font-light tracking-widest uppercase">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-neutral-500">
-          <Link href="/" className="hover:text-black transition-colors">
-            KOLEKSİYON
-          </Link>
-          <span>/</span>
-          <Link
-            href={`/categories/${categorySlug}`}
-            className="hover:text-black transition-colors"
-          >
-            {categoryName}
-          </Link>
-          <span>/</span>
-          <span className="text-black font-normal">{product.name}</span>
-        </nav>
-        <div className="hidden md:flex items-center gap-4 text-neutral-400">
-          <span>ATÖLYE SERİSİ</span>
-          <span className="w-1 h-1 rounded-full bg-black inline-block"></span>
-          <span className="text-black">{categoryName}</span>
+    <div className="w-full bg-[#faf8f5] min-h-screen pb-20">
+      {/* Editorial Breadcrumb Bar */}
+      <div className="w-full border-b border-neutral-200/80 bg-white/70 px-4 sm:px-6 lg:px-12 py-3 text-[11px] font-light tracking-widest uppercase">
+        <div className="max-w-[1440px] mx-auto flex items-center justify-between">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-neutral-500">
+            <Link href="/" className="hover:text-black transition-colors">
+              ANA SAYFA
+            </Link>
+            <span>/</span>
+            <Link href={`/categories/${categorySlug}`} className="hover:text-black transition-colors">
+              {categoryName}
+            </Link>
+            <span>/</span>
+            <span className="text-black font-normal">{product.name}</span>
+          </nav>
+
+          <div className="hidden md:flex items-center gap-3 text-neutral-400">
+            <span>MODEL REF: CNTA-{product.slug.slice(0, 4).toUpperCase()}</span>
+          </div>
         </div>
       </div>
 
-      {/* Main Showcase Container */}
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-8 lg:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-          {/* Sol Kolon: Fotoğraf Galerisi (7 Kolon) */}
+      {/* Main Product Showcase */}
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 pt-8 lg:pt-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
+          {/* Sol Kolon: Büyük Galeri + Altında Örnek Çalışmalar (7 Kolon) */}
           <div className="lg:col-span-7">
+            {/* Fotoğraf Galerisi */}
             <ProductGallery
               images={product.images.map((img: any) => ({
                 url: img.url,
@@ -73,190 +82,124 @@ export default async function ProductDetailPage({ params }: Props) {
               }))}
               productName={product.name}
             />
+
+            {/* Fotoğraf Galerisinin Altında Örnek Çalışmalar Bölümü */}
+            <ProductExamples
+              examples={product.examples || []}
+              productName={product.name}
+            />
           </div>
 
-          {/* Sağ Kolon: Ürün Detayları & Teklif İste (5 Kolon - Sticky) */}
-          <div className="lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-28">
-            {/* Header Bilgisi */}
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-light tracking-[0.2em] uppercase text-neutral-400">
-                  REF: CNTA-{product.slug.slice(0, 4).toUpperCase()}
+          {/* Sağ Kolon: Ürün Detayları & Teklif Kutusu (5 Kolon - Sticky) */}
+          <div className="lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-28 bg-white p-6 sm:p-8 border border-neutral-200/80 shadow-2xs">
+            {/* Rozet ve Model Kodu */}
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono tracking-widest uppercase text-neutral-400">
+                REF: CNTA-{product.slug.slice(0, 4).toUpperCase()}
+              </span>
+
+              {product.badge ? (
+                <span className="px-2.5 py-0.5 text-[10px] font-medium tracking-widest uppercase bg-black text-white">
+                  {product.badge}
                 </span>
-                <span className="text-[10px] tracking-widest uppercase bg-neutral-200 text-neutral-800 px-2 py-0.5 font-light">
+              ) : (
+                <span className="px-2.5 py-0.5 text-[10px] font-light tracking-widest uppercase bg-neutral-100 text-neutral-700">
                   {categoryName}
                 </span>
-              </div>
+              )}
+            </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extralight tracking-[0.1em] uppercase text-black leading-tight mt-1">
+            {/* Ürün Başlığı & Kısa Açıklama */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-light tracking-[0.08em] uppercase text-black leading-tight">
                 {product.name}
               </h1>
 
               {product.description && (
-                <p className="text-sm font-light text-neutral-600 leading-relaxed whitespace-pre-line mt-2">
+                <p className="text-xs sm:text-sm font-light text-neutral-600 leading-relaxed mt-2.5">
                   {product.description}
                 </p>
               )}
             </div>
 
-            {/* Tahmini Birim Fiyat Aralığı Kartı */}
-            <div className="p-5 bg-white border border-neutral-200/80 shadow-xs flex flex-col gap-1.5">
-              <div className="flex items-baseline justify-between text-[11px] tracking-widest uppercase text-neutral-400">
-                <span>TAHMİNİ BİRİM FİYAT ARALIĞI</span>
+            {/* Fiyat Aralığı Kartı */}
+            <div className="p-4 bg-[#faf8f5] border border-neutral-200/60 flex flex-col gap-1">
+              <div className="flex items-baseline justify-between text-[10px] tracking-widest uppercase text-neutral-400">
+                <span>TOPTAN BİRİM FİYAT ARALIĞI</span>
                 <span>KDV HARİÇ</span>
               </div>
-
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-light tracking-tight text-black">
-                  {formatPriceRange(
-                    product.priceMin ? Number(product.priceMin) : null,
-                    product.priceMax ? Number(product.priceMax) : null
-                  )}
+                  {formattedPrice}
                 </span>
                 <span className="text-xs text-neutral-400 font-light">/ Adet</span>
               </div>
-
-              <p className="text-[11px] text-neutral-400 font-light leading-relaxed mt-1 border-t border-neutral-100 pt-2">
-                * Kesin fiyat; talep edilen adet, kurumsal logo/baskı ve deri türüne göre resmi teklif mektubunda iletilir.
+              <p className="text-[10px] text-neutral-400 font-light pt-1 border-t border-neutral-200/50">
+                * Kesin fiyat; talep edilen adet, logo baskı türü ve kumaş gramajına göre teklif formunda sunulur.
               </p>
             </div>
 
-            {/* Renk Seçenekleri */}
-            {product.colors && product.colors.length > 0 && (
-              <div className="flex flex-col gap-2.5">
-                <span className="text-[11px] tracking-[0.2em] uppercase text-neutral-400 font-light">
-                  RENK SEÇENEKLERİ
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {product.colors.map((color: string) => (
-                    <span
-                      key={color}
-                      className="px-3.5 py-1.5 text-xs font-light tracking-wider bg-white border border-neutral-300 text-neutral-800"
-                    >
-                      {color}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Client Interactive Actions: Colors, Quantity, Add to Quote, WhatsApp */}
+            <ProductDetailActions
+              productId={product.id}
+              productName={product.name}
+              productSlug={product.slug}
+              productImage={product.images?.[0]?.url}
+              priceRange={formattedPrice}
+              colors={product.colors}
+            />
 
-            {/* Özellikler Maddeleri */}
-            <div className="space-y-2 py-2 border-y border-neutral-200 text-xs font-light text-neutral-600">
+            {/* Kurumsal Güvence Maddeleri */}
+            <div className="pt-4 border-t border-neutral-100 space-y-2 text-xs font-light text-neutral-600">
               <div className="flex items-center gap-2">
                 <Check size={14} className="text-black shrink-0" />
-                <span>Birinci sınıf tabaklanmış hakiki dana derisi</span>
+                <span>Minimum 50 adetten başlayan kurumsal seri imalat</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check size={14} className="text-black shrink-0" />
-                <span>El boyaması kenarlar ve güçlendirilmiş dikişler</span>
+                <span>Üretim öncesi ücretsiz 3D dijital logo önizlemesi (Mock-up)</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check size={14} className="text-black shrink-0" />
-                <span>Kurumsal toptan siparişlerde özel logo kabartma imkanı</span>
+                <ShieldCheck size={14} className="text-black shrink-0" />
+                <span>Dayanıklı dikiş, kaliteli astar ve kumaş garantisi</span>
               </div>
             </div>
 
-            {/* Birincil Aksiyon Butonu - TEKLİF İSTE (Sepete Ekle KESİNLİKLE YOK) */}
-            <div className="pt-2">
-              <InquiryModal
-                productId={product.id}
-                productName={product.name}
-                productImage={product.images?.[0]?.url}
-                productRef={`REF: CNTA-${product.slug.slice(0, 4).toUpperCase()}`}
-              />
-            </div>
-
-            {/* Bilgilendirme Notu */}
-            <p className="text-[11px] font-light text-neutral-400 leading-relaxed text-center">
-              Bu bir e-ticaret sitesi değildir. Satın alma, toptan üretim ve numune talepleriniz için lütfen teklif formumuzu doldurun.
+            <p className="text-[11px] font-light text-neutral-400 text-center leading-relaxed">
+              Bu bir e-ticaret sitesi değildir. Toptan ve kurumsal talepleriniz için lütfen teklif listesine ekleyin veya formu doldurun.
             </p>
           </div>
         </div>
 
-        {/* 🌟 İSTENEN ÖZELLİK: BENZER ÇANTALAR / TAMAMLAYICI PARÇALAR */}
-        {relatedProducts.length > 0 && (
+        {/* 3-SEKMELİ ALAN: Ürün Açıklaması • Ürün Özellikleri • SSS */}
+        <ProductTabs
+          description={product.description}
+          specs={product.specs}
+          faqs={product.faqs}
+        />
+
+        {/* BENZER ÜRÜNLER (Aynı Kategoriden 4 Ürün) */}
+        {fallbackRelated.length > 0 && (
           <section className="mt-20 lg:mt-28 pt-12 border-t border-neutral-200">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-neutral-200 gap-4">
               <div>
                 <span className="text-[11px] font-light tracking-[0.25em] uppercase text-neutral-400 block">
-                  TAMAMLAYICI PARÇALAR
+                  ALTERNATİF SEÇENEKLER
                 </span>
                 <h2 className="text-xl sm:text-2xl font-light tracking-[0.15em] uppercase text-black mt-1">
-                  BENZER MODELLER
+                  BENZER ÇANTA MODELLERİ
                 </h2>
               </div>
               <Link
                 href={`/categories/${categorySlug}`}
-                className="text-xs font-light tracking-widest uppercase text-black hover:text-neutral-500 transition-colors underline flex items-center gap-1"
+                className="text-xs font-light tracking-widest uppercase text-black hover:text-neutral-500 transition-colors flex items-center gap-1"
               >
-                TÜM {categoryName.toUpperCase()} MODELLERİ
-                <ArrowRight size={14} />
+                <span>TÜM {categoryName.toUpperCase()} MODELLERİ</span>
+                <ArrowRight size={13} />
               </Link>
             </div>
 
-            {/* Benzer Ürünler Izgarası (4 Kolon) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-              {relatedProducts.map((rel: any) => {
-                const relImage = rel.images?.[0]?.url
-                return (
-                  <div
-                    key={rel.id}
-                    className="group flex flex-col bg-white p-3 border border-neutral-200/80 shadow-xs hover:border-black transition-all duration-300"
-                  >
-                    {/* Görsel & Kategori Etiketi */}
-                    <Link
-                      href={`/products/${rel.slug}`}
-                      className="block relative aspect-[3/4] w-full overflow-hidden bg-neutral-100 mb-3"
-                    >
-                      {relImage ? (
-                        <Image
-                          src={relImage}
-                          alt={rel.name}
-                          fill
-                          unoptimized={Boolean(relImage.startsWith('data:'))}
-                          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                          sizes="(max-width: 640px) 50vw, 25vw"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-neutral-300">
-                          ÇANTA
-                        </div>
-                      )}
-
-                      <span className="absolute top-2 right-2 bg-black text-white text-[9px] font-light tracking-widest px-2 py-0.5 uppercase">
-                        {rel.category.name}
-                      </span>
-                    </Link>
-
-                    {/* Bilgiler */}
-                    <div className="flex flex-col gap-1 flex-1 justify-between">
-                      <div>
-                        <Link href={`/products/${rel.slug}`}>
-                          <h3 className="text-xs sm:text-sm font-light tracking-wider uppercase text-black hover:text-neutral-600 transition-colors line-clamp-1">
-                            {rel.name}
-                          </h3>
-                        </Link>
-                        <p className="text-[11px] font-light text-neutral-500 mt-0.5">
-                          {formatPriceRange(
-                            rel.priceMin ? Number(rel.priceMin) : null,
-                            rel.priceMax ? Number(rel.priceMax) : null
-                          )}
-                        </p>
-                      </div>
-
-                      {/* Teklif İste Butonu */}
-                      <Link
-                        href={`/products/${rel.slug}`}
-                        className="mt-3 w-full py-2 px-3 bg-neutral-100 hover:bg-black hover:text-white text-black text-[11px] font-light tracking-widest uppercase transition-colors flex items-center justify-between"
-                      >
-                        <span>İNCELE & TEKLİF AL</span>
-                        <ArrowRight size={12} />
-                      </Link>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            <ProductGrid products={fallbackRelated} />
           </section>
         )}
       </div>

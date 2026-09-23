@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       ? [body.imageUrl.trim()]
       : []
 
-    // Save product into unified hybrid store (DB + local/tmp persistence)
+    // Save product into unified store (DB + local persistence)
     const product = await saveProductToStore({
       name: body.name,
       slug: body.slug,
@@ -37,11 +37,16 @@ export async function POST(request: NextRequest) {
       priceMin: body.priceMin !== null && body.priceMin !== undefined ? Number(body.priceMin) : null,
       priceMax: body.priceMax !== null && body.priceMax !== undefined ? Number(body.priceMax) : null,
       colors: body.colors || [],
+      badge: body.badge || null,
+      tags: body.tags || [],
       featured: Boolean(body.featured),
       status: body.status || 'ACTIVE',
       categoryId: body.categoryId,
       categoryName: body.categoryName,
       images: imageList,
+      specs: body.specs || [],
+      examples: body.examples || [],
+      faqs: body.faqs || [],
     })
 
     try {
@@ -70,12 +75,15 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const products = await getAllProducts()
-    return NextResponse.json(products, {
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-      },
-    })
+    return NextResponse.json(
+      { products },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    )
   } catch {
-    return NextResponse.json([], { status: 200 })
+    return NextResponse.json({ products: [] }, { status: 200 })
   }
 }

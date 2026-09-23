@@ -19,21 +19,26 @@ model Category {
 }
 
 model Product {
-  id           String          @id @default(cuid())
+  id           String           @id @default(cuid())
   name         String
-  slug         String          @unique
+  slug         String           @unique
   description  String?
   priceMin     Decimal?
   priceMax     Decimal?
   colors       String[]
-  featured     Boolean         @default(false)
-  status       ProductStatus   @default(ACTIVE)
+  badge        String?          // "Yeni", "Popüler", "Sınırlı Stok" vb.
+  tags         String[]         @default([])
+  featured     Boolean          @default(false)
+  status       ProductStatus    @default(ACTIVE)
   categoryId   String
-  category     Category        @relation(fields: [categoryId], references: [id])
+  category     Category         @relation(fields: [categoryId], references: [id])
   images       ProductImage[]
+  specs        ProductSpec[]
+  examples     ProductExample[]
+  faqs         ProductFaq[]
   inquiryItems InquiryItem[]
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 
   @@index([categoryId])
   @@index([status])
@@ -47,6 +52,39 @@ model ProductImage {
   order     Int      @default(0)
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductSpec {
+  id        String  @id @default(cuid())
+  specKey   String
+  specValue String
+  sortOrder Int     @default(0)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductExample {
+  id        String  @id @default(cuid())
+  imageUrl  String
+  title     String?
+  sortOrder Int     @default(0)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductFaq {
+  id        String  @id @default(cuid())
+  question  String
+  answer    String
+  sortOrder Int     @default(0)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
 }

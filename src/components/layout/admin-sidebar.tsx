@@ -30,32 +30,19 @@ interface NavGroup {
 
 const navGroups: NavGroup[] = [
   {
-    groupTitle: 'GENEL BAKIŞ',
-    items: [{ href: '/admin', label: 'GENEL BAKIŞ', icon: LayoutDashboard }],
-  },
-  {
-    groupTitle: 'ENVANTER & KATALOG',
+    groupTitle: 'YÖNETİM',
     items: [
-      { href: '/admin/products', label: 'ÇANTA MODELLERİ', icon: Package },
-      { href: '/admin/categories', label: 'KATEGORİLER & SİLÜET', icon: FolderOpen },
+      { href: '/admin/products', label: 'ÜRÜNLER', icon: Package },
+      { href: '/admin/inquiries', label: 'TALEPLER', icon: MessageSquare, hasBadge: true },
+      { href: '/admin/settings', label: 'AYARLAR', icon: Settings },
     ],
   },
   {
-    groupTitle: 'MÜŞTERİ & TALEPLER',
+    groupTitle: 'DİĞER',
     items: [
-      {
-        href: '/admin/inquiries',
-        label: 'GELEN TEKLİFLER',
-        icon: MessageSquare,
-        hasBadge: true,
-      },
-    ],
-  },
-  {
-    groupTitle: 'VİTRİN & YAPILANDIRMA',
-    items: [
+      { href: '/admin', label: 'GENEL BAKIŞ', icon: LayoutDashboard },
+      { href: '/admin/categories', label: 'KATEGORİLER', icon: FolderOpen },
       { href: '/admin/banner', label: 'VİTRİN & BANNER', icon: Sliders },
-      { href: '/admin/settings', label: 'ATÖLYE AYARLARI', icon: Settings },
     ],
   },
 ]
