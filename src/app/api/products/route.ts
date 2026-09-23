@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/prisma'
-import { resolveCategoryId } from '@/lib/category-service'
+import { saveProductToStore, getAllProducts } from '@/lib/products-store'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,45 +15,44 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Resolve or find-or-create category so foreign key never fails
-    const validCategoryId = await resolveCategoryId(body.categoryId, body.categoryName)
+    if (!body.categoryId) {
+      return NextResponse.json(
+        { error: 'Lütfen bir kategori seçin' },
+        { status: 400 }
+      )
+    }
 
-    // Process images if provided
+    // Process images
     const imageList: string[] = Array.isArray(body.images)
       ? body.images.filter((url: string) => Boolean(url?.trim()))
       : body.imageUrl?.trim()
       ? [body.imageUrl.trim()]
       : []
 
-    const product = await prisma.product.create({
-      data: {
-        name: body.name,
-        slug: body.slug,
-        description: body.description || null,
-        priceMin: body.priceMin !== null && body.priceMin !== undefined ? Number(body.priceMin) : null,
-        priceMax: body.priceMax !== null && body.priceMax !== undefined ? Number(body.priceMax) : null,
-        colors: body.colors || [],
-        status: body.status || 'ACTIVE',
-        categoryId: validCategoryId,
-        featured: Boolean(body.featured),
-        images: imageList.length > 0 ? {
-          create: imageList.map((url: string, idx: number) => ({
-            url,
-            alt: body.name,
-            order: idx,
-          })),
-        } : undefined,
-      },
-      include: {
-        category: true,
-        images: true,
-      },
+    // Save product into unified hybrid store (DB + local/tmp persistence)
+    const product = await saveProductToStore({
+      name: body.name,
+      slug: body.slug,
+      description: body.description || null,
+      priceMin: body.priceMin !== null && body.priceMin !== undefined ? Number(body.priceMin) : null,
+      priceMax: body.priceMax !== null && body.priceMax !== undefined ? Number(body.priceMax) : null,
+      colors: body.colors || [],
+      featured: Boolean(body.featured),
+      status: body.status || 'ACTIVE',
+      categoryId: body.categoryId,
+      categoryName: body.categoryName,
+      images: imageList,
     })
 
     try {
       revalidatePath('/', 'layout')
+      revalidatePath('/')
       revalidatePath('/products')
       revalidatePath('/admin/products')
+      revalidatePath('/admin')
+      if (product.category?.slug) {
+        revalidatePath(`/categories/${product.category.slug}`)
+      }
     } catch {
       // ignore
     }
@@ -60,12 +60,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(product, { status: 201 })
   } catch (error: any) {
     console.error('Product creation error:', error)
-    if (error.code === 'P2002') {
-      return NextResponse.json(
-        { error: 'Bu slug ile zaten bir ürün mevcut. Lütfen farklı bir slug veya isim deneyin.' },
-        { status: 400 }
-      )
-    }
     return NextResponse.json(
       { error: error.message || 'Ürün oluşturulamadı' },
       { status: 500 }
@@ -75,14 +69,12 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const products = await prisma.product.findMany({
-      include: {
-        category: true,
-        images: { orderBy: { order: 'asc' } },
+    const products = await getAllProducts()
+    return NextResponse.json(products, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
       },
-      orderBy: { createdAt: 'desc' },
     })
-    return NextResponse.json(products)
   } catch {
     return NextResponse.json([], { status: 200 })
   }

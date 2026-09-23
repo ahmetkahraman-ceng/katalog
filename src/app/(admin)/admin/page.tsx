@@ -3,25 +3,21 @@ import { Package, MessageSquare, FolderOpen, Bell, ArrowUpRight, CheckCircle, Sp
 import Link from 'next/link'
 import { DashboardRecentTables } from '@/components/admin/dashboard-recent-tables'
 import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
+import { getAllProducts } from '@/lib/products-store'
 
 export const dynamic = 'force-dynamic'
 
 async function getDashboardData() {
+  const allProducts = await getAllProducts()
+  const activeProducts = allProducts.filter((p) => p.status === 'ACTIVE').length
+  const draftProducts = allProducts.filter((p) => p.status === 'DRAFT').length
+
+  let totalInquiries = 0
+  let newInquiries = 0
+  let recentInquiries: any[] = []
+
   try {
-    const [
-      totalProducts,
-      activeProducts,
-      draftProducts,
-      categoryCount,
-      totalInquiries,
-      newInquiries,
-      recentInquiries,
-      recentProducts,
-    ] = await Promise.all([
-      prisma.product.count(),
-      prisma.product.count({ where: { status: 'ACTIVE' } }),
-      prisma.product.count({ where: { status: 'DRAFT' } }),
-      prisma.category.count(),
+    const [dbTotalInquiries, dbNewInquiries, dbRecentInquiries] = await Promise.all([
       prisma.inquiry.count(),
       prisma.inquiry.count({ where: { status: 'NEW' } }),
       prisma.inquiry.findMany({
@@ -35,61 +31,44 @@ async function getDashboardData() {
           },
         },
       }),
-      prisma.product.findMany({
-        take: 6,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          category: { select: { name: true } },
-          images: { orderBy: { order: 'asc' }, take: 1, select: { url: true } },
-        },
-      }),
     ])
-
-    const safeCategoryCount = categoryCount > 0 ? categoryCount : MANUAL_CATEGORIES.length
-
-    return {
-      stats: {
-        totalProducts,
-        activeProducts,
-        draftProducts,
-        categoryCount: safeCategoryCount,
-        totalInquiries,
-        newInquiries,
-      },
-      recentInquiries: recentInquiries.map((inq) => ({
-        id: inq.id,
-        customerName: inq.customerName,
-        phone: inq.phone,
-        email: inq.email,
-        status: inq.status as 'NEW' | 'CONTACTED' | 'CLOSED',
-        createdAt: inq.createdAt.toISOString(),
-        items: inq.items.map((i) => ({
-          product: { name: i.product.name },
-        })),
+    totalInquiries = dbTotalInquiries
+    newInquiries = dbNewInquiries
+    recentInquiries = dbRecentInquiries.map((inq) => ({
+      id: inq.id,
+      customerName: inq.customerName,
+      phone: inq.phone,
+      email: inq.email,
+      status: inq.status as 'NEW' | 'CONTACTED' | 'CLOSED',
+      createdAt: inq.createdAt.toISOString(),
+      items: inq.items.map((i) => ({
+        product: { name: i.product.name },
       })),
-      recentProducts: recentProducts.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        status: p.status as 'ACTIVE' | 'DRAFT' | 'ARCHIVED',
-        category: p.category ? { name: p.category.name } : undefined,
-        images: p.images.map((img) => ({ url: img.url })),
-      })),
-    }
-  } catch (error) {
-    console.error('Dashboard data fetch error:', error)
-    return {
-      stats: {
-        totalProducts: 0,
-        activeProducts: 0,
-        draftProducts: 0,
-        categoryCount: MANUAL_CATEGORIES.length,
-        totalInquiries: 0,
-        newInquiries: 0,
-      },
-      recentInquiries: [],
-      recentProducts: [],
-    }
+    }))
+  } catch {
+    // Inquiries offline or empty
+  }
+
+  const recentProducts = allProducts.slice(0, 6).map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    status: p.status,
+    category: p.category ? { name: p.category.name } : undefined,
+    images: p.images.map((img) => ({ url: img.url })),
+  }))
+
+  return {
+    stats: {
+      totalProducts: allProducts.length,
+      activeProducts,
+      draftProducts,
+      categoryCount: MANUAL_CATEGORIES.length,
+      totalInquiries,
+      newInquiries,
+    },
+    recentInquiries,
+    recentProducts,
   }
 }
 
@@ -102,7 +81,7 @@ export default async function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/80 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
             <span className="text-[10px] font-mono tracking-[0.25em] text-neutral-400 uppercase">
               CANLI ATELIER KONTROL MERKEZİ
             </span>
@@ -115,33 +94,32 @@ export default async function AdminDashboardPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/admin/products/new"
-            className="px-4 py-2 bg-black text-white text-xs font-light tracking-widest uppercase hover:bg-neutral-800 transition-colors inline-flex items-center gap-1.5 shadow-xs"
+            className="px-4 py-2.5 bg-black hover:bg-neutral-800 text-white text-xs font-light tracking-wider uppercase transition-colors inline-flex items-center gap-2 shadow-xs cursor-pointer"
           >
-            <span>+</span>
-            Yeni Model Ekle
+            <span>+ Yeni Model Ekle</span>
           </Link>
           <Link
             href="/admin/inquiries"
-            className="px-4 py-2 bg-white text-black border border-neutral-300 text-xs font-light tracking-widest uppercase hover:border-black transition-colors inline-flex items-center gap-1.5"
+            className="px-4 py-2.5 bg-white border border-neutral-200 hover:border-black text-black text-xs font-light tracking-wider uppercase transition-colors inline-flex items-center gap-1.5"
           >
-            Tüm Talepler ({stats.newInquiries} Yeni)
+            <span>Tüm Talepler ({stats.newInquiries} Yeni)</span>
           </Link>
         </div>
       </div>
 
       {/* 4 Ana Metrik Kartı */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        {/* 1. Bekleyen Teklif Talepleri */}
-        <div className="bg-white border border-neutral-200/80 p-6 rounded-sm relative overflow-hidden group hover:border-black/40 transition-colors shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono tracking-[0.2em] text-amber-700 uppercase font-semibold">
-              BEKLEYEN TALEPLER
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Bekleyen Talepler */}
+        <div className="bg-white border border-neutral-200/80 p-5 rounded-sm shadow-2xs hover:border-neutral-300 transition-colors">
+          <div className="flex items-center justify-between text-neutral-400 mb-3">
+            <span className="text-[11px] font-mono tracking-wider uppercase">
+              Bekleyen Talepler
             </span>
-            <div className="p-2 bg-amber-50 text-amber-700 rounded-sm">
-              <Bell size={16} />
+            <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Bell size={15} />
             </div>
           </div>
-          <div className="mt-4 flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2">
             <span className="text-3xl font-light tracking-tight text-black font-serif">
               {stats.newInquiries}
             </span>
@@ -149,106 +127,104 @@ export default async function AdminDashboardPage() {
               / {stats.totalInquiries} Toplam
             </span>
           </div>
-          <p className="text-[11px] text-neutral-500 font-light mt-2 flex items-center justify-between">
-            <span>İletişime geçilmeyi bekliyor</span>
+          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-light">
+            <span className="text-neutral-500">İletişime geçilmeyi bekliyor</span>
             <Link
               href="/admin/inquiries"
-              className="text-black font-medium hover:underline inline-flex items-center"
+              className="text-black hover:underline flex items-center gap-1"
             >
-              Görüntüle <ArrowUpRight size={11} className="ml-0.5" />
+              <span>Görüntüle</span>
+              <ArrowUpRight size={12} />
             </Link>
-          </p>
+          </div>
         </div>
 
-        {/* 2. Aktif Katalog Ürünleri */}
-        <div className="bg-white border border-neutral-200/80 p-6 rounded-sm relative overflow-hidden group hover:border-black/40 transition-colors shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase">
-              VİTRİNDEKİ MODELLER
+        {/* Vitrindeki Modeller */}
+        <div className="bg-white border border-neutral-200/80 p-5 rounded-sm shadow-2xs hover:border-neutral-300 transition-colors">
+          <div className="flex items-center justify-between text-neutral-400 mb-3">
+            <span className="text-[11px] font-mono tracking-wider uppercase">
+              Vitrindeki Modeller
             </span>
-            <div className="p-2 bg-emerald-50 text-emerald-700 rounded-sm">
-              <CheckCircle size={16} />
+            <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <CheckCircle size={15} />
             </div>
           </div>
-          <div className="mt-4 flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2">
             <span className="text-3xl font-light tracking-tight text-black font-serif">
               {stats.activeProducts}
             </span>
-            <span className="text-xs text-neutral-400 font-light">
-              Aktif Çanta
-            </span>
+            <span className="text-xs text-neutral-400 font-light">Aktif Çanta</span>
           </div>
-          <p className="text-[11px] text-neutral-500 font-light mt-2 flex items-center justify-between">
-            <span>{stats.draftProducts} model taslakta bekliyor</span>
+          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-light">
+            <span className="text-neutral-500">{stats.draftProducts} model taslakta bekliyor</span>
             <Link
               href="/admin/products"
-              className="text-black font-medium hover:underline inline-flex items-center"
+              className="text-black hover:underline flex items-center gap-1"
             >
-              Envanter <ArrowUpRight size={11} className="ml-0.5" />
+              <span>Envanter</span>
+              <ArrowUpRight size={12} />
             </Link>
-          </p>
+          </div>
         </div>
 
-        {/* 3. Toplam Model / Arşiv */}
-        <div className="bg-white border border-neutral-200/80 p-6 rounded-sm relative overflow-hidden group hover:border-black/40 transition-colors shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase">
-              TOPLAM KOLEKSİYON
+        {/* Toplam Koleksiyon */}
+        <div className="bg-white border border-neutral-200/80 p-5 rounded-sm shadow-2xs hover:border-neutral-300 transition-colors">
+          <div className="flex items-center justify-between text-neutral-400 mb-3">
+            <span className="text-[11px] font-mono tracking-wider uppercase">
+              Toplam Koleksiyon
             </span>
-            <div className="p-2 bg-neutral-100 text-neutral-700 rounded-sm">
-              <Package size={16} />
+            <div className="w-8 h-8 rounded-full bg-neutral-100 text-neutral-600 flex items-center justify-center">
+              <Package size={15} />
             </div>
           </div>
-          <div className="mt-4 flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2">
             <span className="text-3xl font-light tracking-tight text-black font-serif">
               {stats.totalProducts}
             </span>
-            <span className="text-xs text-neutral-400 font-light">
-              Tasarım
-            </span>
+            <span className="text-xs text-neutral-400 font-light">Tasarım</span>
           </div>
-          <p className="text-[11px] text-neutral-500 font-light mt-2 flex items-center justify-between">
-            <span>Özel üretim & silüetler</span>
+          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-light">
+            <span className="text-neutral-500">Özel üretim & silüetler</span>
             <Link
               href="/admin/products/new"
-              className="text-black font-medium hover:underline inline-flex items-center"
+              className="text-black hover:underline flex items-center gap-1"
             >
-              Yeni Ekle <ArrowUpRight size={11} className="ml-0.5" />
+              <span>Yeni Ekle</span>
+              <ArrowUpRight size={12} />
             </Link>
-          </p>
+          </div>
         </div>
 
-        {/* 4. Kategoriler & Koleksiyonlar */}
-        <div className="bg-white border border-neutral-200/80 p-6 rounded-sm relative overflow-hidden group hover:border-black/40 transition-colors shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase">
-              SİLÜET VE KATEGORİ
+        {/* Silüet & Kategori */}
+        <div className="bg-white border border-neutral-200/80 p-5 rounded-sm shadow-2xs hover:border-neutral-300 transition-colors">
+          <div className="flex items-center justify-between text-neutral-400 mb-3">
+            <span className="text-[11px] font-mono tracking-wider uppercase">
+              Silüet ve Kategori
             </span>
-            <div className="p-2 bg-neutral-100 text-neutral-700 rounded-sm">
-              <FolderOpen size={16} />
+            <div className="w-8 h-8 rounded-full bg-neutral-100 text-neutral-600 flex items-center justify-center">
+              <FolderOpen size={15} />
             </div>
           </div>
-          <div className="mt-4 flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2">
             <span className="text-3xl font-light tracking-tight text-black font-serif">
               {stats.categoryCount}
             </span>
-            <span className="text-xs text-neutral-400 font-light">
-              Silüet Grubu
-            </span>
+            <span className="text-xs text-neutral-400 font-light">Silüet Grubu</span>
           </div>
-          <p className="text-[11px] text-neutral-500 font-light mt-2 flex items-center justify-between">
-            <span>Tote, Crossbody, Clutch vb.</span>
+          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-light">
+            <span className="text-neutral-500">Tote, Crossbody, Clutch vb.</span>
             <Link
               href="/admin/categories"
-              className="text-black font-medium hover:underline inline-flex items-center"
+              className="text-black hover:underline flex items-center gap-1"
             >
-              Yönet <ArrowUpRight size={11} className="ml-0.5" />
+              <span>Yönet</span>
+              <ArrowUpRight size={12} />
             </Link>
-          </p>
+          </div>
         </div>
       </div>
 
-      {/* İnteraktif Tablolar: Son Talepler (1-tık durum değişimi) & Son Eklenen Modeller */}
+      {/* Son Talepler ve Son Eklenen Modeller */}
       <DashboardRecentTables
         initialInquiries={recentInquiries}
         initialProducts={recentProducts}

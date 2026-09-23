@@ -1,8 +1,8 @@
-import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { ProductGrid } from '@/components/product/product-grid'
 import { ProductFilters } from '@/components/product/product-filters'
 import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
+import { getProductsByCategory } from '@/lib/products-store'
 import { Sparkles, MessageCircle, FileText, ArrowRight } from 'lucide-react'
 
 interface Props {
@@ -24,99 +24,54 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params
   const search = await searchParams
 
-  // 1. Try DB lookup first, fallback cleanly to MANUAL_CATEGORIES (never crashes)
-  let category: { id: string; name: string; slug: string; description?: string | null } | null = null
-  try {
-    category = await prisma.category.findUnique({ where: { slug } })
-  } catch {
-    category = null
-  }
-
-  if (!category) {
-    const matched = MANUAL_CATEGORIES.find(c => c.slug === slug || c.id === slug)
-    if (matched) {
-      category = {
+  const matched = MANUAL_CATEGORIES.find(c => c.slug === slug || c.id === slug)
+  const category = matched
+    ? {
         id: matched.id,
         name: matched.name,
         slug: matched.slug,
-        description: `${matched.name} siluetinde geleneksel deri işçiliği ile üretilen koleksiyonumuz.`,
+        description: `${matched.name} siluetinde geleneksel saraç ve deri işçiliği ile üretilen modellerimiz.`,
       }
-    } else {
-      const formattedName = slug
-        .split('-')
-        .map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1))
-        .join(' ')
-      category = {
+    : {
         id: slug,
-        name: formattedName,
-        slug: slug,
-        description: `${formattedName} serisi deri çanta koleksiyonu.`,
+        name: slug
+          .split('-')
+          .map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1))
+          .join(' '),
+        slug,
+        description: 'Lüks deri çanta koleksiyonumuz.',
       }
-    }
+
+  // Fetch products from hybrid store (DB or stored models)
+  let products = await getProductsByCategory(slug)
+  if (products.length === 0 && matched) {
+    products = await getProductsByCategory(matched.id)
   }
 
-  const page = Number(search.page) || 1
-  const limit = 12
-  const skip = (page - 1) * limit
-
+  // Filter by color if provided
   const colorFilter = search.color
-    ? Array.isArray(search.color) ? search.color : [search.color]
+    ? Array.isArray(search.color)
+      ? search.color
+      : [search.color]
     : undefined
 
-  let products: any[] = []
-  let total = 0
-  let allColors: string[] = []
-
-  try {
-    const where: any = {
-      OR: [
-        { categoryId: category.id },
-        { category: { slug } },
-      ],
-      status: 'ACTIVE' as const,
-    }
-
-    if (colorFilter) {
-      where.colors = { hasSome: colorFilter }
-    }
-
-    if (search.priceMin || search.priceMax) {
-      where.priceMin = {}
-      if (search.priceMin) where.priceMin.gte = Number(search.priceMin)
-      if (search.priceMax) where.priceMax = { lte: Number(search.priceMax) }
-    }
-
-    const [dbProducts, dbTotal, allProducts] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        include: {
-          images: { orderBy: { order: 'asc' }, take: 1 },
-        },
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.product.count({ where }),
-      prisma.product.findMany({
-        where: {
-          OR: [{ categoryId: category.id }, { category: { slug } }],
-          status: 'ACTIVE',
-        },
-        select: { colors: true },
-      }),
-    ])
-
-    products = dbProducts
-    total = dbTotal
-    allColors = [...new Set(allProducts.flatMap(p => p.colors))]
-  } catch {
-    // Database query failed or table empty, fallback gracefully
-    products = []
-    total = 0
-    allColors = []
+  if (colorFilter && colorFilter.length > 0) {
+    products = products.filter((p) =>
+      p.colors.some((col) => colorFilter.includes(col))
+    )
   }
 
-  const totalPages = Math.ceil(total / limit)
+  // Filter by price
+  if (search.priceMin) {
+    const minVal = Number(search.priceMin)
+    products = products.filter((p) => (p.priceMin ? p.priceMin >= minVal : true))
+  }
+  if (search.priceMax) {
+    const maxVal = Number(search.priceMax)
+    products = products.filter((p) => (p.priceMax ? p.priceMax <= maxVal : true))
+  }
+
+  const allColors = [...new Set(products.flatMap((p) => p.colors))]
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-10 lg:py-16">
@@ -151,25 +106,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           {/* Products */}
           <div className="flex-1">
             <ProductGrid products={products} />
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-16">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <a
-                    key={p}
-                    href={`/categories/${slug}?page=${p}${colorFilter ? colorFilter.map(c => `&color=${c}`).join('') : ''}${search.priceMin ? `&priceMin=${search.priceMin}` : ''}${search.priceMax ? `&priceMax=${search.priceMax}` : ''}`}
-                    className={`px-4 py-2 text-xs font-light tracking-wider ${
-                      p === page
-                        ? 'bg-black text-white'
-                        : 'text-neutral-500 hover:text-black border border-neutral-200 hover:border-black'
-                    } transition-colors`}
-                  >
-                    {p}
-                  </a>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       ) : (

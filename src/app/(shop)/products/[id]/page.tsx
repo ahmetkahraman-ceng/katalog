@@ -1,4 +1,3 @@
-import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -6,6 +5,7 @@ import { ProductGallery } from '@/components/product/product-gallery'
 import { InquiryModal } from '@/components/inquiry/inquiry-modal'
 import { formatPriceRange } from '@/lib/utils'
 import { ArrowRight, Check } from 'lucide-react'
+import { getProductByIdOrSlug, getAllProducts } from '@/lib/products-store'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -13,14 +13,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
-  let product
-  try {
-    product = await prisma.product.findFirst({
-      where: { OR: [{ id }, { slug: id }] },
-    })
-  } catch {
-    return { title: 'Ürün' }
-  }
+  const product = await getProductByIdOrSlug(id)
   if (!product) return { title: 'Ürün Bulunamadı' }
   return {
     title: `${product.name} | ÇANTA Atölye Koleksiyonu`,
@@ -31,59 +24,17 @@ export async function generateMetadata({ params }: Props) {
 export default async function ProductDetailPage({ params }: Props) {
   const { id } = await params
 
-  let product: any = null
-  let relatedProducts: any[] = []
-
-  try {
-    product = await prisma.product.findFirst({
-      where: {
-        OR: [{ id }, { slug: id }],
-        status: 'ACTIVE',
-      },
-      include: {
-        images: { orderBy: { order: 'asc' } },
-        category: true,
-      },
-    })
-
-    if (product) {
-      // Benzer Çantalar: Aynı kategorideki diğer aktif modeller
-      relatedProducts = await prisma.product.findMany({
-        where: {
-          categoryId: product.categoryId,
-          id: { not: product.id },
-          status: 'ACTIVE',
-        },
-        include: {
-          images: { orderBy: { order: 'asc' }, take: 1 },
-          category: true,
-        },
-        take: 4,
-        orderBy: { createdAt: 'desc' },
-      })
-
-      // Eğer aynı kategoride 4'ten az ürün varsa, diğer kategorilerden tamamla
-      if (relatedProducts.length < 4) {
-        const fallbackProducts = await prisma.product.findMany({
-          where: {
-            id: { notIn: [product.id, ...relatedProducts.map(p => p.id)] },
-            status: 'ACTIVE',
-          },
-          include: {
-            images: { orderBy: { order: 'asc' }, take: 1 },
-            category: true,
-          },
-          take: 4 - relatedProducts.length,
-          orderBy: { createdAt: 'desc' },
-        })
-        relatedProducts = [...relatedProducts, ...fallbackProducts]
-      }
-    }
-  } catch (err) {
-    console.error('Veritabanı hatası:', err)
-  }
-
+  const product = await getProductByIdOrSlug(id)
   if (!product) notFound()
+
+  // Related products from store
+  const all = await getAllProducts()
+  const relatedProducts = all
+    .filter((p) => p.id !== product.id && p.status === 'ACTIVE')
+    .slice(0, 4)
+
+  const categoryName = product.category?.name || 'Koleksiyon'
+  const categorySlug = product.category?.slug || 'el-cantasi'
 
   return (
     <div className="w-full bg-[#f9f9f8] min-h-screen">
@@ -95,10 +46,10 @@ export default async function ProductDetailPage({ params }: Props) {
           </Link>
           <span>/</span>
           <Link
-            href={`/categories/${product.category.slug}`}
+            href={`/categories/${categorySlug}`}
             className="hover:text-black transition-colors"
           >
-            {product.category.name}
+            {categoryName}
           </Link>
           <span>/</span>
           <span className="text-black font-normal">{product.name}</span>
@@ -106,7 +57,7 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="hidden md:flex items-center gap-4 text-neutral-400">
           <span>ATÖLYE SERİSİ</span>
           <span className="w-1 h-1 rounded-full bg-black inline-block"></span>
-          <span className="text-black">{product.category.name}</span>
+          <span className="text-black">{categoryName}</span>
         </div>
       </div>
 
@@ -133,7 +84,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   REF: CNTA-{product.slug.slice(0, 4).toUpperCase()}
                 </span>
                 <span className="text-[10px] tracking-widest uppercase bg-neutral-200 text-neutral-800 px-2 py-0.5 font-light">
-                  {product.category.name}
+                  {categoryName}
                 </span>
               </div>
 
@@ -235,10 +186,10 @@ export default async function ProductDetailPage({ params }: Props) {
                 </h2>
               </div>
               <Link
-                href={`/categories/${product.category.slug}`}
+                href={`/categories/${categorySlug}`}
                 className="text-xs font-light tracking-widest uppercase text-black hover:text-neutral-500 transition-colors underline flex items-center gap-1"
               >
-                TÜM {product.category.name.toUpperCase()} MODELLERİ
+                TÜM {categoryName.toUpperCase()} MODELLERİ
                 <ArrowRight size={14} />
               </Link>
             </div>

@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/prisma'
+import { getAllProducts } from '@/lib/products-store'
+import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
 import {
   ProductsManagementTable,
   AdminProductItem,
@@ -8,41 +9,26 @@ import {
 export const dynamic = 'force-dynamic'
 
 export default async function AdminProductsPage() {
-  let products: AdminProductItem[] = []
-  let categories: AdminCategoryItem[] = []
+  const allProducts = await getAllProducts()
 
-  try {
-    const [dbProducts, dbCategories] = await Promise.all([
-      prisma.product.findMany({
-        include: {
-          category: { select: { id: true, name: true } },
-          images: { orderBy: { order: 'asc' }, select: { url: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.category.findMany({
-        orderBy: { order: 'asc' },
-        select: { id: true, name: true, slug: true },
-      }),
-    ])
+  const products: AdminProductItem[] = allProducts.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    status: p.status,
+    priceMin: p.priceMin || null,
+    priceMax: p.priceMax || null,
+    categoryId: p.categoryId,
+    category: p.category ? { id: p.category.id, name: p.category.name } : undefined,
+    images: p.images.map((img) => ({ url: img.url })),
+    createdAt: p.createdAt,
+  }))
 
-    products = dbProducts.map((p) => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      status: p.status as 'ACTIVE' | 'DRAFT' | 'ARCHIVED',
-      priceMin: p.priceMin ? Number(p.priceMin) : null,
-      priceMax: p.priceMax ? Number(p.priceMax) : null,
-      categoryId: p.categoryId,
-      category: p.category,
-      images: p.images,
-      createdAt: p.createdAt.toISOString(),
-    }))
-
-    categories = dbCategories
-  } catch (error) {
-    console.error('Error fetching admin products:', error)
-  }
+  const categories: AdminCategoryItem[] = MANUAL_CATEGORIES.map((c) => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+  }))
 
   return (
     <div className="space-y-6">
@@ -52,7 +38,7 @@ export default async function AdminProductsPage() {
             KATALOG ENVANTER YÖNETİMİ
           </span>
           <h1 className="text-2xl sm:text-3xl font-light tracking-wide uppercase text-black font-serif">
-            Çanta Modelleri
+            Çanta Modelleri ({products.length})
           </h1>
         </div>
       </div>
