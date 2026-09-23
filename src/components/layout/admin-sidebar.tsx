@@ -11,6 +11,7 @@ import {
   ExternalLink,
   ShieldCheck,
   Plus,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -124,6 +125,20 @@ export function AdminSidebar() {
           </span>
           <span className="text-[10px] text-neutral-400">↗</span>
         </Link>
+
+        <button
+          onClick={async () => {
+            await fetch('/api/admin/logout', { method: 'POST' })
+            window.location.href = '/admin/login'
+          }}
+          className="w-full flex items-center justify-between px-3 py-2 text-xs font-light tracking-wider uppercase text-red-500 hover:text-red-700 hover:bg-red-50/70 rounded-sm transition-colors cursor-pointer"
+        >
+          <span className="flex items-center gap-2">
+            <LogOut size={14} />
+            Güvenli Çıkış
+          </span>
+          <span className="text-[10px] font-mono">EXIT</span>
+        </button>
 
         <div className="flex items-center justify-between pt-2 border-t border-neutral-100 text-[10px] font-mono text-neutral-400">
           <span className="flex items-center gap-1">

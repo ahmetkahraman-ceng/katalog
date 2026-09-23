@@ -1,8 +1,16 @@
 import { AdminSidebar } from '@/components/layout/admin-sidebar'
 import Link from 'next/link'
-import { Plus, ExternalLink, RefreshCw } from 'lucide-react'
+import { Plus, ExternalLink } from 'lucide-react'
+import { redirect } from 'next/navigation'
+import { isAuthenticated } from '@/lib/auth'
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const isAuth = await isAuthenticated()
+
+  if (!isAuth) {
+    redirect('/admin/login')
+  }
+
   return (
     <div className="flex min-h-screen bg-[#f9f9f8] text-[#1a1c1c]">
       <AdminSidebar />
