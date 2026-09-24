@@ -22,41 +22,43 @@ export function SearchSection() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query)}`)
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`)
     }
   }
 
   return (
-    <section className="relative -mt-10 z-10 mx-auto max-w-5xl px-4">
-      <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/5 sm:p-8">
-        <form onSubmit={handleSearch} className="mb-6 flex flex-col gap-4 sm:flex-row">
-          <div className="relative flex-grow">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-              <Search className="h-5 w-5 text-gray-400" />
+    <section className="relative -mt-12 sm:-mt-14 z-20 mx-auto max-w-5xl px-4 sm:px-6">
+      <div className="rounded-3xl bg-white p-5 sm:p-7 shadow-xl border border-neutral-200/90">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-neutral-400">
+              <Search className="h-5 w-5" />
             </div>
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Çanta modeli, rengi veya kullanım alanı arayın..."
-              className="block w-full rounded-xl border-0 py-4 pl-12 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#2d6a4f] sm:text-lg sm:leading-6"
+              placeholder="Model, kumaş türü (kanvas, gabardin, imperteks) veya çanta ara..."
+              className="block w-full rounded-2xl border border-neutral-200 py-3.5 pl-12 pr-4 text-neutral-900 placeholder:text-neutral-400 focus:border-[#2d6a4f] focus:outline-hidden focus:ring-2 focus:ring-[#2d6a4f]/20 text-sm sm:text-base bg-neutral-50 hover:bg-white focus:bg-white transition-all"
             />
           </div>
           <button
             type="submit"
-            className="flex items-center justify-center rounded-xl bg-[#2d6a4f] px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-[#1b4332] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2d6a4f]"
+            className="flex items-center justify-center rounded-2xl bg-[#2d6a4f] hover:bg-[#1b4332] px-8 py-3.5 text-sm sm:text-base font-semibold text-white shadow-sm transition-all active:scale-95 shrink-0"
           >
-            Ara
+            Model Ara
           </button>
         </form>
-        
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-gray-500">Popüler Aramalar:</span>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-neutral-100">
+          <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+            Popüler Aramalar:
+          </span>
           {categories.map((category) => (
             <Link
               key={category.slug}
               href={`/categories/${category.slug}`}
-              className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-[#2d6a4f] hover:text-white transition-colors"
+              className="rounded-full bg-neutral-100/90 px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-[#2d6a4f] hover:text-white transition-colors"
             >
               {category.name}
             </Link>

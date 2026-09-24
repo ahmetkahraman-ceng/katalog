@@ -1,42 +1,51 @@
-import { Shield, Sparkles, Truck, Palette } from 'lucide-react'
+import { ShieldCheck, Sparkles, Truck, Palette } from 'lucide-react'
 
 const badges = [
   {
-    icon: Shield,
-    title: 'EN UYGUN FİYAT GARANTİSİ',
-    description: 'Üreticiden tüketiciye aracısız fiyatlar'
+    icon: ShieldCheck,
+    title: 'EN İYİ FİYAT GARANTİSİ',
+    description: 'Üreticiden doğrudan aracısız kurumsal toptan fiyatlandırma.',
   },
   {
     icon: Sparkles,
-    title: 'EN KALİTELİ BASKI',
-    description: 'Yüksek çözünürlüklü ve kalıcı baskı teknolojisi'
+    title: 'ÜCRETSİZ LOGO MOCKUP',
+    description: 'Teklif öncesi logonuzla hazırlanan ücretsiz dijital baskı örneği.',
   },
   {
     icon: Truck,
-    title: 'HIZLI & ÜCRETSİZ TESLİMAT',
-    description: 'Tüm Türkiye\'ye zamanında teslimat'
+    title: 'HIZLI & GÜVENİLİR TESLİMAT',
+    description: 'Tüm Türkiye genelinde zamanında ve güvenli kargo/ambar teslimatı.',
   },
   {
     icon: Palette,
-    title: 'ÖZEL TASARIM HİZMETİ',
-    description: 'Markanıza özel profesyonel tasarım desteği'
-  }
+    title: 'ÖZEL TASARIM & KUMAŞ',
+    description: 'İsteğinize özel kumaş, ebat, renk ve yüksek kaliteli baskı seçenekleri.',
+  },
 ]
 
 export function TrustBadges() {
   return (
-    <section className="bg-white py-12 border-b border-gray-100 shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+    <section className="bg-white py-12 border-b border-neutral-100">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {badges.map((badge, index) => {
             const Icon = badge.icon
             return (
-              <div key={index} className="flex flex-col items-center text-center">
-                <div className="mb-4 rounded-full bg-[#2d6a4f]/10 p-4">
-                  <Icon className="h-8 w-8 text-[#2d6a4f]" />
+              <div
+                key={index}
+                className="flex items-start gap-4 p-4 rounded-2xl bg-[#faf8f5]/60 hover:bg-[#faf8f5] border border-neutral-100 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-xl bg-[#2d6a4f]/10 text-[#2d6a4f] flex items-center justify-center shrink-0">
+                  <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="mb-2 font-bold text-gray-900">{badge.title}</h3>
-                <p className="text-sm text-gray-500">{badge.description}</p>
+                <div>
+                  <h3 className="text-xs font-bold tracking-wider uppercase text-neutral-900 mb-1">
+                    {badge.title}
+                  </h3>
+                  <p className="text-xs text-neutral-500 leading-relaxed">
+                    {badge.description}
+                  </p>
+                </div>
               </div>
             )
           })}

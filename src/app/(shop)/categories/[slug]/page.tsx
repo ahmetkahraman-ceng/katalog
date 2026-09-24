@@ -3,7 +3,7 @@ import { ProductCard } from '@/components/product/product-card'
 import { ProductFilters, SortSelect } from '@/components/product/product-filters'
 import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
 import { getProductsByCategory } from '@/lib/products-store'
-import { Sparkles, FileText, ArrowRight } from 'lucide-react'
+import { Sparkles, FileText, ArrowRight, Home } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 
 interface Props {
@@ -13,11 +13,11 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params
-  const matched = MANUAL_CATEGORIES.find(c => c.slug === slug || c.id === slug)
+  const matched = MANUAL_CATEGORIES.find((c) => c.slug === slug || c.id === slug)
   const title = matched ? matched.name : slug.replace(/-/g, ' ')
   return {
-    title: `${title} | Kurumsal Çanta Kataloğu`,
-    description: `${title} kurumsal promosyon ve toptan üretim çanta koleksiyonu.`,
+    title: `${title} Modelleri | Toptan Promosyon Çanta Kataloğu`,
+    description: `${title} kurumsal promosyon ve toptan üretim çanta koleksiyonu. Hemen teklif alın.`,
   }
 }
 
@@ -25,25 +25,25 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params
   const search = await searchParams
 
-  const matched = MANUAL_CATEGORIES.find(c => c.slug === slug || c.id === slug)
+  const matched = MANUAL_CATEGORIES.find((c) => c.slug === slug || c.id === slug)
   const category = matched
     ? {
         id: matched.id,
         name: matched.name,
         slug: matched.slug,
-        description: `${matched.name} kategorisindeki toptan üretim ve promosyon çanta modellerimiz.`,
+        description: `${matched.name} kategorisindeki toptan üretim ve promosyon çanta modellerimiz. Kurumsal logonuzla baskılı olarak sipariş verebilirsiniz.`,
       }
     : {
         id: slug,
         name: slug
           .split('-')
-          .map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1))
+          .map((w) => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1))
           .join(' '),
         slug,
-        description: 'Toptan üretim çanta koleksiyonumuz.',
+        description: 'Toptan üretim kurumsal çanta koleksiyonumuz.',
       }
 
-  // Fetch products from hybrid store
+  // Fetch products
   let products = await getProductsByCategory(slug)
   if (products.length === 0 && matched) {
     products = await getProductsByCategory(matched.id)
@@ -55,12 +55,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       ? search.category
       : [search.category]
     : undefined
-
-  if (categoryFilter && categoryFilter.length > 0) {
-    // Note: Assuming you might want to fetch multiple categories if requested
-    // but typically a category page is just one category. If they select more,
-    // we could filter within or expand. Let's just filter.
-  }
 
   // Filter by color
   const colorFilter = search.color
@@ -84,7 +78,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   if (materialFilter && materialFilter.length > 0) {
     products = products.filter((p) =>
-      // @ts-ignore assuming p.materials exists or fallback
+      // @ts-ignore
       p.materials && p.materials.some((mat: string) => materialFilter.includes(mat))
     )
   }
@@ -105,48 +99,57 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     products.sort((a, b) => (a.priceMin || 0) - (b.priceMin || 0))
   } else if (currentSort === 'price-desc') {
     products.sort((a, b) => (b.priceMin || 0) - (a.priceMin || 0))
-  } else if (currentSort === 'newest') {
-    // Add logic if created date exists
-    // products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   }
 
   const allColors = [...new Set(products.flatMap((p) => p.colors || []))]
-  // @ts-ignore assuming materials might exist
+  // @ts-ignore
   const allMaterials = [...new Set(products.flatMap((p) => p.materials || []))]
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-8 lg:py-12">
-      {/* Category Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-6 border-b border-neutral-200 gap-4">
-        <div>
-          <nav className="flex items-center gap-2 text-xs font-medium text-neutral-500 mb-3">
-            <Link href="/" className="hover:text-[#2d6a4f]">Ana Sayfa</Link>
-            <span>/</span>
-            <Link href="/categories" className="hover:text-[#2d6a4f]">Kategoriler</Link>
-            <span>/</span>
-            <span className="text-neutral-900">{category.name}</span>
+    <div className="bg-[#f9fafb] min-h-screen py-8 lg:py-12">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
+        {/* Category Header Banner */}
+        <div className="bg-white border border-neutral-200/90 rounded-3xl p-6 sm:p-8 mb-8 shadow-xs">
+          <nav className="flex items-center gap-2 text-xs font-medium text-neutral-500 mb-4">
+            <Link href="/" className="hover:text-[#2d6a4f] flex items-center gap-1">
+              <Home size={13} />
+              <span>Ana Sayfa</span>
+            </Link>
+            <span className="text-neutral-300">/</span>
+            <span className="text-neutral-400">Kategoriler</span>
+            <span className="text-neutral-300">/</span>
+            <span className="text-neutral-900 font-semibold">{category.name}</span>
           </nav>
-          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">
-            {category.name}
-          </h1>
-          {category.description && (
-            <p className="mt-2 text-sm text-neutral-600 max-w-2xl">
-              {category.description}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-neutral-500">
-            {products.length} Ürün Bulundu
-          </span>
-          <SortSelect currentSort={currentSort} />
-        </div>
-      </div>
 
-      {products.length > 0 ? (
-        <div className="lg:flex lg:gap-10">
-          {/* Left Sidebar Filters */}
-          <aside className="lg:w-64 flex-shrink-0 mb-6 lg:mb-0">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2 border-t border-neutral-100">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2d6a4f]/10 text-[#2d6a4f] text-xs font-semibold uppercase tracking-wider mb-2">
+                <Sparkles size={13} />
+                <span>Toptan Üretim</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-neutral-900 tracking-tight">
+                {category.name}
+              </h1>
+              {category.description && (
+                <p className="mt-2 text-xs sm:text-sm text-neutral-600 max-w-2xl leading-relaxed">
+                  {category.description}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-2 md:pt-0">
+              <span className="text-xs font-bold text-neutral-700 bg-neutral-100 px-3 py-1.5 rounded-xl">
+                {products.length} Model
+              </span>
+              <SortSelect currentSort={currentSort} />
+            </div>
+          </div>
+        </div>
+
+        {/* Content Area: Sidebar + Grid */}
+        <div className="lg:flex lg:gap-8 items-start">
+          {/* Left Sidebar Filter (Promozone style) */}
+          <aside className="lg:w-72 shrink-0 mb-6 lg:mb-0">
             <ProductFilters
               colors={allColors}
               materials={allMaterials}
@@ -161,94 +164,64 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </aside>
 
           {/* Right Product Grid */}
-          <div className="flex-1">
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  slug={product.slug}
-                  // @ts-ignore
-                  sku={product.sku}
-                  // @ts-ignore
-                  minOrderQty={product.minOrderQty}
-                  description={product.description}
-                  priceMin={product.priceMin ? Number(product.priceMin) : null}
-                  priceMax={product.priceMax ? Number(product.priceMax) : null}
-                  imageUrl={product.images?.[0]?.url}
-                  secondImageUrl={product.images?.[1]?.url}
-                  imageAlt={product.images?.[0]?.alt || undefined}
-                  badge={product.badge}
-                />
-              ))}
-            </div>
+          <div className="flex-1 min-w-0">
+            {products.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    slug={product.slug}
+                    // @ts-ignore
+                    sku={product.sku}
+                    // @ts-ignore
+                    minOrderQty={product.minOrderQty}
+                    description={product.description}
+                    priceMin={product.priceMin ? Number(product.priceMin) : null}
+                    priceMax={product.priceMax ? Number(product.priceMax) : null}
+                    imageUrl={product.images?.[0]?.url}
+                    secondImageUrl={product.images?.[1]?.url}
+                    imageAlt={product.images?.[0]?.alt || undefined}
+                    badge={product.badge}
+                  />
+                ))}
+              </div>
+            ) : (
+              /* Empty State */
+              <div className="bg-white rounded-3xl border border-neutral-200 p-8 sm:p-12 text-center max-w-xl mx-auto shadow-xs">
+                <div className="w-14 h-14 rounded-2xl bg-[#2d6a4f]/10 text-[#2d6a4f] flex items-center justify-center mx-auto mb-4">
+                  <Sparkles size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">
+                  Bu Kriterlere Uygun Çanta Bulunamadı
+                </h3>
+                <p className="text-xs sm:text-sm text-neutral-500 mb-6 leading-relaxed">
+                  Farklı filtreler deneyebilir veya firmanızın ihtiyacı olan özel model için doğrudan teklif formu doldurabilirsiniz.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link
+                    href="/inquiry"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <FileText size={15} />
+                    <span>Özel Teklif İste</span>
+                  </Link>
+                  <a
+                    href="https://wa.me/905300000000"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-neutral-200 hover:bg-neutral-50 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <WhatsAppIcon size={15} className="text-[#25D366]" />
+                    <span>WhatsApp&apos;tan Yazın</span>
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      ) : (
-        /* Empty State */
-        <div className="max-w-2xl mx-auto py-16 px-4 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#2d6a4f]/10 rounded-full text-xs font-medium text-[#2d6a4f] uppercase mb-6">
-            <Sparkles size={14} />
-            <span>Kurumsal Üretim Çözümleri</span>
-          </div>
-
-          <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-4">
-            {category.name} Kategorisinde Özel Üretim
-          </h2>
-
-          <p className="text-sm text-neutral-600 max-w-lg mx-auto leading-relaxed mb-8">
-            Şu anda bu kategoride listelenen ürün bulunmuyor. Ancak {category.name} modelleri için firmanıza özel tasarım ve toptan üretim sağlayabiliriz.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
-            <Link
-              href="/inquiry"
-              className="px-6 py-3 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-sm font-medium rounded inline-flex items-center gap-2 transition-colors shadow-sm"
-            >
-              <FileText size={16} />
-              <span>Teklif İste</span>
-            </Link>
-            <a
-              href="https://wa.me/905555555555?text=Merhaba,%20kurumsal%20çanta%20üretimi%20hakkında%20bilgi%20almak%20istiyorum."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 border border-neutral-300 hover:border-[#2d6a4f] text-neutral-800 text-sm font-medium rounded inline-flex items-center gap-2 transition-colors"
-            >
-              <WhatsAppIcon size={18} className="text-[#25D366]" />
-              <span>WhatsApp İletişim</span>
-            </a>
-          </div>
-
-          <div className="pt-10 border-t border-neutral-200">
-            <h3 className="text-sm font-medium text-neutral-900 mb-6">Diğer Kategorileri İnceleyin</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {MANUAL_CATEGORIES.filter(c => c.slug !== slug).slice(0, 4).map(other => (
-                <Link
-                  key={other.slug}
-                  href={`/categories/${other.slug}`}
-                  className="p-4 bg-white border border-neutral-200 hover:border-[#2d6a4f] rounded-lg transition-all text-left group shadow-sm hover:shadow-md"
-                >
-                  <span className="text-sm font-medium text-neutral-900 group-hover:text-[#2d6a4f] flex items-center justify-between">
-                    <span className="truncate">{other.name}</span>
-                    <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* WhatsApp Floating Button (if not globally provided) */}
-      <a
-        href="https://wa.me/905555555555"
-        className="fixed bottom-6 right-6 p-4 bg-[#25D366] text-white rounded-full shadow-lg hover:scale-110 transition-transform z-50 flex items-center justify-center"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <WhatsAppIcon size={24} />
-      </a>
+      </div>
     </div>
   )
 }
