@@ -6,11 +6,11 @@ import { FileDown, Share2 } from 'lucide-react'
 
 export function Footer() {
   const [atelier, setAtelier] = useState({
-    name: 'ÇANTA ATELIER',
-    tagline: 'Hakiki Deri ve Zanaatkâr El İşçiliği',
+    name: 'ÇANTA KATALOG',
+    tagline: 'Promosyon & Kurumsal Çanta Çözümleri',
     phone: '+90 (212) 555 01 23',
-    email: 'info@cantaatelier.com',
-    address: 'Nişantaşı / Teşvikiye Cad. No: 42, Şişli, İstanbul',
+    email: 'info@cantakatalog.com',
+    address: 'İstoç Ticaret Merkezi, Mahmutbey, Bağcılar, İstanbul',
     catalogPdfUrl: '/katalog-2026.pdf',
     instagramUrl: 'https://instagram.com',
     pinterestUrl: 'https://pinterest.com',
@@ -34,6 +34,16 @@ export function Footer() {
     loadFooterSettings()
   }, [])
 
+  const categories = [
+    { title: 'Bez Çanta', slug: 'bez-canta' },
+    { title: 'Sırt Çantası', slug: 'sirt-cantasi' },
+    { title: 'Karton Çanta', slug: 'karton-canta' },
+    { title: 'Laptop Çantası', slug: 'laptop-cantasi' },
+    { title: 'Fuar & Kongre Çantası', slug: 'fuar-kongre-cantasi' },
+    { title: 'Deri Çanta', slug: 'deri-canta' },
+    { title: 'Spor Çantası', slug: 'spor-cantasi' },
+  ]
+
   return (
     <footer className="bg-neutral-50 border-t border-neutral-200">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -43,11 +53,11 @@ export function Footer() {
             <h3 className="text-lg font-extralight tracking-[0.3em] uppercase mb-3">
               {atelier.name}
             </h3>
-            <p className="text-xs font-mono tracking-wider text-neutral-400 uppercase mb-3">
+            <p className="text-xs font-mono tracking-wider text-[#2d6a4f] uppercase mb-3">
               {atelier.tagline}
             </p>
             <p className="text-xs font-light text-neutral-500 leading-relaxed mb-4">
-              Zamana meydan okuyan mimari formlar, birinci sınıf hakiki dana derisi ve geleneksel saraç zanaatiyle üretilen özel koleksiyon.
+              Kurumsal etkinlikleriniz, promosyon çalışmalarınız ve toptan çanta ihtiyaçlarınız için yüksek kaliteli, baskılı ve özelleştirilebilir çanta çözümleri sunuyoruz.
             </p>
 
             {/* Social Icons */}
@@ -57,7 +67,7 @@ export function Footer() {
                   href={atelier.instagramUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-black transition-colors"
+                  className="hover:text-[#2d6a4f] transition-colors"
                   title="Instagram"
                 >
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -70,7 +80,7 @@ export function Footer() {
                   href={atelier.pinterestUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-black transition-colors"
+                  className="hover:text-[#2d6a4f] transition-colors"
                   title="Pinterest"
                 >
                   <Share2 size={17} />
@@ -81,7 +91,7 @@ export function Footer() {
                   href={atelier.linkedinUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-black transition-colors"
+                  className="hover:text-[#2d6a4f] transition-colors"
                   title="LinkedIn"
                 >
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -95,48 +105,26 @@ export function Footer() {
           {/* Quick Links */}
           <div>
             <h4 className="text-xs font-light tracking-[0.2em] uppercase text-neutral-400 mb-4">
-              Silüetler
+              Kategoriler
             </h4>
             <ul className="space-y-2.5">
-              <li>
-                <Link
-                  href="/categories/el-cantasi"
-                  className="text-xs font-light text-neutral-600 hover:text-black transition-colors uppercase tracking-wider"
-                >
-                  El Çantası & Tote
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories/sirt-cantasi"
-                  className="text-xs font-light text-neutral-600 hover:text-black transition-colors uppercase tracking-wider"
-                >
-                  Sırt Çantası
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories/laptop-cantasi"
-                  className="text-xs font-light text-neutral-600 hover:text-black transition-colors uppercase tracking-wider"
-                >
-                  Laptop & Tablet Çantası
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories/evrak-cantasi"
-                  className="text-xs font-light text-neutral-600 hover:text-black transition-colors uppercase tracking-wider"
-                >
-                  Executive Evrak Çantası
-                </Link>
-              </li>
+              {categories.map((cat) => (
+                <li key={cat.slug}>
+                  <Link
+                    href={`/categories/${cat.slug}`}
+                    className="text-xs font-light text-neutral-600 hover:text-[#2d6a4f] transition-colors uppercase tracking-wider"
+                  >
+                    {cat.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Contact Details */}
           <div>
             <h4 className="text-xs font-light tracking-[0.2em] uppercase text-neutral-400 mb-4">
-              Atölye & İletişim
+              İletişim & Merkez
             </h4>
             <ul className="space-y-2 text-xs font-light text-neutral-600">
               <li className="font-mono">{atelier.phone}</li>
@@ -151,12 +139,12 @@ export function Footer() {
               Özel Üretim & Teklif
             </h4>
             <p className="text-xs text-neutral-500 font-light mb-4 leading-relaxed">
-              Butik mağazanız veya kurumsal projeleriniz için toplu sipariş ve özel deri rengi teklifi isteyin.
+              Kurumsal projeleriniz için toplu sipariş ve logolu çanta baskı teklifi isteyin.
             </p>
             <div className="flex flex-col gap-2.5">
               <Link
                 href="/inquiry"
-                className="w-full py-2.5 text-center text-xs font-light tracking-[0.15em] uppercase bg-black text-white hover:bg-neutral-800 transition-colors shadow-xs"
+                className="w-full py-2.5 text-center text-xs font-light tracking-[0.15em] uppercase bg-[#2d6a4f] text-white hover:bg-[#1b4332] transition-colors shadow-xs rounded-sm"
               >
                 Teklif İste
               </Link>
@@ -165,7 +153,7 @@ export function Footer() {
                   href={atelier.catalogPdfUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full py-2.5 text-center text-xs font-light tracking-[0.15em] uppercase border border-neutral-300 text-neutral-700 hover:border-black hover:text-black transition-colors inline-flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 text-center text-xs font-light tracking-[0.15em] uppercase border border-neutral-300 text-neutral-700 hover:border-[#2d6a4f] hover:text-[#2d6a4f] transition-colors inline-flex items-center justify-center gap-1.5 rounded-sm"
                 >
                   <FileDown size={14} />
                   <span>PDF Kataloğu İndir</span>
@@ -178,11 +166,11 @@ export function Footer() {
         <div className="mt-14 pt-6 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-light text-neutral-400">
           <p>© {new Date().getFullYear()} {atelier.name}. Tüm hakları saklıdır.</p>
           <div className="flex items-center gap-4 font-mono text-[10px]">
-            <span>HAKİKİ DERİ</span>
+            <span>TOPTAN ÇANTA</span>
             <span>•</span>
-            <span>EL İŞÇİLİĞİ</span>
+            <span>KURUMSAL TEDARİK</span>
             <span>•</span>
-            <span>B2B & BUTİK ATELIER</span>
+            <span>BASKI & TASARIM</span>
           </div>
         </div>
       </div>

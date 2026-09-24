@@ -44,6 +44,8 @@ export interface StoredProduct {
   id: string
   name: string
   slug: string
+  sku?: string | null
+  minOrderQty?: number | null
   description?: string | null
   priceMin?: number | null
   priceMax?: number | null
@@ -82,11 +84,11 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
     tags: ['Ham Bez', 'Tote', 'Promosyon Bez Çanta', 'Fuar Çantası'],
     featured: true,
     status: 'ACTIVE',
-    categoryId: 'el-cantasi',
+    categoryId: 'bez-canta',
     category: {
-      id: 'el-cantasi',
-      name: 'Bez Çanta & Tote',
-      slug: 'el-cantasi',
+      id: 'bez-canta',
+      name: 'Bez Çanta',
+      slug: 'bez-canta',
     },
     images: [
       {
@@ -267,11 +269,11 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
     tags: ['Evrak Çantası', 'Seminer', 'Kongre', 'Kurumsal'],
     featured: true,
     status: 'ACTIVE',
-    categoryId: 'evrak-cantasi',
+    categoryId: 'fuar-kongre-cantasi',
     category: {
-      id: 'evrak-cantasi',
-      name: 'Executive Evrak Çantası',
-      slug: 'evrak-cantasi',
+      id: 'fuar-kongre-cantasi',
+      name: 'Fuar & Kongre Çantası',
+      slug: 'fuar-kongre-cantasi',
     },
     images: [
       {
@@ -374,6 +376,113 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
+  {
+    id: 'prod-karton-lux',
+    name: 'Özel Varak Baskılı Lüks Karton Mağaza Çantası',
+    slug: 'ozel-varak-baskili-luks-karton-magaza-cantasi',
+    sku: 'KRT-001',
+    minOrderQty: 500,
+    description: 'Kuşe veya Amerikan Bristol kartondan, mat/parlak laminasyonlu, yaldız varak veya lak baskılı lüks butik ve mağaza çantası. Pamuk kordon saplı.',
+    priceMin: 8,
+    priceMax: 18,
+    colors: ['Beyaz', 'Siyah', 'Kraft'],
+    badge: 'Popüler',
+    tags: ['Karton Çanta', 'Mağaza Çantası', 'Baskılı Poşet', 'Bristol'],
+    featured: true,
+    status: 'ACTIVE',
+    categoryId: 'karton-canta',
+    category: {
+      id: 'karton-canta',
+      name: 'Karton Çanta',
+      slug: 'karton-canta',
+    },
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1000&auto=format&fit=crop',
+        alt: 'Lüks Karton Çanta',
+        order: 0,
+      },
+    ],
+    specs: [
+      { specKey: 'Kağıt / Karton Türü', specValue: '250 gr Amerikan Bristol veya Kraft', sortOrder: 0 },
+      { specKey: 'Laminasyon', specValue: 'Mat Selefon / Parlak Selefon', sortOrder: 1 },
+      { specKey: 'Sap Tipi', specValue: 'Büküm Sap, Kurdele veya Pamuk Kordon', sortOrder: 2 },
+      { specKey: 'Baskı', specValue: 'Ofset Baskı + Varak Yaldız / Bölgesel Lak', sortOrder: 3 },
+      { specKey: 'Minimum Sipariş', specValue: '500 Adet', sortOrder: 4 },
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'prod-deri-premium',
+    name: 'Hakiki Deri Executive El & Evrak Çantası',
+    slug: 'hakiki-deri-executive-el-evrak-cantasi',
+    sku: 'DER-001',
+    minOrderQty: 25,
+    description: 'Birinci sınıf dana derisinden üretilmiş, pirinç metal aksesuarlı, iç bölmeli ve laptop hazneli prestijli kurumsal deri çanta.',
+    priceMin: 850,
+    priceMax: 1450,
+    colors: ['Taba Kahve', 'Siyah', 'Bordo'],
+    badge: 'Yeni',
+    tags: ['Deri Çanta', 'Hakiki Deri', 'Executive', 'VIP Hediye'],
+    featured: true,
+    status: 'ACTIVE',
+    categoryId: 'deri-canta',
+    category: {
+      id: 'deri-canta',
+      name: 'Deri Çanta',
+      slug: 'deri-canta',
+    },
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1000&auto=format&fit=crop',
+        alt: 'Hakiki Deri Çanta',
+        order: 0,
+      },
+    ],
+    specs: [
+      { specKey: 'Deri Cinsi', specValue: '1. Sınıf Hakiki Dana Derisi (Vaketa)', sortOrder: 0 },
+      { specKey: 'Astar & Fermuar', specValue: 'Süet astar, YKK antik pirinç fermuar', sortOrder: 1 },
+      { specKey: 'Minimum Sipariş', specValue: '25 Adet', sortOrder: 2 },
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'prod-spor-fit',
+    name: 'Hafta Sonu & Spor Seyahat Çantası',
+    slug: 'hafta-sonu-spor-seyahat-cantasi',
+    sku: 'SPR-001',
+    minOrderQty: 50,
+    description: 'Ayakkabı bölmeli, su geçirmez astarlı, geniş hacimli ve omuz pedli spor/seyahat çantası. Fitness merkezleri ve kurumsal spor etkinlikleri için ideal.',
+    priceMin: 220,
+    priceMax: 350,
+    colors: ['Siyah', 'Lacivert', 'Haki'],
+    badge: 'Popüler',
+    tags: ['Spor Çantası', 'Seyahat', 'Fitness', 'Duffle'],
+    featured: true,
+    status: 'ACTIVE',
+    categoryId: 'spor-cantasi',
+    category: {
+      id: 'spor-cantasi',
+      name: 'Spor Çantası',
+      slug: 'spor-cantasi',
+    },
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=1000&auto=format&fit=crop',
+        alt: 'Spor Seyahat Çantası',
+        order: 0,
+      },
+    ],
+    specs: [
+      { specKey: 'Kumaş', specValue: 'Yüksek Mukavemetli Su Geçirmez Oxford Kumaş', sortOrder: 0 },
+      { specKey: 'Kapasite', specValue: '35 Litre (Ayrı ayakkabı ve ıslak giysi gözü)', sortOrder: 1 },
+      { specKey: 'Minimum Sipariş', specValue: '50 Adet', sortOrder: 2 },
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
 ]
 
 // Global in-memory cache
@@ -466,6 +575,8 @@ export async function getAllProducts(): Promise<StoredProduct[]> {
         id: p.id,
         name: p.name,
         slug: p.slug,
+        sku: (p as any).sku || null,
+        minOrderQty: (p as any).minOrderQty || 50,
         description: p.description,
         priceMin: p.priceMin ? Number(p.priceMin) : null,
         priceMax: p.priceMax ? Number(p.priceMax) : null,
@@ -548,6 +659,8 @@ export async function getProductByIdOrSlug(idOrSlug: string): Promise<StoredProd
         id: p.id,
         name: p.name,
         slug: p.slug,
+        sku: (p as any).sku || null,
+        minOrderQty: (p as any).minOrderQty || 50,
         description: p.description,
         priceMin: p.priceMin ? Number(p.priceMin) : null,
         priceMax: p.priceMax ? Number(p.priceMax) : null,
@@ -642,6 +755,8 @@ export async function saveProductToStore(productData: {
   badge?: string | null
   tags?: string[]
   featured?: boolean
+  sku?: string | null
+  minOrderQty?: number | null
   status?: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
   categoryId: string
   categoryName?: string
@@ -663,6 +778,8 @@ export async function saveProductToStore(productData: {
     id: newId,
     name: productData.name,
     slug: productData.slug,
+    sku: productData.sku || null,
+    minOrderQty: productData.minOrderQty || 50,
     description: productData.description || null,
     priceMin: productData.priceMin || null,
     priceMax: productData.priceMax || null,
@@ -705,6 +822,8 @@ export async function saveProductToStore(productData: {
       data: {
         name: productData.name,
         slug: productData.slug,
+        sku: productData.sku || null,
+        minOrderQty: productData.minOrderQty || 50,
         description: productData.description || null,
         priceMin: productData.priceMin !== null && productData.priceMin !== undefined ? Number(productData.priceMin) : null,
         priceMax: productData.priceMax !== null && productData.priceMax !== undefined ? Number(productData.priceMax) : null,
@@ -796,6 +915,8 @@ export async function updateProductInStore(
         data: {
           name: partial.name,
           slug: partial.slug,
+          sku: partial.sku !== undefined ? partial.sku : undefined,
+          minOrderQty: partial.minOrderQty !== undefined ? (partial.minOrderQty ? Number(partial.minOrderQty) : 50) : undefined,
           description: partial.description,
           priceMin: partial.priceMin !== undefined ? (partial.priceMin ? Number(partial.priceMin) : null) : undefined,
           priceMax: partial.priceMax !== undefined ? (partial.priceMax ? Number(partial.priceMax) : null) : undefined,

@@ -2,37 +2,46 @@
 
 @theme {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --color-surface: #f9f9f8;
-  --color-surface-dim: #dadad9;
-  --color-surface-bright: #f9f9f8;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f3f4f3;
-  --color-surface-container: #eeeeed;
-  --color-surface-container-high: #e8e8e7;
-  --color-surface-container-highest: #e2e2e2;
-  --color-on-surface: #1a1c1c;
-  --color-on-surface-variant: #444748;
-  --color-primary: #000000;
+
+  /* Promozone-inspired green/corporate palette */
+  --color-primary: #2d6a4f;
+  --color-primary-hover: #1b4332;
+  --color-primary-light: #d8f3dc;
   --color-on-primary: #ffffff;
-  --color-primary-container: #1c1b1b;
-  --color-secondary: #615e59;
-  --color-secondary-container: #e7e2dc;
-  --color-outline: #747878;
-  --color-outline-variant: #c4c7c7;
+
+  --color-accent: #c5a35a;
+  --color-accent-hover: #b08d42;
+
+  --color-surface: #ffffff;
+  --color-surface-dim: #f3f4f6;
+  --color-surface-bright: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f9fafb;
+  --color-surface-container: #f3f4f6;
+  --color-surface-container-high: #e5e7eb;
+  --color-surface-container-highest: #d1d5db;
+
+  --color-on-surface: #1a1a1a;
+  --color-on-surface-variant: #4b5563;
+  --color-primary-container: #2d6a4f;
+  --color-secondary: #6b7280;
+  --color-secondary-container: #e5e7eb;
+  --color-outline: #9ca3af;
+  --color-outline-variant: #d1d5db;
 }
 
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-surface, #f9f9f8);
-  color: var(--color-on-surface, #1a1c1c);
+  background-color: #ffffff;
+  color: #1a1a1a;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-surface, #f9f9f8);
-  color: var(--color-on-surface, #1a1c1c);
+  background-color: #ffffff;
+  color: #1a1a1a;
 }
 
 /* Custom scrollbar */
@@ -52,4 +61,13 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a3a3a3;
+}
+
+/* Hide scrollbar for horizontal scroll areas */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -46,16 +46,16 @@ export function ProductShowcase({ product, categoryName, formattedPrice }: Produ
       <div className="lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-28 bg-white p-6 sm:p-8 border border-neutral-200/80 shadow-2xs">
         {/* Rozet ve Model Kodu */}
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-mono tracking-widest uppercase text-neutral-400">
-            REF: CNTA-{product.slug.slice(0, 4).toUpperCase()}
+          <span className="text-[11px] font-mono tracking-widest uppercase text-neutral-500">
+            {product.sku ? `SKU: ${product.sku}` : `REF: CNTA-${product.slug.slice(0, 4).toUpperCase()}`}
           </span>
 
           {product.badge ? (
-            <span className="px-2.5 py-0.5 text-[10px] font-medium tracking-widest uppercase bg-black text-white">
+            <span className="px-2.5 py-0.5 text-[10px] font-medium tracking-widest uppercase bg-[#2d6a4f] text-white rounded-xs">
               {product.badge}
             </span>
           ) : (
-            <span className="px-2.5 py-0.5 text-[10px] font-light tracking-widest uppercase bg-neutral-100 text-neutral-700">
+            <span className="px-2.5 py-0.5 text-[10px] font-light tracking-widest uppercase bg-neutral-100 text-neutral-700 rounded-xs">
               {categoryName}
             </span>
           )}
@@ -75,7 +75,7 @@ export function ProductShowcase({ product, categoryName, formattedPrice }: Produ
         </div>
 
         {/* Fiyat Aralığı Kartı */}
-        <div className="p-4 bg-[#faf8f5] border border-neutral-200/60 flex flex-col gap-1">
+        <div className="p-4 bg-[#faf8f5] border border-neutral-200/60 flex flex-col gap-1 rounded-xs">
           <div className="flex items-baseline justify-between text-[10px] tracking-widest uppercase text-neutral-400">
             <span>TOPTAN BİRİM FİYAT ARALIĞI</span>
             <span>KDV HARİÇ</span>
@@ -86,7 +86,11 @@ export function ProductShowcase({ product, categoryName, formattedPrice }: Produ
             </span>
             <span className="text-xs text-neutral-400 font-light">/ Adet</span>
           </div>
-          <p className="text-[10px] text-neutral-400 font-light pt-1 border-t border-neutral-200/50">
+          <div className="flex items-center justify-between pt-1 border-t border-neutral-200/50 text-[10px] text-neutral-500">
+            <span>Minimum Sipariş: <strong className="text-[#2d6a4f] font-semibold">{product.minOrderQty || 50} Adet</strong></span>
+            <span>Özel Logo Baskılı</span>
+          </div>
+          <p className="text-[10px] text-neutral-400 font-light pt-0.5">
             * Kesin fiyat; talep edilen adet, logo baskı türü ve kumaş gramajına göre teklif formunda sunulur.
           </p>
         </div>
@@ -98,6 +102,7 @@ export function ProductShowcase({ product, categoryName, formattedPrice }: Produ
           productSlug={product.slug}
           productImage={selectedVariant?.imageUrl || product.images?.[0]?.url}
           priceRange={formattedPrice}
+          minOrderQty={product.minOrderQty}
           colors={product.colors}
           variants={product.variants}
           selectedVariant={selectedVariant}
@@ -107,8 +112,8 @@ export function ProductShowcase({ product, categoryName, formattedPrice }: Produ
         {/* Kurumsal Güvence Maddeleri */}
         <div className="pt-4 border-t border-neutral-100 space-y-2 text-xs font-light text-neutral-600">
           <div className="flex items-center gap-2">
-            <Check size={14} className="text-black shrink-0" />
-            <span>Minimum 50 adetten başlayan kurumsal seri imalat</span>
+            <Check size={14} className="text-[#2d6a4f] shrink-0" />
+            <span>Minimum {product.minOrderQty || 50} adetten başlayan kurumsal seri imalat</span>
           </div>
           <div className="flex items-center gap-2">
             <Check size={14} className="text-black shrink-0" />

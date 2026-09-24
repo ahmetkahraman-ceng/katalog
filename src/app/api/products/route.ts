@@ -33,6 +33,8 @@ export async function POST(request: NextRequest) {
     const product = await saveProductToStore({
       name: body.name,
       slug: body.slug,
+      sku: body.sku || null,
+      minOrderQty: body.minOrderQty ? Number(body.minOrderQty) : 50,
       description: body.description || null,
       priceMin: body.priceMin !== null && body.priceMin !== undefined ? Number(body.priceMin) : null,
       priceMax: body.priceMax !== null && body.priceMax !== undefined ? Number(body.priceMax) : null,

@@ -33,6 +33,8 @@ export async function PATCH(request: NextRequest, { params }: Props) {
     const updated = await updateProductInStore(id, {
       name: body.name,
       slug: body.slug,
+      sku: body.sku !== undefined ? body.sku : undefined,
+      minOrderQty: body.minOrderQty !== undefined ? (body.minOrderQty ? Number(body.minOrderQty) : 50) : undefined,
       description: body.description,
       priceMin: body.priceMin !== undefined ? (body.priceMin ? Number(body.priceMin) : null) : undefined,
       priceMax: body.priceMax !== undefined ? (body.priceMax ? Number(body.priceMax) : null) : undefined,

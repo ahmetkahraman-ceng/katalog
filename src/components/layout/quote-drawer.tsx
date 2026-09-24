@@ -58,6 +58,8 @@ export function QuoteDrawer() {
         customerName: formData.customerName,
         phone: formData.phone,
         email: formData.email,
+        companyName: formData.companyName || null,
+        customerId: user?.id || null,
         message: `${formData.companyName ? `Firma: ${formData.companyName}\n` : ''}${
           formData.message ? `Müşteri Notu: ${formData.message}\n` : ''
         }Seçilen Çantalar:\n${items
@@ -73,6 +75,7 @@ export function QuoteDrawer() {
           productId: i.id,
           variantId: i.variantId || null,
           variantName: i.variantName || i.color || null,
+          quantity: i.quantity || 50,
         })),
       }
 
@@ -341,7 +344,7 @@ export function QuoteDrawer() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3 bg-black text-white text-xs font-light tracking-[0.2em] uppercase hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                    className="w-full py-3 bg-[#2d6a4f] text-white text-xs font-medium tracking-[0.2em] uppercase hover:bg-[#1b4332] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 rounded-xs shadow-xs"
                   >
                     {isSubmitting ? (
                       <>

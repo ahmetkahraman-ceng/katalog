@@ -50,6 +50,8 @@ export default function NewProductPage() {
 
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
+  const [sku, setSku] = useState('')
+  const [minOrderQty, setMinOrderQty] = useState('50')
   const [description, setDescription] = useState('')
   const [priceMin, setPriceMin] = useState('')
   const [priceMax, setPriceMax] = useState('')
@@ -169,6 +171,8 @@ export default function NewProductPage() {
         body: JSON.stringify({
           name,
           slug,
+          sku: sku.trim() || null,
+          minOrderQty: minOrderQty ? parseInt(minOrderQty) : 50,
           categoryId: effectiveCategoryId,
           categoryName: effectiveCategoryName,
           description,
@@ -295,7 +299,7 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
               label="Çanta Model Adı *"
               id="name"
@@ -311,6 +315,13 @@ export default function NewProductPage() {
               onChange={(e) => setSlug(e.target.value)}
               placeholder="ham-pamuklu-tote-bez-canta"
               required
+            />
+            <Input
+              label="Ürün Kodu / SKU"
+              id="sku"
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+              placeholder="Örn: CNT-001"
             />
           </div>
 
@@ -330,7 +341,7 @@ export default function NewProductPage() {
             02 / TOPTAN FİYAT ARALIĞI &amp; RENKLER
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
               label="Min Fiyat (₺)"
               id="priceMin"
@@ -346,6 +357,14 @@ export default function NewProductPage() {
               value={priceMax}
               onChange={(e) => setPriceMax(e.target.value)}
               placeholder="Örn: 65"
+            />
+            <Input
+              label="Min. Sipariş Adedi"
+              id="minOrderQty"
+              type="number"
+              value={minOrderQty}
+              onChange={(e) => setMinOrderQty(e.target.value)}
+              placeholder="50"
             />
           </div>
 

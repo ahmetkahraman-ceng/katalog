@@ -22,15 +22,14 @@ interface MegaCategory {
 
 const MEGA_CATEGORIES: MegaCategory[] = [
   {
-    title: 'Bez Çanta & Tote',
-    slug: 'el-cantasi',
-    description: '140g-220g ham pamuk, gabardin ve kanvas kumaş seçenekleri.',
+    title: 'Bez Çanta',
+    slug: 'bez-canta',
+    description: 'Doğa dostu, fuar ve etkinlikler için promosyon bez çantalar.',
     image: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?q=80&w=400&auto=format&fit=crop',
     subItems: [
-      { label: 'Ham Bez Çanta (140 gr)', href: '/categories/el-cantasi?q=ham-bez' },
-      { label: 'Gabardin Bez Çanta', href: '/categories/el-cantasi?q=gabardin' },
-      { label: 'Baskılı Tote Çanta', href: '/categories/el-cantasi' },
-      { label: 'Lüks Kanvas Çanta', href: '/categories/el-cantasi?q=kanvas' },
+      { label: 'Ham Bez Çanta', href: '/categories/bez-canta' },
+      { label: 'Kanvas Çanta', href: '/categories/bez-canta' },
+      { label: 'Gabardin Çanta', href: '/categories/bez-canta' },
     ],
   },
   {
@@ -39,39 +38,63 @@ const MEGA_CATEGORIES: MegaCategory[] = [
     description: 'Ergonomik, korumalı laptop bölmeli ve suya dayanıklı modeller.',
     image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=400&auto=format&fit=crop',
     subItems: [
-      { label: 'Laptop Bölmeli Sırt Çantası', href: '/categories/sirt-cantasi' },
-      { label: 'Şehir & Günlük Sırt Çantası', href: '/categories/sirt-cantasi' },
-      { label: 'USB Girişli Sırt Çantası', href: '/categories/sirt-cantasi' },
-      { label: 'İpli Büzgülü Sırt Çantası', href: '/categories/sirt-cantasi' },
+      { label: 'Kurumsal Sırt Çantası', href: '/categories/sirt-cantasi' },
+      { label: 'Promosyon Sırt Çantası', href: '/categories/sirt-cantasi' },
     ],
   },
   {
-    title: 'Laptop & Evrak Çantası',
+    title: 'Karton Çanta',
+    slug: 'karton-canta',
+    description: 'Mağazalar ve kurumsal hediyeler için baskılı karton çantalar.',
+    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=400&auto=format&fit=crop',
+    subItems: [
+      { label: 'Kraft Karton Çanta', href: '/categories/karton-canta' },
+      { label: 'Kuşe Karton Çanta', href: '/categories/karton-canta' },
+    ],
+  },
+  {
+    title: 'Laptop Çantası',
     slug: 'laptop-cantasi',
     description: 'Kurumsal seminer, konferans ve ofis çalışanlarına özel tasarımlar.',
     image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=400&auto=format&fit=crop',
     subItems: [
-      { label: 'Executive Evrak Çantası', href: '/categories/evrak-cantasi' },
-      { label: 'Dolgulu Laptop Kılıf Çanta', href: '/categories/laptop-cantasi' },
-      { label: 'Omuz Askılı Seminer Çantası', href: '/categories/laptop-cantasi' },
-      { label: 'Hakiki Deri Konferans Çantası', href: '/categories/evrak-cantasi' },
+      { label: '13-14 inç Laptop Çantası', href: '/categories/laptop-cantasi' },
+      { label: '15.6 inç Laptop Çantası', href: '/categories/laptop-cantasi' },
     ],
   },
   {
-    title: 'Fuar & Kraft Çanta',
-    slug: 'el-cantasi',
-    description: 'Etkinlikler ve lüks mağazalar için yüksek adetli ekonomik çözümler.',
+    title: 'Fuar & Kongre Çantası',
+    slug: 'fuar-kongre-cantasi',
+    description: 'Etkinlikleriniz için ekonomik ve prestijli çözümler.',
     image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=400&auto=format&fit=crop',
     subItems: [
-      { label: 'Fuar & Kongre Çantaları', href: '/categories/el-cantasi' },
-      { label: 'Karton Mağaza Çantası', href: '/categories/el-cantasi' },
-      { label: 'Büküm Saplı Kraft Çanta', href: '/categories/el-cantasi' },
-      { label: 'Tela & Nonwoven Çanta', href: '/categories/el-cantasi' },
+      { label: 'Seminer Çantası', href: '/categories/fuar-kongre-cantasi' },
+      { label: 'Evrak Çantası', href: '/categories/fuar-kongre-cantasi' },
+    ],
+  },
+  {
+    title: 'Deri Çanta',
+    slug: 'deri-canta',
+    description: 'Yönetici ve VIP hediyelik hakiki ve suni deri çanta modelleri.',
+    image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=400&auto=format&fit=crop',
+    subItems: [
+      { label: 'Hakiki Deri Çanta', href: '/categories/deri-canta' },
+      { label: 'Suni Deri Çanta', href: '/categories/deri-canta' },
+    ],
+  },
+  {
+    title: 'Spor Çantası',
+    slug: 'spor-cantasi',
+    description: 'Spor salonları, takımlar ve kulüpler için geniş hacimli çantalar.',
+    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=400&auto=format&fit=crop',
+    subItems: [
+      { label: 'Silindir Spor Çantası', href: '/categories/spor-cantasi' },
+      { label: 'Spor & Seyahat Çantası', href: '/categories/spor-cantasi' },
     ],
   },
 ]
 
-const POPULAR_SEARCH_TAGS = ['Ham Bez', 'Sırt Çantası', 'Laptop', 'Fuar Çantası', 'Karton Poşet', 'Deri Evrak']
+const POPULAR_SEARCH_TAGS = ['Bez Çanta', 'Sırt Çantası', 'Karton Çanta', 'Laptop Çantası', 'Fuar Çantası', 'Deri Çanta', 'Spor Çantası']
 
 export function Header() {
   const router = useRouter()
@@ -135,7 +158,7 @@ export function Header() {
       >
         {/* Dynamic Top Announcement Bar */}
         {announcement.enabled && announcement.text && (
-          <div className="w-full bg-[#1c1917] text-white py-1.5 px-4 text-center">
+          <div className="w-full bg-[#2d6a4f] text-white py-1.5 px-4 text-center">
             {announcement.link ? (
               <Link
                 href={announcement.link}
@@ -151,7 +174,7 @@ export function Header() {
           </div>
         )}
 
-        {/* Top Info Bar (B2B Quick Info: WhatsApp, Hours, How to get quote) */}
+        {/* Top Info Bar */}
         <div className="hidden lg:flex items-center justify-between border-b border-neutral-100 px-6 sm:px-12 py-1.5 text-[11px] font-light text-neutral-500 bg-[#faf8f5]">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
@@ -199,7 +222,7 @@ export function Header() {
               <Menu size={22} />
             </button>
 
-            {/* Brand Logo (Zara / H&M Editorial Style) */}
+            {/* Brand Logo */}
             <div className="flex items-baseline gap-2 shrink-0">
               <Link
                 href="/"
@@ -208,16 +231,16 @@ export function Header() {
                 ÇANTA
               </Link>
               <span className="hidden sm:inline-block text-[10px] font-extralight tracking-widest uppercase text-neutral-400 border-l border-neutral-300 pl-2">
-                ATELIER &amp; B2B
+                KATALOG
               </span>
             </div>
 
-            {/* Center: Prominent Search Input with Border Radius (Desktop & Tablet >= md) */}
+            {/* Center: Prominent Search Input */}
             <div className="hidden md:flex flex-1 max-w-xl mx-4 flex-col relative">
               <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <input
                   type="text"
-                  placeholder="Kumaş türü (ham bez, kanvas, gabardin) veya model ara..."
+                  placeholder="Kumaş türü veya model ara..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
@@ -237,7 +260,7 @@ export function Header() {
                 )}
               </form>
 
-              {/* Sık Arananlar (Chip Etiketleri) */}
+              {/* Sık Arananlar */}
               <div className="flex items-center gap-1.5 mt-1.5 overflow-x-auto no-scrollbar">
                 <span className="text-[10px] text-neutral-400 font-light tracking-wider shrink-0">
                   Sık Aranan:
@@ -255,9 +278,9 @@ export function Header() {
               </div>
             </div>
 
-            {/* Right Actions: Favorites, Quote List Icon (sepet yerine), Teklif İste CTA */}
+            {/* Right Actions */}
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-              {/* Favorites (Kalp) */}
+              {/* Favorites */}
               <Link
                 href="/favorites"
                 className="relative p-2 text-neutral-700 hover:text-black transition-colors"
@@ -271,33 +294,33 @@ export function Header() {
                 )}
               </Link>
 
-              {/* Teklif Listesi Button (Sleek Luxury Black / Zara & Promozone style) */}
+              {/* Teklif Listesi Button */}
               <button
                 onClick={openDrawer}
-                className="relative flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-2.5 bg-[#18181b] hover:bg-black text-white rounded-full transition-all shadow-xs font-medium text-xs sm:text-[13px]"
+                className="relative flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-2.5 bg-[#2d6a4f] hover:bg-[#1b4332] text-white rounded-full transition-all shadow-xs font-medium text-xs sm:text-[13px]"
                 title="Teklif Listesi"
               >
                 <div className="relative">
                   <ShoppingBag size={17} />
-                  <span className="absolute -top-2 -left-2 w-4 h-4 bg-[#d97706] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-2 -left-2 w-4 h-4 bg-[#c5a35a] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
                     {quoteItems.length}
                   </span>
                 </div>
                 <span className="tracking-wide hidden xs:inline sm:inline">Teklif Listesi</span>
               </button>
 
-              {/* User Dropdown Button (Positioned right of Teklif Listesi) */}
+              {/* User Dropdown Button */}
               <UserDropdown />
             </div>
           </div>
         </div>
 
-        {/* Mobile Search Bar Row (Always visible on mobile < md) */}
+        {/* Mobile Search Bar Row */}
         <div className="block md:hidden px-4 pb-3 pt-1 bg-white border-t border-neutral-100">
           <form onSubmit={handleSearchSubmit} className="relative w-full">
             <input
               type="text"
-              placeholder="Model, bez çanta veya kumaş ara..."
+              placeholder="Model veya kumaş ara..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-8 py-2 bg-neutral-50 hover:bg-white focus:bg-white border border-neutral-200 focus:border-black rounded-full text-xs font-light text-neutral-800 focus:outline-hidden transition-all placeholder:text-neutral-400 shadow-2xs"
@@ -315,7 +338,7 @@ export function Header() {
             )}
           </form>
 
-          {/* Sık Arananlar (Mobile Chip Etiketleri) */}
+          {/* Sık Arananlar */}
           <div className="flex items-center gap-1.5 mt-2 overflow-x-auto no-scrollbar py-0.5">
             <span className="text-[10px] text-neutral-400 font-light tracking-wider shrink-0">
               Popüler:
@@ -336,7 +359,7 @@ export function Header() {
         {/* Lower Mega-Menu Navigation Bar (Desktop) */}
         <div className="hidden lg:block border-t border-neutral-100 bg-white">
           <div className="max-w-[1440px] mx-auto px-6 sm:px-12">
-            <nav className="flex items-center space-x-8">
+            <nav className="flex items-center space-x-6 xl:space-x-8">
               {/* Mega Menu Trigger */}
               <div
                 onMouseEnter={handleMouseEnterMega}
@@ -350,7 +373,7 @@ export function Header() {
                     isMegaMenuOpen ? 'text-black' : 'text-neutral-700 hover:text-black'
                   )}
                 >
-                  <span>TÜM ÇANTA MODELLERİ</span>
+                  <span>TÜM KATEGORİLER</span>
                   <ChevronDown
                     size={13}
                     className={cn('transition-transform duration-200', isMegaMenuOpen && 'rotate-180')}
@@ -359,7 +382,7 @@ export function Header() {
 
                 {/* Mega Menu Dropdown Panel */}
                 {isMegaMenuOpen && (
-                  <div className="absolute top-full left-0 w-[920px] bg-white border border-neutral-200 shadow-xl p-8 grid grid-cols-4 gap-6 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+                  <div className="absolute top-full left-0 w-[1200px] bg-white border border-neutral-200 shadow-xl p-8 grid grid-cols-4 gap-6 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
                     {MEGA_CATEGORIES.map((cat) => (
                       <div key={cat.title} className="flex flex-col space-y-3">
                         <Link
@@ -371,7 +394,7 @@ export function Header() {
                             alt={cat.title}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-500"
-                            sizes="200px"
+                            sizes="250px"
                           />
                           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
                         </Link>
@@ -407,33 +430,19 @@ export function Header() {
               </div>
 
               {/* Direct Links */}
-              <Link
-                href="/categories/el-cantasi"
-                className="py-3 text-[11px] font-light tracking-[0.2em] uppercase text-neutral-600 hover:text-black transition-colors"
-              >
-                Ham Bez Çanta
-              </Link>
-              <Link
-                href="/categories/sirt-cantasi"
-                className="py-3 text-[11px] font-light tracking-[0.2em] uppercase text-neutral-600 hover:text-black transition-colors"
-              >
-                Sırt Çantası
-              </Link>
-              <Link
-                href="/categories/laptop-cantasi"
-                className="py-3 text-[11px] font-light tracking-[0.2em] uppercase text-neutral-600 hover:text-black transition-colors"
-              >
-                Laptop &amp; Evrak
-              </Link>
-              <Link
-                href="/categories/evrak-cantasi"
-                className="py-3 text-[11px] font-light tracking-[0.2em] uppercase text-neutral-600 hover:text-black transition-colors"
-              >
-                Kongre &amp; Fuar
-              </Link>
+              {MEGA_CATEGORIES.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/categories/${cat.slug}`}
+                  className="py-3 text-[10px] xl:text-[11px] font-light tracking-[0.2em] uppercase text-neutral-600 hover:text-[#2d6a4f] transition-colors"
+                >
+                  {cat.title}
+                </Link>
+              ))}
+              
               <Link
                 href="/#nasil-calisir"
-                className="py-3 text-[11px] font-light tracking-[0.2em] uppercase text-neutral-400 hover:text-black transition-colors ml-auto"
+                className="py-3 text-[10px] xl:text-[11px] font-light tracking-[0.2em] uppercase text-[#c5a35a] hover:text-[#2d6a4f] transition-colors ml-auto"
               >
                 Nasıl Teklif Alırım?
               </Link>
@@ -446,10 +455,7 @@ export function Header() {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         links={[
-          { href: '/categories/el-cantasi', label: 'Ham Bez Çantalar' },
-          { href: '/categories/sirt-cantasi', label: 'Sırt Çantaları' },
-          { href: '/categories/laptop-cantasi', label: 'Laptop & Tablet Çantaları' },
-          { href: '/categories/evrak-cantasi', label: 'Evrak & Kongre Çantaları' },
+          ...MEGA_CATEGORIES.map(cat => ({ href: `/categories/${cat.slug}`, label: cat.title })),
           { href: '/favorites', label: 'Favorilerim' },
           { href: '/inquiry', label: 'Teklif Talebi Gönder' },
         ]}

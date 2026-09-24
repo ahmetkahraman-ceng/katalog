@@ -7,21 +7,34 @@ const inquiryItemInputSchema = z.object({
   productId: z.string(),
   variantId: z.string().optional().nullable(),
   variantName: z.string().optional().nullable(),
+  quantity: z.number().optional().default(50),
 })
 
 const inquirySchema = z.object({
   customerName: z.string().min(2, 'Ad Soyad en az 2 karakter olmalıdır'),
   phone: z.string().min(10, 'Geçerli bir telefon numarası giriniz'),
   email: z.string().email('Geçerli bir e-posta adresi giriniz'),
+  companyName: z.string().optional().nullable(),
+  customerId: z.string().optional().nullable(),
   message: z.string().optional().nullable(),
   quantityTier: z.string().optional().nullable(),
+  website: z.string().optional().nullable(), // Honeypot field for bot protection
   productIds: z.array(z.string()).optional().default([]),
   items: z.array(inquiryItemInputSchema).optional().default([]),
 })
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const customerId = searchParams.get('customerId')
+
+    const whereClause: any = {}
+    if (customerId) {
+      whereClause.customerId = customerId
+    }
+
     const inquiries = await prisma.inquiry.findMany({
+      where: whereClause,
       orderBy: { createdAt: 'desc' },
       include: {
         items: {
@@ -42,6 +55,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const data = inquirySchema.parse(body)
+
+    // Honeypot check: If the hidden 'website' field was filled, it's a bot
+    if (data.website && data.website.trim().length > 0) {
+      return NextResponse.json(
+        { success: true, id: 'hp-blocked', message: 'Talebiniz alındı.' },
+        { status: 200 }
+      )
+    }
 
     // Build the final message by appending quantityTier if provided
     let fullMessage = data.message?.trim() || ''
@@ -75,7 +96,12 @@ export async function POST(request: NextRequest) {
       productMap.set(p.slug, p)
     })
 
-    const itemsToCreate: { productId: string; variantId?: string | null; variantName?: string | null }[] = []
+    const itemsToCreate: {
+      productId: string
+      variantId?: string | null
+      variantName?: string | null
+      quantity: number
+    }[] = []
 
     if (data.items && data.items.length > 0) {
       for (const item of data.items) {
@@ -85,6 +111,7 @@ export async function POST(request: NextRequest) {
             productId: matched.id,
             variantId: item.variantId || null,
             variantName: item.variantName || null,
+            quantity: item.quantity || 50,
           })
         }
       }
@@ -94,6 +121,7 @@ export async function POST(request: NextRequest) {
         if (matched) {
           itemsToCreate.push({
             productId: matched.id,
+            quantity: 50,
           })
         }
       }
@@ -129,6 +157,8 @@ export async function POST(request: NextRequest) {
         customerName: data.customerName,
         phone: data.phone,
         email: data.email,
+        companyName: data.companyName || null,
+        customerId: data.customerId || null,
         message: fullMessage || null,
         items:
           itemsToCreate.length > 0
@@ -137,6 +167,7 @@ export async function POST(request: NextRequest) {
                   productId: item.productId,
                   variantId: item.variantId || undefined,
                   variantName: item.variantName || undefined,
+                  quantity: item.quantity || 50,
                 })),
               }
             : undefined,

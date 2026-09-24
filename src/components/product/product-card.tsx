@@ -9,10 +9,12 @@ import { useQuote } from '@/context/quote-context'
 import { useFavorites } from '@/context/favorites-context'
 import { useAuth } from '@/context/auth-context'
 
-interface ProductCardProps {
+export interface ProductCardProps {
   id: string
   name: string
   slug: string
+  sku?: string | null
+  minOrderQty?: number | null
   description?: string | null
   priceMin?: number | null
   priceMax?: number | null
@@ -27,6 +29,8 @@ export function ProductCard({
   id,
   name,
   slug,
+  sku,
+  minOrderQty = 50,
   description,
   priceMin,
   priceMax,
@@ -54,7 +58,7 @@ export function ProductCard({
       slug,
       imageUrl,
       priceRange: formattedPrice,
-      quantity: 50,
+      quantity: minOrderQty || 50,
     })
     if (onInquiry) onInquiry(id)
   }
@@ -115,9 +119,9 @@ export function ProductCard({
               <span
                 className={cn(
                   'inline-block px-2.5 py-0.5 text-[9px] font-medium tracking-[0.15em] uppercase pointer-events-auto shadow-2xs',
-                  badge === 'Yeni' && 'bg-[#1c1917] text-white',
-                  badge === 'Popüler' && 'bg-[#c5a880] text-white',
-                  badge === 'Sınırlı Stok' && 'bg-[#8c3a27] text-white',
+                  badge === 'Yeni' && 'bg-[#2d6a4f] text-white',
+                  badge === 'Popüler' && 'bg-[#c5a35a] text-white',
+                  badge === 'Sınırlı Stok' && 'bg-[#dc2626] text-white',
                   badge !== 'Yeni' && badge !== 'Popüler' && badge !== 'Sınırlı Stok' && 'bg-white/90 text-neutral-800'
                 )}
               >
@@ -135,7 +139,7 @@ export function ProductCard({
           >
             <Heart
               size={15}
-              className={cn('transition-colors', favorited ? 'fill-[#8c3a27] text-[#8c3a27]' : '')}
+              className={cn('transition-colors', favorited ? 'fill-[#dc2626] text-[#dc2626]' : '')}
             />
           </button>
         </div>
@@ -152,8 +156,8 @@ export function ProductCard({
             className={cn(
               'w-full py-2.5 text-[11px] font-light tracking-[0.2em] uppercase transition-all duration-200 flex items-center justify-center gap-1.5 backdrop-blur-md',
               addedToQuote
-                ? 'bg-neutral-900 text-white'
-                : 'bg-white/95 text-neutral-900 hover:bg-black hover:text-white border border-neutral-200 shadow-sm'
+                ? 'bg-[#2d6a4f] text-white'
+                : 'bg-[#2d6a4f] text-white hover:bg-[#1b4332] shadow-sm'
             )}
           >
             {addedToQuote ? (
@@ -171,13 +175,19 @@ export function ProductCard({
         </div>
       </Link>
 
-      {/* Product Details (H&M / Zara Typography & Spacing) */}
+      {/* Product Details */}
       <div className="mt-3 flex flex-col gap-1">
         <Link href={`/products/${slug}`} className="block">
-          <h3 className="text-xs sm:text-[13px] font-normal tracking-wide text-neutral-900 hover:text-neutral-600 transition-colors line-clamp-1">
+          <h3 className="text-xs sm:text-[13px] font-normal tracking-wide text-neutral-900 hover:text-[#2d6a4f] transition-colors line-clamp-1">
             {name}
           </h3>
         </Link>
+        
+        {sku && (
+          <span className="text-[10px] text-gray-500 font-mono tracking-wider">
+            {sku}
+          </span>
+        )}
 
         {description && (
           <p className="text-[11px] font-light text-neutral-400 line-clamp-1 leading-snug">
@@ -185,11 +195,16 @@ export function ProductCard({
           </p>
         )}
 
-        <div className="flex items-baseline justify-between pt-0.5">
-          <span className="text-xs font-light text-neutral-800 tracking-tight">
-            {formattedPrice}
-          </span>
-          <span className="text-[9px] font-light text-neutral-400 tracking-widest uppercase">
+        <div className="flex items-baseline justify-between pt-0.5 mt-1">
+          <div className="flex flex-col">
+            <span className="text-xs font-light text-neutral-800 tracking-tight">
+              {formattedPrice}
+            </span>
+            <span className="text-[10px] text-neutral-500 mt-0.5">
+              Min. Sipariş: {minOrderQty || 50} Adet
+            </span>
+          </div>
+          <span className="text-[9px] font-light text-[#2d6a4f] tracking-widest uppercase bg-[#2d6a4f]/10 px-1.5 py-0.5 rounded-xs">
             Toptan Fiyat
           </span>
         </div>

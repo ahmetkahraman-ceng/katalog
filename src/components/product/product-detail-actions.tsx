@@ -23,6 +23,7 @@ interface ProductDetailActionsProps {
   productSlug: string
   productImage?: string
   priceRange?: string
+  minOrderQty?: number | null
   colors?: string[]
   variants?: ProductDetailVariant[]
   selectedVariant?: ProductDetailVariant | null
@@ -35,13 +36,15 @@ export function ProductDetailActions({
   productSlug,
   productImage,
   priceRange,
+  minOrderQty = 50,
   colors = [],
   variants = [],
   selectedVariant,
   onSelectVariant,
 }: ProductDetailActionsProps) {
+  const minQty = minOrderQty && minOrderQty > 0 ? minOrderQty : 50
   const { addItem, isInQuote } = useQuote()
-  const [quantity, setQuantity] = useState(50)
+  const [quantity, setQuantity] = useState(minQty)
   const [internalSelectedColor, setInternalSelectedColor] = useState<string>(
     variants[0]?.variantName || colors[0] || 'Standart'
   )
@@ -215,13 +218,14 @@ export function ProductDetailActions({
           <span className="font-light tracking-[0.15em] uppercase text-neutral-500">
             TAHMİNİ TALEP ADEDİ:
           </span>
-          <span className="text-[11px] text-neutral-400">Min. 50 Adet</span>
+          <span className="text-[11px] font-medium text-[#2d6a4f]">Min. {minQty} Adet</span>
         </div>
-        <div className="flex items-center border border-neutral-300 bg-white w-full max-w-xs">
+        <div className="flex items-center border border-neutral-300 bg-white w-full max-w-xs rounded-sm">
           <button
             type="button"
-            onClick={() => setQuantity((q) => Math.max(50, q - 25))}
-            className="p-3 hover:bg-neutral-100 transition-colors text-neutral-700"
+            onClick={() => setQuantity((q) => Math.max(minQty, q - 25))}
+            className="p-3 hover:bg-neutral-100 transition-colors text-neutral-700 disabled:opacity-40"
+            disabled={quantity <= minQty}
             aria-label="Azalt"
           >
             <Minus size={14} />
@@ -247,10 +251,10 @@ export function ProductDetailActions({
           type="button"
           onClick={handleAddToQuote}
           className={cn(
-            'w-full py-3.5 px-6 text-xs font-light tracking-[0.2em] uppercase transition-all duration-200 flex items-center justify-center gap-2',
+            'w-full py-3.5 px-6 text-xs font-medium tracking-[0.2em] uppercase transition-all duration-200 flex items-center justify-center gap-2 rounded-sm shadow-xs',
             isAlreadyInQuote
-              ? 'bg-neutral-900 text-white'
-              : 'bg-black text-white hover:bg-neutral-800'
+              ? 'bg-[#1b4332] text-white'
+              : 'bg-[#2d6a4f] text-white hover:bg-[#1b4332]'
           )}
         >
           <ShoppingBag size={15} />

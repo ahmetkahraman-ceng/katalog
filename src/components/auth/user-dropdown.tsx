@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
 import { User as UserIcon, LogOut, FileText, CheckCircle2, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/context/auth-context'
 import { cn } from '@/lib/utils'
@@ -79,6 +80,33 @@ export function UserDropdown() {
               </div>
 
               <div className="space-y-0.5 pt-1 border-t border-neutral-100">
+                <Link
+                  href="/hesabim"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-light text-neutral-700 hover:text-black hover:bg-neutral-50 rounded-lg transition-colors text-left"
+                >
+                  <UserIcon size={14} />
+                  <span>Hesap Bilgilerim</span>
+                </Link>
+
+                <Link
+                  href="/hesabim/taleplerim"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-light text-neutral-700 hover:text-black hover:bg-neutral-50 rounded-lg transition-colors text-left"
+                >
+                  <FileText size={14} />
+                  <span>Geçmiş Taleplerim</span>
+                </Link>
+
+                <Link
+                  href="/favorites"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-light text-neutral-700 hover:text-black hover:bg-neutral-50 rounded-lg transition-colors text-left"
+                >
+                  <CheckCircle2 size={14} />
+                  <span>Favorilerim</span>
+                </Link>
+
                 <button
                   type="button"
                   onClick={() => {

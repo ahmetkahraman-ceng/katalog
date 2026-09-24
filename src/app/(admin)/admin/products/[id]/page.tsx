@@ -56,6 +56,8 @@ export default function EditProductPage({ params }: Props) {
 
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
+  const [sku, setSku] = useState('')
+  const [minOrderQty, setMinOrderQty] = useState('50')
   const [description, setDescription] = useState('')
   const [priceMin, setPriceMin] = useState('')
   const [priceMax, setPriceMax] = useState('')
@@ -96,6 +98,8 @@ export default function EditProductPage({ params }: Props) {
           const prod = await prodRes.json()
           setName(prod.name || '')
           setSlug(prod.slug || '')
+          setSku(prod.sku || '')
+          setMinOrderQty(prod.minOrderQty ? String(prod.minOrderQty) : '50')
           setCategoryId(prod.categoryId || '')
           setDescription(prod.description || '')
           setPriceMin(prod.priceMin ? String(prod.priceMin) : '')
@@ -208,6 +212,8 @@ export default function EditProductPage({ params }: Props) {
         body: JSON.stringify({
           name,
           slug,
+          sku: sku.trim() || null,
+          minOrderQty: minOrderQty ? parseInt(minOrderQty) : 50,
           categoryId: effectiveCategoryId,
           categoryName: effectiveCategoryName,
           description,
@@ -358,7 +364,7 @@ export default function EditProductPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
               label="Çanta Model Adı *"
               id="name"
@@ -375,6 +381,13 @@ export default function EditProductPage({ params }: Props) {
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               required
+            />
+            <Input
+              label="Ürün Kodu / SKU"
+              id="sku"
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+              placeholder="Örn: CNT-001"
             />
           </div>
 
@@ -393,7 +406,7 @@ export default function EditProductPage({ params }: Props) {
             02 / TOPTAN FİYAT ARALIĞI &amp; SEÇENEKLER
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
               label="Min Fiyat (₺)"
               id="priceMin"
@@ -407,6 +420,14 @@ export default function EditProductPage({ params }: Props) {
               type="number"
               value={priceMax}
               onChange={(e) => setPriceMax(e.target.value)}
+            />
+            <Input
+              label="Min. Sipariş Adedi"
+              id="minOrderQty"
+              type="number"
+              value={minOrderQty}
+              onChange={(e) => setMinOrderQty(e.target.value)}
+              placeholder="50"
             />
           </div>
 

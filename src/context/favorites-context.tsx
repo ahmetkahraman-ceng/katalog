@@ -20,6 +20,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
 
+  // 1. Initial load from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem(FAVORITES_KEY)
@@ -28,8 +29,23 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       }
     } catch {}
     setIsLoaded(true)
+
+    // Also attempt to sync from server if logged in
+    async function syncFromServer() {
+      try {
+        const res = await fetch('/api/favorites')
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data.favorites) && data.favorites.length > 0) {
+            setFavorites((prev) => Array.from(new Set([...prev, ...data.favorites])))
+          }
+        }
+      } catch {}
+    }
+    syncFromServer()
   }, [])
 
+  // 2. Persist to localStorage
   useEffect(() => {
     if (isLoaded) {
       try {
@@ -38,15 +54,37 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     }
   }, [favorites, isLoaded])
 
-  const toggleFavorite = (productId: string, isAuthenticated = true) => {
+  const toggleFavorite = async (productId: string, isAuthenticated = true) => {
     if (!isAuthenticated) {
       setIsPromptModalOpen(true)
       return
     }
 
+    const isCurrentlyFavorited = favorites.includes(productId)
+
+    // Optimistic UI update
     setFavorites((prev) =>
-      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
+      isCurrentlyFavorited ? prev.filter((id) => id !== productId) : [...prev, productId]
     )
+
+    // Sync to DB
+    try {
+      if (isCurrentlyFavorited) {
+        await fetch('/api/favorites', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId }),
+        })
+      } else {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId }),
+        })
+      }
+    } catch {
+      // Non-critical, fallback remains in localStorage
+    }
   }
 
   const isFavorite = (productId: string) => favorites.includes(productId)
