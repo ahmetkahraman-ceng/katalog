@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { X, Trash2, CheckCircle2, MessageCircle, ArrowRight, Loader2, Plus, Minus, ShoppingBag } from 'lucide-react'
+import { X, Trash2, CheckCircle2, ArrowRight, Loader2, Plus, Minus, ShoppingBag } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { useQuote } from '@/context/quote-context'
 import { useAuth } from '@/context/auth-context'
 
@@ -358,9 +359,9 @@ export function QuoteDrawer() {
                   <button
                     type="button"
                     onClick={handleWhatsAppRedirect}
-                    className="w-full py-2.5 bg-emerald-600 text-white text-xs font-light tracking-wider uppercase hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 bg-[#25D366] text-white text-xs font-medium tracking-wider uppercase hover:bg-[#20bd5a] transition-all flex items-center justify-center gap-2 shadow-2xs"
                   >
-                    <MessageCircle size={14} />
+                    <WhatsAppIcon size={15} className="text-white shrink-0" />
                     <span>WhatsApp ile Hızlı Fiyat Al</span>
                   </button>
 

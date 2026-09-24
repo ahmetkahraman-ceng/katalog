@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Search, Menu, Heart, ShoppingBag, ChevronDown, Phone, Clock, HelpCircle, X } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { cn } from '@/lib/utils'
 import { useQuote } from '@/context/quote-context'
 import { useFavorites } from '@/context/favorites-context'
@@ -153,8 +154,8 @@ export function Header() {
         {/* Top Info Bar (B2B Quick Info: WhatsApp, Hours, How to get quote) */}
         <div className="hidden lg:flex items-center justify-between border-b border-neutral-100 px-6 sm:px-12 py-1.5 text-[11px] font-light text-neutral-500 bg-[#faf8f5]">
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-1.5">
-              <Phone size={12} className="text-neutral-700" />
+            <div className="flex items-center gap-2">
+              <WhatsAppIcon size={14} className="text-[#25D366]" />
               <span>Hızlı Teklif Hattı:</span>
               <a
                 href="https://wa.me/905300000000"
@@ -188,7 +189,7 @@ export function Header() {
 
         {/* Main Header Container */}
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="flex items-center justify-between h-16 lg:h-20 gap-4">
+          <div className="flex items-center justify-between h-16 lg:h-20 gap-3 sm:gap-4">
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
@@ -199,7 +200,7 @@ export function Header() {
             </button>
 
             {/* Brand Logo (Zara / H&M Editorial Style) */}
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-baseline gap-2 shrink-0">
               <Link
                 href="/"
                 className="text-xl sm:text-2xl font-light tracking-[0.35em] uppercase text-black hover:opacity-80 transition-opacity"
@@ -211,7 +212,7 @@ export function Header() {
               </span>
             </div>
 
-            {/* Center: Prominent Search Input with Tag Chips */}
+            {/* Center: Prominent Search Input with Border Radius (Desktop & Tablet >= md) */}
             <div className="hidden md:flex flex-1 max-w-xl mx-4 flex-col relative">
               <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <input
@@ -221,14 +222,15 @@ export function Header() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                  className="w-full pl-9 pr-8 py-2 bg-neutral-100/80 hover:bg-neutral-100 focus:bg-white border border-transparent focus:border-neutral-400 text-xs font-light text-neutral-800 focus:outline-hidden transition-all placeholder:text-neutral-400"
+                  className="w-full pl-10 pr-9 py-2.5 bg-neutral-50 hover:bg-white focus:bg-white border border-neutral-200 focus:border-black rounded-full text-xs font-light text-neutral-800 focus:outline-hidden transition-all placeholder:text-neutral-400 shadow-2xs"
                 />
-                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black p-0.5"
+                    aria-label="Aramayı temizle"
                   >
                     <X size={13} />
                   </button>
@@ -254,7 +256,7 @@ export function Header() {
             </div>
 
             {/* Right Actions: Favorites, Quote List Icon (sepet yerine), Teklif İste CTA */}
-            <div className="flex items-center gap-3 sm:gap-5">
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               {/* Favorites (Kalp) */}
               <Link
                 href="/favorites"
@@ -272,21 +274,62 @@ export function Header() {
               {/* Teklif Listesi Button (Sleek Luxury Black / Zara & Promozone style) */}
               <button
                 onClick={openDrawer}
-                className="relative flex items-center gap-2.5 px-4 py-2.5 bg-[#18181b] hover:bg-black text-white rounded-xl transition-all shadow-xs font-medium text-xs sm:text-[13px]"
+                className="relative flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-2.5 bg-[#18181b] hover:bg-black text-white rounded-full transition-all shadow-xs font-medium text-xs sm:text-[13px]"
                 title="Teklif Listesi"
               >
                 <div className="relative">
-                  <ShoppingBag size={18} />
+                  <ShoppingBag size={17} />
                   <span className="absolute -top-2 -left-2 w-4 h-4 bg-[#d97706] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
                     {quoteItems.length}
                   </span>
                 </div>
-                <span className="tracking-wide">Teklif Listesi</span>
+                <span className="tracking-wide hidden xs:inline sm:inline">Teklif Listesi</span>
               </button>
 
-              {/* User Dropdown Button (Matching Image 2 positioned right of Teklif Listesi) */}
+              {/* User Dropdown Button (Positioned right of Teklif Listesi) */}
               <UserDropdown />
             </div>
+          </div>
+        </div>
+
+        {/* Mobile Search Bar Row (Always visible on mobile < md) */}
+        <div className="block md:hidden px-4 pb-3 pt-1 bg-white border-t border-neutral-100">
+          <form onSubmit={handleSearchSubmit} className="relative w-full">
+            <input
+              type="text"
+              placeholder="Model, bez çanta veya kumaş ara..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-8 py-2 bg-neutral-50 hover:bg-white focus:bg-white border border-neutral-200 focus:border-black rounded-full text-xs font-light text-neutral-800 focus:outline-hidden transition-all placeholder:text-neutral-400 shadow-2xs"
+            />
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black p-0.5"
+                aria-label="Aramayı temizle"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </form>
+
+          {/* Sık Arananlar (Mobile Chip Etiketleri) */}
+          <div className="flex items-center gap-1.5 mt-2 overflow-x-auto no-scrollbar py-0.5">
+            <span className="text-[10px] text-neutral-400 font-light tracking-wider shrink-0">
+              Popüler:
+            </span>
+            {POPULAR_SEARCH_TAGS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => handleTagClick(tag)}
+                className="text-[10px] font-light text-neutral-600 hover:text-black bg-neutral-50 hover:bg-neutral-100 px-2.5 py-0.5 rounded-full border border-neutral-200/80 transition-colors shrink-0 whitespace-nowrap"
+              >
+                {tag}
+              </button>
+            ))}
           </div>
         </div>
 

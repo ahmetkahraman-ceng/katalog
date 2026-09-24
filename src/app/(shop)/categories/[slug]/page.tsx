@@ -3,7 +3,8 @@ import { ProductGrid } from '@/components/product/product-grid'
 import { ProductFilters } from '@/components/product/product-filters'
 import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
 import { getProductsByCategory } from '@/lib/products-store'
-import { Sparkles, MessageCircle, FileText, ArrowRight } from 'lucide-react'
+import { Sparkles, FileText, ArrowRight } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -138,7 +139,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               rel="noopener noreferrer"
               className="px-6 py-3.5 border border-neutral-300 hover:border-black text-black text-xs font-light tracking-widest uppercase inline-flex items-center gap-2 transition-colors"
             >
-              <MessageCircle size={15} className="text-emerald-600" />
+              <WhatsAppIcon size={16} className="text-[#25D366]" />
               <span>WhatsApp Teklif Hattı</span>
             </a>
           </div>

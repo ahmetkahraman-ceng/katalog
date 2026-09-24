@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Plus, Minus, Check, MessageCircle, FileText, ShoppingBag } from 'lucide-react'
 import { useQuote } from '@/context/quote-context'
 import { InquiryModal } from '@/components/inquiry/inquiry-modal'
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { cn } from '@/lib/utils'
 
 import Image from 'next/image'
@@ -268,9 +269,9 @@ export function ProductDetailActions({
         <button
           type="button"
           onClick={handleWhatsAppInquiry}
-          className="w-full py-3 px-6 bg-emerald-700 text-white text-xs font-light tracking-wider uppercase hover:bg-emerald-800 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-3 px-6 bg-[#25D366] text-white text-xs font-medium tracking-wider uppercase hover:bg-[#20bd5a] transition-all flex items-center justify-center gap-2 shadow-sm rounded-none active:scale-[0.99]"
         >
-          <MessageCircle size={15} />
+          <WhatsAppIcon size={16} className="text-white shrink-0" />
           <span>WhatsApp&apos;tan Fiyat Sor</span>
         </button>
       </div>

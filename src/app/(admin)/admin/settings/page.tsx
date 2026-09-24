@@ -6,7 +6,6 @@ import {
   Save,
   CheckCircle,
   Phone,
-  MessageCircle,
   Mail,
   MapPin,
   Clock,
@@ -14,6 +13,7 @@ import {
   Share2,
   ExternalLink,
 } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true)
@@ -160,7 +160,7 @@ export default function AdminSettingsPage() {
         {/* 1. KISIM: WHATSAPP SİPARİŞ & TEKLİF HATTI */}
         <div className="bg-white border border-neutral-200/80 p-6 sm:p-7 rounded-sm shadow-2xs space-y-5">
           <div className="flex items-center gap-2.5 pb-4 border-b border-neutral-100">
-            <MessageCircle size={16} className="text-emerald-600" />
+            <WhatsAppIcon size={18} className="text-[#25D366]" />
             <div>
               <h2 className="text-sm font-light tracking-wider uppercase text-black">
                 WhatsApp Doğrudan Teklif & Sipariş Hattı
