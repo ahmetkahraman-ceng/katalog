@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 
 export interface AuthUser {
   id: string
@@ -16,6 +17,7 @@ interface AuthContextType {
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (data: { name: string; email: string; password: string; phone?: string; company?: string }) => Promise<void>
+  loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   isAuthModalOpen: boolean
   authModalMode: 'login' | 'register'
@@ -49,6 +51,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
     checkSession()
+  }, [])
+
+  // Listen to Supabase Auth state changes (for OAuth redirects and sessions)
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          try {
+            const res = await fetch('/api/auth/sync-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: session.user.email,
+                name:
+                  session.user.user_metadata?.full_name ||
+                  session.user.user_metadata?.name ||
+                  session.user.email?.split('@')[0],
+              }),
+            })
+            if (res.ok) {
+              const data = await res.json()
+              if (data.user) {
+                setUser(data.user)
+                setIsAuthModalOpen(false)
+              }
+            }
+          } catch (e) {
+            console.error('Session sync error:', e)
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null)
+        }
+      }
+    )
+
+    return () => {
+      authListener?.subscription?.unsubscribe()
+    }
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -89,9 +129,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthModalOpen(false)
   }
 
+  const loginWithGoogle = async () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'select_account',
+        },
+      },
+    })
+    if (error) {
+      throw error
+    }
+  }
+
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
+    } catch {}
+    try {
+      await supabase.auth.signOut()
     } catch {}
     setUser(null)
   }
@@ -112,6 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         login,
         register,
+        loginWithGoogle,
         logout,
         isAuthModalOpen,
         authModalMode,

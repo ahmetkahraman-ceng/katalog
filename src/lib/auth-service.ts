@@ -115,6 +115,19 @@ export async function registerCustomer({
     },
   })
 
+  // Synchronize customer to Supabase auth.users so it appears in Supabase Auth Dashboard
+  try {
+    await syncUserToSupabaseAuth({
+      email: cleanEmail,
+      password,
+      name: cleanName,
+      phone,
+      company,
+    })
+  } catch (syncErr) {
+    console.warn('Supabase Auth register sync warning:', syncErr)
+  }
+
   return {
     id: user.id,
     name: user.name,
@@ -147,6 +160,14 @@ export async function authenticateCustomer(
     throw new Error('E-posta veya şifre hatalı.')
   }
 
+  // Update last sign in in Supabase auth.users
+  syncUserToSupabaseAuth({
+    email: cleanEmail,
+    name: user.name,
+    phone: user.phone,
+    company: user.company,
+  }).catch(() => {})
+
   return {
     id: user.id,
     name: user.name,
@@ -154,5 +175,132 @@ export async function authenticateCustomer(
     role: user.role,
     phone: user.phone,
     company: user.company,
+  }
+}
+
+/**
+ * Ensures user is registered and synced in Supabase Auth (auth.users & auth.identities)
+ * so that they appear on the Supabase Dashboard -> Authentication -> Users page.
+ */
+export async function syncUserToSupabaseAuth({
+  email,
+  password,
+  name,
+  phone,
+  company,
+}: {
+  email: string
+  password?: string
+  name: string
+  phone?: string | null
+  company?: string | null
+}): Promise<string | null> {
+  const cleanEmail = email.toLowerCase().trim()
+  const metadata = JSON.stringify({
+    name,
+    full_name: name,
+    phone: phone || null,
+    company: company || null,
+  })
+
+  // 1. Try Supabase Service Role Admin API if configured
+  try {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (serviceKey && !serviceKey.includes('placeholder')) {
+      const { createServerClient } = await import('./supabase')
+      const supabaseAdmin = createServerClient()
+      const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+        email: cleanEmail,
+        password: password || undefined,
+        email_confirm: true,
+        user_metadata: {
+          name,
+          full_name: name,
+          phone: phone || null,
+          company: company || null,
+        },
+      })
+      if (!error && created?.user) {
+        return created.user.id
+      }
+    }
+  } catch (err) {
+    // Proceed to direct DB sync
+  }
+
+  // 2. Direct PostgreSQL sync to auth.users & auth.identities (Guaranteed via DATABASE_URL)
+  try {
+    const existing: any[] = await prisma.$queryRawUnsafe(
+      `SELECT id FROM auth.users WHERE lower(email) = lower($1) LIMIT 1;`,
+      cleanEmail
+    )
+
+    if (existing.length > 0) {
+      const userId = existing[0].id
+      await prisma.$executeRawUnsafe(
+        `UPDATE auth.users 
+         SET raw_user_meta_data = $1::jsonb, updated_at = now(), last_sign_in_at = now()
+         WHERE id = $2::uuid;`,
+        metadata,
+        userId
+      )
+      return userId
+    } else {
+      const inserted: any[] = await prisma.$queryRawUnsafe(
+        `
+        INSERT INTO auth.users (
+          id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+          raw_app_meta_data, raw_user_meta_data, created_at, updated_at, last_sign_in_at,
+          confirmation_token, is_sso_user, is_anonymous
+        ) VALUES (
+          gen_random_uuid(),
+          '00000000-0000-0000-0000-000000000000'::uuid,
+          'authenticated',
+          'authenticated',
+          $1,
+          extensions.crypt($2, extensions.gen_salt('bf')),
+          now(),
+          '{"provider":"email","providers":["email"]}'::jsonb,
+          $3::jsonb,
+          now(),
+          now(),
+          now(),
+          '',
+          false,
+          false
+        ) RETURNING id;
+        `,
+        cleanEmail,
+        password || 'OAUTH_SYNCED_USER_NO_PASSWORD',
+        metadata
+      )
+
+      const userId = inserted[0]?.id
+      if (userId) {
+        await prisma.$executeRawUnsafe(
+          `
+          INSERT INTO auth.identities (
+            id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at
+          ) VALUES (
+            gen_random_uuid(),
+            $1::uuid,
+            $2::jsonb,
+            'email',
+            $3,
+            now(),
+            now(),
+            now()
+          ) ON CONFLICT DO NOTHING;
+          `,
+          userId,
+          JSON.stringify({ sub: userId, email: cleanEmail, name }),
+          userId
+        )
+      }
+      return userId
+    }
+  } catch (sqlErr: any) {
+    console.warn('Direct auth.users sync notice:', sqlErr?.message)
+    return null
   }
 }
