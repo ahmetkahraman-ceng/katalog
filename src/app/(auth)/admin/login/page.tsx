@@ -13,6 +13,7 @@ import {
   EyeOff,
   AlertTriangle,
   Clock,
+  ArrowLeft,
 } from 'lucide-react'
 
 export default function AdminLoginPage() {
@@ -117,85 +118,69 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0e0f10] text-neutral-100 flex flex-col justify-between p-6 sm:p-12 relative overflow-hidden selection:bg-neutral-800">
-      {/* Arka Plan Deseni / Aydınlatması */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-neutral-800/20 via-transparent to-transparent pointer-events-none" />
-
-      {/* Üst Bar */}
-      <div className="relative z-10 flex items-center justify-between w-full max-w-5xl mx-auto">
+    <div className="min-h-screen bg-[#f9fafb] text-neutral-900 flex flex-col justify-between p-6 sm:p-12 relative overflow-hidden">
+      {/* Top Bar */}
+      <div className="relative z-10 flex items-center justify-between w-full max-w-md mx-auto">
         <Link
           href="/"
-          className="text-xs font-mono tracking-[0.25em] uppercase text-neutral-400 hover:text-white transition-colors"
+          className="text-xs font-semibold text-neutral-600 hover:text-neutral-900 transition-colors inline-flex items-center gap-1.5"
         >
-          ← Mağazaya Dön
+          <ArrowLeft size={14} />
+          <span>Kataloğa Dön</span>
         </Link>
 
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-neutral-400">
-            GÜVENLİ PROTOKOL
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+            Güvenli Yönetim
           </span>
         </div>
       </div>
 
-      {/* Ana Giriş Kutusu */}
+      {/* Main Login Card */}
       <div className="relative z-10 w-full max-w-md mx-auto my-auto py-8">
-        <div className="bg-[#141517] border border-neutral-800/80 p-8 sm:p-10 shadow-2xl rounded-sm">
-          {/* Başlık & Marka */}
+        <div className="bg-white border border-neutral-200/90 p-8 sm:p-10 shadow-xl rounded-3xl">
+          {/* Logo & Title */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-neutral-900 border border-neutral-800 mb-4 text-neutral-300">
-              {isLocked ? (
-                <ShieldAlert size={22} className="text-red-500 animate-bounce" />
-              ) : (
-                <Lock size={20} className="text-neutral-300" />
-              )}
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1b4332] to-[#2d6a4f] text-white flex items-center justify-center font-bold text-xl shadow-xs mx-auto mb-4">
+              Ç
             </div>
-            <h1 className="text-xl sm:text-2xl font-light tracking-[0.2em] uppercase text-white font-serif">
-              Çanta Atelier
+            <h1 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
+              ÇANTA<span className="text-[#2d6a4f]">PRO</span>
             </h1>
-            <p className="text-[11px] font-mono text-neutral-400 tracking-[0.2em] uppercase mt-1">
-              Merkez Kontrol Girişi
+            <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400 mt-1">
+              Atölye & Katalog Yönetim Paneli
             </p>
           </div>
 
-          {/* Kilit Uyarısı & Geri Sayım */}
+          {/* Lockout Warning */}
           {isLocked && (
-            <div className="mb-6 p-4 bg-red-950/40 border border-red-800/60 rounded-sm text-center">
-              <div className="flex items-center justify-center gap-2 text-red-400 text-xs font-mono uppercase tracking-wider mb-2">
-                <AlertTriangle size={15} />
+            <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-center shadow-2xs">
+              <div className="flex items-center justify-center gap-2 text-rose-700 text-xs font-bold uppercase tracking-wider mb-1.5">
+                <AlertTriangle size={16} />
                 <span>GÜVENLİK KİLİDİ DEVREDE</span>
               </div>
-              <p className="text-xs text-neutral-300 font-light leading-relaxed mb-3">
-                3 kez üst üste hatalı giriş yapıldı. Güvenlik protokolü gereği
-                giriş askıya alındı.
+              <p className="text-xs text-neutral-600 leading-relaxed mb-3">
+                3 kez üst üste hatalı giriş yapıldı. Giriş askıya alındı.
               </p>
-              <div className="bg-neutral-900/90 py-2.5 px-4 border border-red-900/40 inline-flex items-center gap-2 text-red-400 font-mono text-lg tracking-widest rounded-sm">
+              <div className="bg-white py-2 px-4 border border-rose-200 inline-flex items-center gap-2 text-rose-700 font-mono text-base font-bold rounded-xl shadow-2xs">
                 <Clock size={16} />
                 <span>{formatCountdown(countdown)}</span>
               </div>
-              <p className="text-[10px] text-neutral-500 font-mono mt-2">
-                Kalan süre bittiğinde kilit otomatik olarak kalkacaktır.
-              </p>
             </div>
           )}
 
-          {/* Normal Hata Mesajı & Kalan Hak */}
+          {/* Normal Error */}
           {!isLocked && error && (
-            <div className="mb-6 p-3.5 bg-red-950/30 border border-red-900/50 rounded-sm">
+            <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-2xl shadow-2xs">
               <div className="flex items-start gap-2.5">
-                <AlertTriangle size={15} className="text-red-400 shrink-0 mt-0.5" />
+                <AlertTriangle size={16} className="text-rose-600 shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-xs text-red-300 font-light">{error}</p>
+                  <p className="text-xs text-rose-800 font-medium">{error}</p>
                   {remainingAttempts !== null && remainingAttempts > 0 && (
-                    <div className="mt-2 flex items-center justify-between text-[11px] font-mono border-t border-red-900/40 pt-1.5 text-neutral-400">
+                    <div className="mt-2 flex items-center justify-between text-[11px] border-t border-rose-200/80 pt-1.5 text-neutral-600">
                       <span>Kalan Deneme Hakkı:</span>
-                      <span
-                        className={`font-semibold px-2 py-0.5 rounded ${
-                          remainingAttempts === 1
-                            ? 'bg-red-500/20 text-red-300'
-                            : 'bg-amber-500/20 text-amber-300'
-                        }`}
-                      >
+                      <span className="font-bold text-rose-700 bg-white px-2 py-0.5 rounded-md border border-rose-200">
                         {remainingAttempts} / 3
                       </span>
                     </div>
@@ -205,12 +190,11 @@ export default function AdminLoginPage() {
             </div>
           )}
 
-          {/* Giriş Formu */}
-          <form onSubmit={handleLogin} className="space-y-5">
-            {/* Kullanıcı Adı */}
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-mono tracking-[0.2em] uppercase text-neutral-400 mb-2">
-                Kullanıcı Adı
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                Yönetici Kullanıcı Adı
               </label>
               <div className="relative">
                 <input
@@ -221,19 +205,15 @@ export default function AdminLoginPage() {
                   placeholder="admin"
                   required
                   autoComplete="username"
-                  className="w-full pl-10 pr-4 py-3 bg-neutral-900/80 border border-neutral-800 text-sm font-light text-white placeholder:text-neutral-600 focus:outline-none focus:border-neutral-500 focus:bg-neutral-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full pl-10 pr-4 py-3 bg-neutral-50 border border-neutral-200 text-xs font-medium text-neutral-900 rounded-xl placeholder:text-neutral-400 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs disabled:opacity-40"
                 />
-                <User
-                  size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500"
-                />
+                <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
               </div>
             </div>
 
-            {/* Şifre */}
             <div>
-              <label className="block text-[10px] font-mono tracking-[0.2em] uppercase text-neutral-400 mb-2">
-                Şifre
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                Yönetici Şifresi
               </label>
               <div className="relative">
                 <input
@@ -244,27 +224,23 @@ export default function AdminLoginPage() {
                   placeholder="••••••••"
                   required
                   autoComplete="current-password"
-                  className="w-full pl-10 pr-10 py-3 bg-neutral-900/80 border border-neutral-800 text-sm font-light text-white placeholder:text-neutral-600 focus:outline-none focus:border-neutral-500 focus:bg-neutral-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full pl-10 pr-10 py-3 bg-neutral-50 border border-neutral-200 text-xs font-medium text-neutral-900 rounded-xl placeholder:text-neutral-400 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs disabled:opacity-40"
                 />
-                <Lock
-                  size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500"
-                />
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            {/* Giriş Butonu */}
             <button
               type="submit"
               disabled={isLocked || loading}
-              className="w-full py-3.5 mt-2 bg-white hover:bg-neutral-200 text-black text-xs font-light tracking-[0.2em] uppercase flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+              className="w-full py-3.5 mt-2 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-xs font-bold uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 disabled:opacity-40 cursor-pointer"
             >
               {loading ? (
                 <span>Doğrulanıyor...</span>
@@ -272,17 +248,17 @@ export default function AdminLoginPage() {
                 <span>Kilitli ({formatCountdown(countdown)})</span>
               ) : (
                 <>
-                  <span>Panele Giriş Yap</span>
-                  <ArrowRight size={14} />
+                  <span>Yönetim Paneline Giriş Yap</span>
+                  <ArrowRight size={15} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Alt Güvenlik Bilgisi */}
-          <div className="mt-8 pt-6 border-t border-neutral-800/80 flex items-center justify-between text-[10px] font-mono text-neutral-500">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck size={13} className="text-emerald-500" />
+          {/* Security Note */}
+          <div className="mt-8 pt-5 border-t border-neutral-100 flex items-center justify-between text-[11px] text-neutral-400">
+            <span className="flex items-center gap-1.5 font-medium text-neutral-500">
+              <ShieldCheck size={14} className="text-emerald-500" />
               Brute-Force Korumalı
             </span>
             <span>Maks: 3 Deneme</span>
@@ -290,9 +266,9 @@ export default function AdminLoginPage() {
         </div>
       </div>
 
-      {/* Alt Bilgi Barı */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto text-center text-[10px] font-mono text-neutral-600 tracking-wider">
-        ÇANTA KATALOG ATELIER © 2026 • TÜM HAKLARI SAKLIDIR
+      {/* Footer */}
+      <div className="relative z-10 w-full max-w-md mx-auto text-center text-[11px] text-neutral-400">
+        ÇANTA PRO © 2026 • Kurumsal Toptan Çanta Yönetimi
       </div>
     </div>
   )

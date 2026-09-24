@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Search,
   Plus,
@@ -12,14 +13,16 @@ import {
   CheckCircle2,
   Clock,
   Layers,
-  ArrowUpDown,
+  ShoppingBag,
 } from 'lucide-react'
-import { formatPriceRange } from '@/lib/utils'
+import { formatPriceRange, cn } from '@/lib/utils'
 
 export interface AdminProductItem {
   id: string
   name: string
   slug: string
+  sku?: string | null
+  minOrderQty?: number | null
   status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
   priceMin: number | null
   priceMax: number | null
@@ -102,7 +105,8 @@ export function ProductsManagementTable({ initialProducts, categories }: Props) 
       const matchSearch =
         searchQuery.trim() === '' ||
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.slug.toLowerCase().includes(searchQuery.toLowerCase())
+        item.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.sku && item.sku.toLowerCase().includes(searchQuery.toLowerCase()))
 
       // Category
       const matchCategory =
@@ -118,232 +122,187 @@ export function ProductsManagementTable({ initialProducts, categories }: Props) 
 
   return (
     <div className="space-y-6">
-      {/* Üst Bar: Arama, Filtreler ve Yeni Ekle */}
-      <div className="bg-white border border-neutral-200/80 p-5 rounded-sm space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Arama Alanı */}
-          <div className="relative flex-1 max-w-md">
-            <Search
-              size={16}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
-            />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Model adı veya URL slug ile ara..."
-              className="w-full pl-10 pr-4 py-2.5 bg-neutral-50/70 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 hover:text-black"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* Aksiyon Butonu */}
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin/products/new"
-              className="px-4 py-2.5 bg-black text-white text-xs font-light tracking-widest uppercase hover:bg-neutral-800 transition-colors inline-flex items-center gap-2 shrink-0 shadow-xs"
-            >
-              <Plus size={15} />
-              Yeni Model Ekle
-            </Link>
-          </div>
+      {/* Search & Filter Controls */}
+      <div className="bg-white border border-neutral-200/90 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Search */}
+        <div className="relative flex-1 max-w-md">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Model adı, kumaş veya SKU kodu ile arayın..."
+            className="w-full pl-10 pr-4 py-2.5 text-xs bg-neutral-50 hover:bg-white focus:bg-white border border-neutral-200 focus:border-[#2d6a4f] rounded-xl focus:outline-hidden transition-all placeholder:text-neutral-400"
+          />
         </div>
 
-        {/* Filtre Barı */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-neutral-100 text-xs font-light">
-          {/* Durum Filtreleri */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            <span className="text-[11px] text-neutral-400 uppercase tracking-wider mr-1">
-              DURUM:
-            </span>
-            <button
-              onClick={() => setSelectedStatus('ALL')}
-              className={`px-3 py-1 text-xs tracking-wider uppercase transition-colors rounded-xs ${
-                selectedStatus === 'ALL'
-                  ? 'bg-black text-white'
-                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-              }`}
-            >
-              Tümü ({products.length})
-            </button>
-            <button
-              onClick={() => setSelectedStatus('ACTIVE')}
-              className={`px-3 py-1 text-xs tracking-wider uppercase transition-colors rounded-xs ${
-                selectedStatus === 'ACTIVE'
-                  ? 'bg-emerald-700 text-white'
-                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
-              }`}
-            >
-              Aktif ({products.filter((p) => p.status === 'ACTIVE').length})
-            </button>
-            <button
-              onClick={() => setSelectedStatus('DRAFT')}
-              className={`px-3 py-1 text-xs tracking-wider uppercase transition-colors rounded-xs ${
-                selectedStatus === 'DRAFT'
-                  ? 'bg-amber-700 text-white'
-                  : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
-              }`}
-            >
-              Taslak ({products.filter((p) => p.status === 'DRAFT').length})
-            </button>
-          </div>
+        {/* Filter Dropdowns */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Category Filter */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="text-xs font-semibold px-3 py-2 bg-neutral-50 hover:bg-white border border-neutral-200 rounded-xl focus:border-[#2d6a4f] focus:outline-hidden cursor-pointer"
+          >
+            <option value="ALL">Tüm Kategoriler ({categories.length})</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
 
-          {/* Kategori Seçici */}
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-neutral-400 uppercase tracking-wider">
-              KATEGORİ:
-            </span>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="py-1 px-3 bg-neutral-50 border border-neutral-200 text-xs font-light text-black focus:outline-none focus:border-black cursor-pointer"
-            >
-              <option value="ALL">Tüm Kategoriler</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Status Filter */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="text-xs font-semibold px-3 py-2 bg-neutral-50 hover:bg-white border border-neutral-200 rounded-xl focus:border-[#2d6a4f] focus:outline-hidden cursor-pointer"
+          >
+            <option value="ALL">Tüm Durumlar</option>
+            <option value="ACTIVE">Yayında (Aktif)</option>
+            <option value="DRAFT">Taslak</option>
+          </select>
+
+          <span className="text-xs font-bold text-neutral-600 bg-neutral-100 px-3 py-2 rounded-xl">
+            {filteredProducts.length} Model
+          </span>
         </div>
       </div>
 
-      {/* Ürün Listesi Tablosu */}
-      <div className="bg-white border border-neutral-200/80 rounded-sm shadow-xs overflow-hidden">
+      {/* Modern Products Table */}
+      <div className="bg-white border border-neutral-200/90 rounded-3xl shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-neutral-200 bg-neutral-50/70 text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase">
-                <th className="py-3.5 px-4 w-16">GÖRSEL</th>
-                <th className="py-3.5 px-4">MODEL & SLUG</th>
-                <th className="py-3.5 px-4">KATEGORİ</th>
-                <th className="py-3.5 px-4">FİYAT SKALASI</th>
-                <th className="py-3.5 px-4 text-center">YAYIN DURUMU</th>
-                <th className="py-3.5 px-4 text-right">İŞLEMLER</th>
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#f9fafb] border-b border-neutral-200 text-neutral-500 font-bold uppercase tracking-wider text-[10px]">
+              <tr>
+                <th className="py-3.5 px-4 sm:px-6">Model / Görsel</th>
+                <th className="py-3.5 px-4">SKU / Ref</th>
+                <th className="py-3.5 px-4">Kategori</th>
+                <th className="py-3.5 px-4">Toptan Fiyat Aralığı</th>
+                <th className="py-3.5 px-4">Min. Sipariş</th>
+                <th className="py-3.5 px-4 text-center">Durum</th>
+                <th className="py-3.5 px-4 sm:px-6 text-right">İşlemler</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 text-sm font-light">
+            <tbody className="divide-y divide-neutral-100">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-16 text-center text-xs text-neutral-400 font-light">
-                    Kriterlere uyan çanta modeli bulunamadı.
+                  <td colSpan={7} className="py-16 text-center text-neutral-400">
+                    Arama kriterlerine uygun çanta modeli bulunamadı.
                   </td>
                 </tr>
               ) : (
                 filteredProducts.map((product) => {
-                  const hasImage = product.images && product.images.length > 0
+                  const imgUrl = product.images?.[0]?.url
+                  const formattedPrice = formatPriceRange(product.priceMin, product.priceMax)
+
                   return (
                     <tr
                       key={product.id}
-                      className="hover:bg-neutral-50/70 transition-colors group"
+                      className="hover:bg-neutral-50/80 transition-colors group"
                     >
-                      {/* Görsel */}
-                      <td className="py-3.5 px-4">
-                        <div className="w-12 h-16 bg-neutral-100 relative overflow-hidden border border-neutral-200 shrink-0">
-                          {hasImage ? (
-                            <img
-                              src={product.images[0].url}
-                              alt={product.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[9px] text-neutral-400 uppercase tracking-tighter">
-                              YOK
-                            </div>
-                          )}
+                      {/* Product Thumbnail & Name */}
+                      <td className="py-4 px-4 sm:px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-neutral-100 relative overflow-hidden shrink-0 border border-neutral-200/70">
+                            {imgUrl ? (
+                              <Image
+                                src={imgUrl}
+                                alt={product.name}
+                                fill
+                                className="object-cover"
+                                sizes="48px"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                                <ShoppingBag size={18} />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <Link
+                              href={`/admin/products/${product.id}`}
+                              className="font-bold text-neutral-900 group-hover:text-[#2d6a4f] transition-colors block text-sm leading-snug line-clamp-1"
+                            >
+                              {product.name}
+                            </Link>
+                            <span className="text-[11px] text-neutral-400 font-mono">
+                              /{product.slug}
+                            </span>
+                          </div>
                         </div>
                       </td>
 
-                      {/* Model & Slug */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex flex-col">
-                          <Link
-                            href={`/admin/products/${product.id}`}
-                            className="text-sm font-normal text-black hover:underline uppercase tracking-wide"
-                          >
-                            {product.name}
-                          </Link>
-                          <span className="text-[11px] font-mono text-neutral-400 tracking-tight mt-0.5">
-                            /{product.slug}
-                          </span>
-                        </div>
+                      {/* SKU */}
+                      <td className="py-4 px-4 font-mono text-[11px] text-neutral-600 font-medium">
+                        {product.sku || 'REF: -'}
                       </td>
 
-                      {/* Kategori */}
-                      <td className="py-3.5 px-4">
-                        <span className="inline-block px-2 py-0.5 bg-neutral-100 text-neutral-700 text-xs tracking-wider uppercase">
+                      {/* Category */}
+                      <td className="py-4 px-4 text-neutral-700 font-medium">
+                        <span className="bg-neutral-100 px-2 py-0.5 rounded-md text-[11px]">
                           {product.category?.name || 'Kategorisiz'}
                         </span>
                       </td>
 
-                      {/* Fiyat Skalası */}
-                      <td className="py-3.5 px-4">
-                        <span className="text-xs font-mono text-neutral-600">
-                          {formatPriceRange(product.priceMin, product.priceMax)}
+                      {/* Price Range */}
+                      <td className="py-4 px-4">
+                        <span className="font-bold text-neutral-900 block">
+                          {formattedPrice}
+                        </span>
+                        <span className="text-[10px] text-neutral-400 font-medium">
+                          + KDV / Adet
                         </span>
                       </td>
 
-                      {/* 1-Click Status Toggle */}
-                      <td className="py-3.5 px-4 text-center">
+                      {/* Min Order */}
+                      <td className="py-4 px-4 text-neutral-600 font-medium">
+                        {product.minOrderQty || 50} Adet
+                      </td>
+
+                      {/* Status Toggle */}
+                      <td className="py-4 px-4 text-center">
                         <button
                           type="button"
                           disabled={togglingId === product.id}
                           onClick={() => handleToggleStatus(product.id)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded text-[11px] tracking-wider uppercase font-light transition-all cursor-pointer ${
+                          className={cn(
+                            'text-[10px] font-bold px-3 py-1 rounded-full border transition-all cursor-pointer shadow-2xs',
                             product.status === 'ACTIVE'
-                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
-                              : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
-                          } ${togglingId === product.id ? 'opacity-50' : ''}`}
-                          title="Durumu değiştirmek için tıklayın"
+                              ? 'bg-emerald-50 text-[#2d6a4f] border-emerald-200 hover:bg-emerald-100'
+                              : 'bg-neutral-100 text-neutral-500 border-neutral-200 hover:bg-neutral-200'
+                          )}
                         >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              product.status === 'ACTIVE'
-                                ? 'bg-emerald-600'
-                                : 'bg-amber-600'
-                            }`}
-                          />
-                          {product.status === 'ACTIVE' ? 'Aktif (Yayında)' : 'Taslak'}
+                          {product.status === 'ACTIVE' ? 'Yayında' : 'Taslak'}
                         </button>
                       </td>
 
-                      {/* İşlemler */}
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          {/* Vitrinde Önizle */}
+                      {/* Actions */}
+                      <td className="py-4 px-4 sm:px-6 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
                           <Link
-                            href={`/products/${product.slug}`}
+                            href={`/categories/${product.slug}`}
                             target="_blank"
-                            className="p-2 text-neutral-400 hover:text-black transition-colors rounded hover:bg-neutral-100"
-                            title="Vitrinde Önizle (Yeni Sekme)"
+                            className="p-2 text-neutral-400 hover:text-neutral-900 rounded-lg hover:bg-neutral-100 transition-colors"
+                            title="Vitrinde Görüntüle"
                           >
                             <ExternalLink size={15} />
                           </Link>
 
-                          {/* Düzenle */}
                           <Link
                             href={`/admin/products/${product.id}`}
-                            className="p-2 text-neutral-500 hover:text-black transition-colors rounded hover:bg-neutral-100"
-                            title="Modeli Düzenle"
+                            className="p-2 text-[#2d6a4f] hover:bg-[#2d6a4f]/10 rounded-lg transition-colors"
+                            title="Düzenle"
                           >
                             <Edit size={15} />
                           </Link>
 
-                          {/* Sil */}
                           <button
                             type="button"
                             disabled={deletingId === product.id}
                             onClick={() => handleDeleteProduct(product.id, product.name)}
-                            className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded hover:bg-red-50 disabled:opacity-50"
-                            title="Kalıcı Olarak Sil"
+                            className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                            title="Modeli Sil"
                           >
                             <Trash2 size={15} />
                           </button>
@@ -355,17 +314,6 @@ export function ProductsManagementTable({ initialProducts, categories }: Props) 
               )}
             </tbody>
           </table>
-        </div>
-
-        {/* Tablo Alt Bilgi Barı */}
-        <div className="p-4 bg-neutral-50/50 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-400 font-light">
-          <span>
-            Toplam {filteredProducts.length} çanta listeleniyor (Toplam {products.length})
-          </span>
-          <span className="font-mono text-[11px]">
-            {products.filter((p) => p.status === 'ACTIVE').length} Aktif •{' '}
-            {products.filter((p) => p.status === 'DRAFT').length} Taslak
-          </span>
         </div>
       </div>
     </div>

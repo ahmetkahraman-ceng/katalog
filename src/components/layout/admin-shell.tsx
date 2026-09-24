@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { AdminSidebar } from './admin-sidebar'
-import { Plus, ExternalLink, Menu } from 'lucide-react'
+import { Plus, ExternalLink, Menu, Bell, ShieldCheck } from 'lucide-react'
 
 interface AdminShellProps {
   children: React.ReactNode
@@ -13,7 +13,7 @@ export function AdminShell({ children }: AdminShellProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-[#f9f9f8] text-[#1a1c1c]">
+    <div className="flex min-h-screen bg-[#f9fafb] text-neutral-900">
       {/* Sidebar (Desktop static + Mobile drawer) */}
       <AdminSidebar
         isOpen={mobileMenuOpen}
@@ -22,33 +22,33 @@ export function AdminShell({ children }: AdminShellProps) {
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Operational Header */}
-        <header className="h-16 bg-white border-b border-neutral-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
+        <header className="h-16 bg-white border-b border-neutral-200/90 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
           <div className="flex items-center gap-3">
             {/* Mobile Hamburger Menu Button */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 -ml-2 text-neutral-600 hover:text-black hover:bg-neutral-100 rounded cursor-pointer transition-colors"
+              className="lg:hidden p-2 -ml-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-xl cursor-pointer transition-colors"
               title="Menüyü Aç"
             >
               <Menu size={20} />
             </button>
 
-            <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-neutral-400 truncate">
-              ÇANTA ATELIER / MERKEZ KONTROL
+            <span className="text-xs font-bold text-neutral-800 tracking-wide">
+              TOPTAN ÇANTA YÖNETİM MERKEZİ
             </span>
             <span className="hidden md:inline-block w-1 h-1 rounded-full bg-neutral-300" />
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] font-mono uppercase text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">
+            <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              SİSTEM AKTİF
+              Sistem Aktif
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <Link
               href="/"
               target="_blank"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-light tracking-wider uppercase text-neutral-600 hover:text-black hover:bg-neutral-100 transition-colors border border-neutral-200"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 transition-colors border border-neutral-200 rounded-xl"
             >
               <ExternalLink size={13} />
               <span>Vitrini Gör</span>
@@ -56,10 +56,10 @@ export function AdminShell({ children }: AdminShellProps) {
 
             <Link
               href="/admin/products/new"
-              className="px-3.5 py-1.5 bg-black hover:bg-neutral-800 text-white text-[11px] font-light tracking-widest uppercase flex items-center gap-1.5 transition-colors shadow-xs"
+              className="px-4 py-1.5 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all shadow-xs active:scale-95"
             >
-              <Plus size={14} />
-              <span className="hidden xs:inline">Yeni Model</span>
+              <Plus size={14} className="stroke-[2.5]" />
+              <span>Yeni Model</span>
             </Link>
           </div>
         </header>

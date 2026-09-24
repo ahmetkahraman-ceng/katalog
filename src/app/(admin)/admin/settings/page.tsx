@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import {
   Settings,
   Save,
-  CheckCircle,
+  CheckCircle2,
   Phone,
   Mail,
   MapPin,
@@ -12,6 +12,8 @@ import {
   FileText,
   Share2,
   ExternalLink,
+  Building2,
+  AlertCircle,
 } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 
@@ -94,7 +96,7 @@ export default function AdminSettingsPage() {
       })
 
       if (res.ok) {
-        setSuccessMsg('Atölye ve iletişim ayarları başarıyla kaydedildi!')
+        setSuccessMsg('Firma ve iletişim ayarları başarıyla kaydedildi!')
         setTimeout(() => setSuccessMsg(null), 5000)
       } else {
         setErrorMsg('Ayarlar kaydedilirken hata oluştu.')
@@ -108,7 +110,7 @@ export default function AdminSettingsPage() {
 
   if (loading) {
     return (
-      <div className="py-20 text-center text-xs font-light text-neutral-400">
+      <div className="py-24 text-center text-xs text-neutral-400">
         Ayarlar yükleniyor...
       </div>
     )
@@ -116,267 +118,255 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="space-y-8 max-w-5xl">
-      {/* Üst Başlık Barı */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/80 pb-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/90 pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Settings size={14} className="text-black" />
-            <span className="text-[10px] font-mono tracking-[0.25em] text-neutral-400 uppercase">
-              YÖNETİM & İLETİŞİM KONFİGÜRASYONU
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-light tracking-wide uppercase text-black font-serif">
-            Atölye & Site Ayarları
+          <span className="text-[11px] font-bold tracking-wider text-[#2d6a4f] uppercase block mb-1">
+            SİSTEM & KURUMSAL BİLGİLER
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
+            Firma & İletişim Ayarları
           </h1>
+          <p className="text-xs sm:text-sm text-neutral-500 mt-1">
+            Teklif formlarında, header ve footer alanlarında görünen iletişim ve firma bilgileri.
+          </p>
         </div>
+
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="px-6 py-2.5 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center gap-2 active:scale-95 disabled:opacity-50 cursor-pointer self-start sm:self-auto"
+        >
+          <Save size={15} />
+          <span>{saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}</span>
+        </button>
       </div>
 
-      {/* Mesaj Bildirimleri */}
+      {/* Notifications */}
       {successMsg && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-light rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle size={17} className="text-emerald-600 shrink-0" />
-            <span>{successMsg}</span>
-          </div>
-          <a
-            href={`/?t=${Date.now()}`}
-            target="_blank"
-            rel="noreferrer"
-            className="px-3 py-1.5 bg-emerald-700 text-white text-[11px] font-mono tracking-wider uppercase hover:bg-emerald-800 transition-colors inline-flex items-center gap-1.5 shrink-0 self-start sm:self-auto rounded-xs shadow-xs"
-          >
-            <span>Canlı URL'yi Aç</span>
-            <ExternalLink size={13} />
-          </a>
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-2xl flex items-center gap-2 shadow-2xs">
+          <CheckCircle2 size={16} className="text-[#2d6a4f]" />
+          <span>{successMsg}</span>
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-800 text-xs font-light rounded-sm">
-          {errorMsg}
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold rounded-2xl flex items-center gap-2 shadow-2xs">
+          <AlertCircle size={16} className="text-rose-600" />
+          <span>{errorMsg}</span>
         </div>
       )}
 
-      <form onSubmit={handleSave} className="space-y-8">
-        {/* 1. KISIM: WHATSAPP SİPARİŞ & TEKLİF HATTI */}
-        <div className="bg-white border border-neutral-200/80 p-6 sm:p-7 rounded-sm shadow-2xs space-y-5">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-neutral-100">
-            <WhatsAppIcon size={18} className="text-[#25D366]" />
-            <div>
-              <h2 className="text-sm font-light tracking-wider uppercase text-black">
-                WhatsApp Doğrudan Teklif & Sipariş Hattı
-              </h2>
-              <p className="text-[11px] text-neutral-400 font-light mt-0.5">
-                Sitenin sağ altındaki ve ürün detaylarındaki WhatsApp butonlarının yönlendirdiği numara
-              </p>
+      <form onSubmit={handleSave} className="space-y-6">
+        {/* Card 1: Marka & Firma */}
+        <div className="bg-white border border-neutral-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-neutral-100">
+            <div className="w-8 h-8 rounded-xl bg-[#2d6a4f]/10 text-[#2d6a4f] flex items-center justify-center font-bold">
+              <Building2 size={16} />
             </div>
+            <h2 className="text-sm font-bold text-neutral-900">
+              Marka & Firma Kimliği
+            </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
-                WhatsApp Numarası (Ülke kodu ile, başında 90) *
-              </label>
-              <input
-                type="text"
-                value={whatsapp}
-                onChange={(e) => setWhatsapp(e.target.value)}
-                placeholder="905555550123"
-                required
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-mono text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
-              />
-              <span className="text-[10px] text-neutral-400 font-mono mt-1 block">
-                Örnek format: 905321234567 (Boşluksuz ve artı işareti olmadan)
-              </span>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
-                Varsayılan Karşılama Mesajı
-              </label>
-              <textarea
-                value={whatsappDefaultMessage}
-                onChange={(e) => setWhatsappDefaultMessage(e.target.value)}
-                rows={2}
-                placeholder="Merhaba, çanta modelleriniz ve özel üretim teklifleri hakkında bilgi almak istiyorum."
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors resize-none leading-relaxed"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 2. KISIM: ATÖLYE & İLETİŞİM DETAYLARI */}
-        <div className="bg-white border border-neutral-200/80 p-6 sm:p-7 rounded-sm shadow-2xs space-y-5">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-neutral-100">
-            <MapPin size={16} className="text-black" />
-            <div>
-              <h2 className="text-sm font-light tracking-wider uppercase text-black">
-                Atölye Bilgileri & Lokasyon
-              </h2>
-              <p className="text-[11px] text-neutral-400 font-light mt-0.5">
-                Header, footer ve teklif e-postalarında görünen kurumsal bilgiler
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
-                Marka / Atölye Adı
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                Marka / Firma Adı
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="ÇANTA ATELIER"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                placeholder="Örn: ÇANTA PRO"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 Slogan / Alt Başlık
               </label>
               <input
                 type="text"
                 value={tagline}
                 onChange={(e) => setTagline(e.target.value)}
-                placeholder="Hakiki Deri ve Zanaatkâr El İşçiliği"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                placeholder="Örn: Kurumsal Promosyon Çanta Çözümleri"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Hızlı Teklif & WhatsApp */}
+        <div className="bg-white border border-neutral-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-neutral-100">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#25D366] flex items-center justify-center font-bold">
+              <WhatsAppIcon size={16} />
+            </div>
+            <h2 className="text-sm font-bold text-neutral-900">
+              Hızlı Teklif Hattı & WhatsApp
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                WhatsApp Numarası
+              </label>
+              <input
+                type="text"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="905300000000"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
-                Kurumsal Telefon
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                Sabit / Ofis Telefonu
               </label>
               <input
                 type="text"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+90 (212) 555 01 23"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                placeholder="+90 (212) 000 00 00"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                WhatsApp Varsayılan Karşılama Mesajı
+              </label>
+              <input
+                type="text"
+                value={whatsappDefaultMessage}
+                onChange={(e) => setWhatsappDefaultMessage(e.target.value)}
+                placeholder="Merhaba, toptan çanta üretimi ve fiyat teklifi hakkında bilgi almak istiyorum."
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: İletişim & Lokasyon */}
+        <div className="bg-white border border-neutral-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-neutral-100">
+            <div className="w-8 h-8 rounded-xl bg-neutral-100 text-neutral-700 flex items-center justify-center font-bold">
+              <MapPin size={16} />
+            </div>
+            <h2 className="text-sm font-bold text-neutral-900">
+              İletişim & Lokasyon Bilgileri
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 Kurumsal E-posta
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="info@cantaatelier.com"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
-                Atölye / Showroom Açık Adresi
-              </label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Nişantaşı / Teşvikiye Cad. No: 42, Şişli, İstanbul"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                placeholder="teklif@cantapro.com"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 Çalışma Saatleri
               </label>
               <input
                 type="text"
                 value={workingHours}
                 onChange={(e) => setWorkingHours(e.target.value)}
-                placeholder="Pazartesi - Cumartesi: 09:30 - 19:00"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                placeholder="Hafta içi 09:00 - 18:00"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
-            <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
-                Dijital PDF Katalog İndirme Linki
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                Atölye / Fabrika Adresi
               </label>
-              <input
-                type="text"
-                value={catalogPdfUrl}
-                onChange={(e) => setCatalogPdfUrl(e.target.value)}
-                placeholder="/katalog-2026.pdf veya Google Drive linki"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-mono text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+              <textarea
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="İkitelli OSB, Çanta İmalatçıları Sanayi Sitesi, No: 42, Başakşehir / İstanbul"
+                rows={2}
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all resize-none shadow-2xs"
               />
             </div>
           </div>
         </div>
 
-        {/* 3. KISIM: SOSYAL MEDYA LİNKLERİ */}
-        <div className="bg-white border border-neutral-200/80 p-6 sm:p-7 rounded-sm shadow-2xs space-y-5">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-neutral-100">
-            <Share2 size={16} className="text-black" />
-            <div>
-              <h2 className="text-sm font-light tracking-wider uppercase text-black">
-                Sosyal Medya Hesapları
-              </h2>
-              <p className="text-[11px] text-neutral-400 font-light mt-0.5">
-                Footer'da yer alan sosyal medya yönlendirme bağlantıları
-              </p>
+        {/* Card 4: Katalog PDF & Sosyal Medya */}
+        <div className="bg-white border border-neutral-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-neutral-100">
+            <div className="w-8 h-8 rounded-xl bg-neutral-100 text-neutral-700 flex items-center justify-center font-bold">
+              <Share2 size={16} />
             </div>
+            <h2 className="text-sm font-bold text-neutral-900">
+              Katalog PDF & Sosyal Medya Bağlantıları
+            </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+                Katalog PDF İndirme Bağlantısı
+              </label>
+              <input
+                type="url"
+                value={catalogPdfUrl}
+                onChange={(e) => setCatalogPdfUrl(e.target.value)}
+                placeholder="https://example.com/2026-toptan-canta-katalogu.pdf"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
+              />
+            </div>
+
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 Instagram URL
               </label>
               <input
                 type="url"
                 value={instagramUrl}
                 onChange={(e) => setInstagramUrl(e.target.value)}
-                placeholder="https://instagram.com/cantamarka"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-mono text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                placeholder="https://instagram.com/cantapro"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
-                Pinterest URL
-              </label>
-              <input
-                type="url"
-                value={pinterestUrl}
-                onChange={(e) => setPinterestUrl(e.target.value)}
-                placeholder="https://pinterest.com/cantamarka"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-mono text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 LinkedIn URL
               </label>
               <input
                 type="url"
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
-                placeholder="https://linkedin.com/company/cantamarka"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-mono text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                placeholder="https://linkedin.com/company/cantapro"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
           </div>
         </div>
 
-        {/* Kaydet Butonu */}
-        <div className="pt-2">
+        {/* Bottom Save Button */}
+        <div className="flex justify-end pt-2">
           <button
             type="submit"
             disabled={saving}
-            className="w-full sm:w-auto px-8 py-3.5 bg-black hover:bg-neutral-800 text-white text-xs font-light tracking-[0.2em] uppercase flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-md disabled:opacity-50"
+            className="px-8 py-3.5 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer flex items-center gap-2"
           >
-            <Save size={15} />
-            <span>{saving ? 'Kaydediliyor...' : 'Atölye Ayarlarını Kaydet'}</span>
+            <Save size={16} />
+            <span>{saving ? 'Kaydediliyor...' : 'Tüm Ayarları Kaydet'}</span>
           </button>
         </div>
       </form>

@@ -2,14 +2,17 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Eye, ExternalLink, ArrowRight, CheckCircle2, Clock, Phone, Mail } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import Image from 'next/image'
+import { Eye, ExternalLink, ArrowRight, CheckCircle2, Clock, Phone, Mail, ShoppingBag } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
+import { formatPriceRange, cn } from '@/lib/utils'
 
 interface Inquiry {
   id: string
   customerName: string
   phone: string
   email: string
+  companyName?: string
   status: 'NEW' | 'CONTACTED' | 'CLOSED'
   createdAt: string
   items: { product: { name: string } }[]
@@ -19,9 +22,13 @@ interface Product {
   id: string
   name: string
   slug: string
+  sku?: string | null
   status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
   category?: { name: string }
   images: { url: string }[]
+  priceMin?: number | null
+  priceMax?: number | null
+  minOrderQty?: number | null
 }
 
 interface Props {
@@ -43,8 +50,8 @@ export function DashboardRecentTables({ initialInquiries, initialProducts }: Pro
         body: JSON.stringify({ status: newStatus }),
       })
       if (res.ok) {
-        setInquiries(prev =>
-          prev.map(inq => (inq.id === id ? { ...inq, status: newStatus } : inq))
+        setInquiries((prev) =>
+          prev.map((inq) => (inq.id === id ? { ...inq, status: newStatus } : inq))
         )
       }
     } catch (err) {
@@ -61,8 +68,8 @@ export function DashboardRecentTables({ initialInquiries, initialProducts }: Pro
       })
       if (res.ok) {
         const data = await res.json()
-        setProducts(prev =>
-          prev.map(p => (p.id === id ? { ...p, status: data.status } : p))
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, status: data.status } : p))
         )
       }
     } catch (err) {
@@ -71,104 +78,112 @@ export function DashboardRecentTables({ initialInquiries, initialProducts }: Pro
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       {/* Sol 7 Kolon: Son Gelen Talepler */}
-      <div className="lg:col-span-7 bg-white border border-neutral-200/80 rounded-sm shadow-xs p-6 sm:p-7">
+      <div className="lg:col-span-7 bg-white border border-neutral-200/90 rounded-3xl shadow-xs p-6 sm:p-7">
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
           <div>
-            <span className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase">
-              MÜŞTERİ İLETİŞİM AKIŞI
+            <span className="text-[10px] font-bold tracking-wider text-[#2d6a4f] uppercase block mb-0.5">
+              MÜŞTERİ TALEPLERİ
             </span>
-            <h2 className="text-base sm:text-lg font-light tracking-wider uppercase text-black mt-0.5">
+            <h2 className="text-base sm:text-lg font-bold text-neutral-900">
               Son Gelen Teklif Talepleri
             </h2>
           </div>
           <Link
             href="/admin/inquiries"
-            className="text-[11px] font-light tracking-widest uppercase text-neutral-500 hover:text-black transition-colors flex items-center gap-1"
+            className="text-xs font-semibold text-[#2d6a4f] hover:text-[#1b4332] transition-colors flex items-center gap-1"
           >
-            Tümünü Gör
-            <ArrowRight size={13} />
+            <span>Tümünü Gör</span>
+            <ArrowRight size={14} />
           </Link>
         </div>
 
         {inquiries.length === 0 ? (
-          <div className="py-12 text-center text-xs font-light text-neutral-400">
+          <div className="py-12 text-center text-xs text-neutral-400">
             Henüz bekleyen bir teklif talebi bulunmuyor.
           </div>
         ) : (
           <div className="divide-y divide-neutral-100">
             {inquiries.map((inq) => {
-              const productName =
-                inq.items?.[0]?.product?.name || 'Genel Teklif Talebi'
+              const formattedDate = new Date(inq.createdAt).toLocaleDateString('tr-TR', {
+                day: '2-digit',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+
               return (
-                <div
-                  key={inq.id}
-                  className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-neutral-50/60 transition-colors px-2 -mx-2 rounded"
-                >
-                  <div className="flex flex-col gap-1">
+                <div key={inq.id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-normal text-black">
+                      <span className="text-sm font-bold text-neutral-900">
                         {inq.customerName}
                       </span>
-                      <span className="text-[10px] font-mono text-neutral-400">
-                        {new Date(inq.createdAt).toLocaleDateString('tr-TR')}
-                      </span>
+                      {inq.companyName && (
+                        <span className="text-[11px] font-medium text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-md">
+                          {inq.companyName}
+                        </span>
+                      )}
                     </div>
 
-                    <p className="text-xs text-neutral-600 font-light truncate max-w-xs">
-                      {productName}
-                    </p>
-
-                    <div className="flex items-center gap-3 text-[11px] text-neutral-400 font-mono pt-0.5">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
                       <a
                         href={`tel:${inq.phone}`}
                         className="hover:text-black flex items-center gap-1"
                       >
-                        <Phone size={11} />
-                        {inq.phone}
+                        <Phone size={12} className="text-neutral-400" />
+                        <span>{inq.phone}</span>
                       </a>
-                      <span>•</span>
                       <a
-                        href={`mailto:${inq.email}`}
-                        className="hover:text-black flex items-center gap-1"
+                        href={`https://wa.me/${inq.phone.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:text-[#25D366] flex items-center gap-1 text-[#25D366] font-medium"
                       >
-                        <Mail size={11} />
-                        {inq.email}
+                        <WhatsAppIcon size={12} />
+                        <span>WhatsApp</span>
                       </a>
+                      <span className="text-neutral-300">•</span>
+                      <span className="text-[11px] text-neutral-400 font-mono">{formattedDate}</span>
+                    </div>
+
+                    <div className="pt-1">
+                      <span className="text-xs text-neutral-600 line-clamp-1">
+                        <span className="font-semibold text-neutral-700">İstenen: </span>
+                        {inq.items.map((i) => i.product.name).join(', ') || 'Özel talep'}
+                      </span>
                     </div>
                   </div>
 
-                  {/* 1-Click Status Dropdown & Action */}
-                  <div className="flex items-center gap-2.5 sm:self-center">
+                  <div className="flex items-center gap-2.5 self-end sm:self-center shrink-0">
                     <select
                       value={inq.status}
                       disabled={updatingId === inq.id}
                       onChange={(e) =>
-                        handleInquiryStatusChange(
-                          inq.id,
-                          e.target.value as any
-                        )
+                        handleInquiryStatusChange(inq.id, e.target.value as any)
                       }
-                      className={`text-[11px] font-light tracking-wider uppercase px-2.5 py-1.5 border rounded-sm focus:outline-none cursor-pointer ${
-                        inq.status === 'NEW'
-                          ? 'bg-amber-50 text-amber-800 border-amber-300'
-                          : inq.status === 'CONTACTED'
-                          ? 'bg-blue-50 text-blue-800 border-blue-300'
-                          : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                      }`}
+                      className={cn(
+                        'text-xs font-semibold px-2.5 py-1.5 rounded-xl border transition-colors outline-hidden cursor-pointer shadow-2xs',
+                        inq.status === 'NEW' &&
+                          'bg-amber-50 text-amber-800 border-amber-200',
+                        inq.status === 'CONTACTED' &&
+                          'bg-blue-50 text-blue-800 border-blue-200',
+                        inq.status === 'CLOSED' &&
+                          'bg-emerald-50 text-[#2d6a4f] border-emerald-200'
+                      )}
                     >
                       <option value="NEW">Yeni Talep</option>
                       <option value="CONTACTED">İletişime Geçildi</option>
-                      <option value="CLOSED">Kapandı / Onay</option>
+                      <option value="CLOSED">Tamamlandı</option>
                     </select>
 
                     <Link
                       href={`/admin/inquiries/${inq.id}`}
-                      className="p-1.5 text-neutral-400 hover:text-black transition-colors"
+                      className="p-1.5 text-neutral-400 hover:text-neutral-900 rounded-lg hover:bg-neutral-100 transition-colors"
                       title="Detay Görüntüle"
                     >
-                      <Eye size={15} />
+                      <Eye size={16} />
                     </Link>
                   </div>
                 </div>
@@ -178,114 +193,101 @@ export function DashboardRecentTables({ initialInquiries, initialProducts }: Pro
         )}
       </div>
 
-      {/* Sağ 5 Kolon: Son Eklenen Modeller & Hızlı İşlemler */}
-      <div className="lg:col-span-5 flex flex-col gap-6">
-        <div className="bg-white border border-neutral-200/80 rounded-sm shadow-xs p-6">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-100">
-            <div>
-              <span className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase">
-                ENVANTER
-              </span>
-              <h2 className="text-base font-light tracking-wider uppercase text-black mt-0.5">
-                Son Eklenen Modeller
-              </h2>
-            </div>
-            <Link
-              href="/admin/products"
-              className="text-[11px] font-light tracking-widest uppercase text-neutral-500 hover:text-black transition-colors flex items-center gap-1"
-            >
-              Tümü
-              <ArrowRight size={13} />
-            </Link>
+      {/* Sağ 5 Kolon: Son Eklenen Çanta Modelleri */}
+      <div className="lg:col-span-5 bg-white border border-neutral-200/90 rounded-3xl shadow-xs p-6 sm:p-7">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
+          <div>
+            <span className="text-[10px] font-bold tracking-wider text-[#2d6a4f] uppercase block mb-0.5">
+              KATALOG ENVANTERİ
+            </span>
+            <h2 className="text-base sm:text-lg font-bold text-neutral-900">
+              Son Çanta Modelleri
+            </h2>
           </div>
+          <Link
+            href="/admin/products"
+            className="text-xs font-semibold text-[#2d6a4f] hover:text-[#1b4332] transition-colors flex items-center gap-1"
+          >
+            <span>Tüm Modeller</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
 
+        {products.length === 0 ? (
+          <div className="py-12 text-center text-xs text-neutral-400">
+            Katalogda henüz kayıtlı çanta bulunmuyor.
+          </div>
+        ) : (
           <div className="divide-y divide-neutral-100">
-            {products.slice(0, 5).map((prod) => (
-              <div
-                key={prod.id}
-                className="py-3 flex items-center justify-between gap-3"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-13 bg-neutral-100 overflow-hidden relative border border-neutral-200 shrink-0">
-                    {prod.images?.[0] ? (
-                      <img
-                        src={prod.images[0].url}
-                        alt={prod.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[9px] text-neutral-400">
-                        ÇANTA
+            {products.map((p) => {
+              const imgUrl = p.images?.[0]?.url
+              const priceText = formatPriceRange(p.priceMin, p.priceMax)
+
+              return (
+                <div key={p.id} className="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-12 h-12 rounded-xl bg-neutral-100 relative overflow-hidden shrink-0 border border-neutral-200/60">
+                      {imgUrl ? (
+                        <Image
+                          src={imgUrl}
+                          alt={p.name}
+                          fill
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                          <ShoppingBag size={18} />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0">
+                      <Link
+                        href={`/admin/products/${p.id}`}
+                        className="text-xs sm:text-sm font-semibold text-neutral-900 hover:text-[#2d6a4f] transition-colors truncate block"
+                      >
+                        {p.name}
+                      </Link>
+                      <div className="flex items-center gap-2 text-[11px] text-neutral-400 mt-0.5">
+                        <span className="font-mono">{p.sku || 'REF: -'}</span>
+                        <span>•</span>
+                        <span>{p.category?.name || 'Kategorisiz'}</span>
                       </div>
-                    )}
+                      <div className="text-[11px] font-semibold text-neutral-800 mt-0.5">
+                        {priceText}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-xs font-light text-black truncate max-w-[150px] uppercase">
-                      {prod.name}
-                    </h3>
-                    <span className="text-[10px] text-neutral-400 font-light block">
-                      {prod.category?.name || 'Kategorisiz'}
-                    </span>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleProductToggle(p.id)}
+                      className={cn(
+                        'text-[10px] font-bold px-2.5 py-1 rounded-full border transition-all cursor-pointer shadow-2xs',
+                        p.status === 'ACTIVE'
+                          ? 'bg-emerald-50 text-[#2d6a4f] border-emerald-200 hover:bg-emerald-100'
+                          : 'bg-neutral-100 text-neutral-500 border-neutral-200 hover:bg-neutral-200'
+                      )}
+                    >
+                      {p.status === 'ACTIVE' ? 'Yayında' : 'Taslak'}
+                    </button>
+
+                    <Link
+                      href={`/categories/${p.slug}`}
+                      target="_blank"
+                      className="p-1.5 text-neutral-400 hover:text-neutral-900 rounded-lg hover:bg-neutral-100 transition-colors"
+                      title="Vitrinde Gör"
+                    >
+                      <ExternalLink size={14} />
+                    </Link>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleProductToggle(prod.id)}
-                    className={`text-[9px] font-light tracking-widest uppercase px-2 py-0.5 rounded cursor-pointer transition-colors ${
-                      prod.status === 'ACTIVE'
-                        ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-                    }`}
-                    title="Durumu değiştirmek için tıkla"
-                  >
-                    {prod.status === 'ACTIVE' ? 'Aktif' : 'Taslak'}
-                  </button>
-
-                  <Link
-                    href={`/products/${prod.slug}`}
-                    target="_blank"
-                    className="p-1 text-neutral-400 hover:text-black"
-                    title="Vitrinde Gör"
-                  >
-                    <ExternalLink size={13} />
-                  </Link>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
-        </div>
-
-        {/* Hızlı Atölye Kısayolları */}
-        <div className="bg-neutral-100/70 border border-neutral-200/80 p-5 rounded-sm">
-          <span className="text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase block mb-3">
-            HIZLI İŞLEMLER
-          </span>
-          <div className="grid grid-cols-2 gap-2.5">
-            <Link
-              href="/admin/products/new"
-              className="p-3 bg-white hover:bg-neutral-50 border border-neutral-200 text-center transition-colors block"
-            >
-              <span className="text-xs font-light text-black uppercase tracking-wider block">
-                + Yeni Model
-              </span>
-              <span className="text-[10px] text-neutral-400 font-light block mt-0.5">
-                Kataloğa ekle
-              </span>
-            </Link>
-            <Link
-              href="/admin/categories"
-              className="p-3 bg-white hover:bg-neutral-50 border border-neutral-200 text-center transition-colors block"
-            >
-              <span className="text-xs font-light text-black uppercase tracking-wider block">
-                Kategoriler
-              </span>
-              <span className="text-[10px] text-neutral-400 font-light block mt-0.5">
-                Silüetleri düzenle
-              </span>
-            </Link>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )

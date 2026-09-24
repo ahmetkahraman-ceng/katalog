@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { Package, MessageSquare, FolderOpen, Bell, ArrowUpRight, CheckCircle, Sparkles } from 'lucide-react'
+import { Package, MessageSquare, FolderOpen, Bell, ArrowUpRight, CheckCircle2, Sparkles, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { DashboardRecentTables } from '@/components/admin/dashboard-recent-tables'
 import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
@@ -39,6 +39,7 @@ async function getDashboardData() {
       customerName: inq.customerName,
       phone: inq.phone,
       email: inq.email,
+      companyName: inq.companyName || undefined,
       status: inq.status as 'NEW' | 'CONTACTED' | 'CLOSED',
       createdAt: inq.createdAt.toISOString(),
       items: inq.items.map((i) => ({
@@ -53,7 +54,11 @@ async function getDashboardData() {
     id: p.id,
     name: p.name,
     slug: p.slug,
+    sku: p.sku,
     status: p.status,
+    priceMin: p.priceMin,
+    priceMax: p.priceMax,
+    minOrderQty: p.minOrderQty,
     category: p.category ? { name: p.category.name } : undefined,
     images: p.images.map((img) => ({ url: img.url })),
   }))
@@ -78,153 +83,158 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Üst Başlık ve Hoşgeldin Barı */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/80 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/90 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-            <span className="text-[10px] font-mono tracking-[0.25em] text-neutral-400 uppercase">
-              CANLI ATELIER KONTROL MERKEZİ
+            <span className="text-[11px] font-bold tracking-wider text-[#2d6a4f] uppercase">
+              Toptan Çanta Talep & Katalog Yönetimi
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-light tracking-wide uppercase text-black font-serif">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
             Genel Bakış & Operasyon
           </h1>
+          <p className="text-xs sm:text-sm text-neutral-500 mt-1">
+            Gelen müşteri teklif taleplerini inceleyin ve katalog envanterinizi güncelleyin.
+          </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/admin/products/new"
-            className="px-4 py-2.5 bg-black hover:bg-neutral-800 text-white text-xs font-light tracking-wider uppercase transition-colors inline-flex items-center gap-2 shadow-xs cursor-pointer"
+            className="px-4 py-2.5 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-2 shadow-xs active:scale-95 cursor-pointer"
           >
-            <span>+ Yeni Model Ekle</span>
+            <Plus size={15} className="stroke-[2.5]" />
+            <span>Yeni Model Ekle</span>
           </Link>
           <Link
             href="/admin/inquiries"
-            className="px-4 py-2.5 bg-white border border-neutral-200 hover:border-black text-black text-xs font-light tracking-wider uppercase transition-colors inline-flex items-center gap-1.5"
+            className="px-4 py-2.5 bg-white border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 text-neutral-800 text-xs font-semibold rounded-xl transition-colors inline-flex items-center gap-2 shadow-2xs"
           >
+            <MessageSquare size={14} className="text-[#2d6a4f]" />
             <span>Tüm Talepler ({stats.newInquiries} Yeni)</span>
           </Link>
         </div>
       </div>
 
       {/* 4 Ana Metrik Kartı */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Bekleyen Talepler */}
-        <div className="bg-white border border-neutral-200/80 p-5 rounded-sm shadow-2xs hover:border-neutral-300 transition-colors">
-          <div className="flex items-center justify-between text-neutral-400 mb-3">
-            <span className="text-[11px] font-mono tracking-wider uppercase">
+        <div className="bg-white border border-neutral-200/90 p-5 rounded-2xl shadow-2xs hover:border-[#2d6a4f]/50 hover:shadow-md transition-all">
+          <div className="flex items-center justify-between text-neutral-500 mb-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
               Bekleyen Talepler
             </span>
-            <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Bell size={15} />
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+              <Bell size={18} />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-light tracking-tight text-black font-serif">
+            <span className="text-3xl font-extrabold text-neutral-900 tracking-tight">
               {stats.newInquiries}
             </span>
-            <span className="text-xs text-neutral-400 font-light">
+            <span className="text-xs text-neutral-400 font-medium">
               / {stats.totalInquiries} Toplam
             </span>
           </div>
-          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-light">
-            <span className="text-neutral-500">İletişime geçilmeyi bekliyor</span>
+          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs">
+            <span className="text-amber-700 font-medium">Cevap bekleyen teklifler</span>
             <Link
               href="/admin/inquiries"
-              className="text-black hover:underline flex items-center gap-1"
+              className="text-[#2d6a4f] font-semibold hover:underline flex items-center gap-1"
             >
-              <span>Görüntüle</span>
-              <ArrowUpRight size={12} />
+              <span>İncele</span>
+              <ArrowUpRight size={13} />
             </Link>
           </div>
         </div>
 
         {/* Vitrindeki Modeller */}
-        <div className="bg-white border border-neutral-200/80 p-5 rounded-sm shadow-2xs hover:border-neutral-300 transition-colors">
-          <div className="flex items-center justify-between text-neutral-400 mb-3">
-            <span className="text-[11px] font-mono tracking-wider uppercase">
-              Vitrindeki Modeller
+        <div className="bg-white border border-neutral-200/90 p-5 rounded-2xl shadow-2xs hover:border-[#2d6a4f]/50 hover:shadow-md transition-all">
+          <div className="flex items-center justify-between text-neutral-500 mb-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              Aktif Çantalar
             </span>
-            <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CheckCircle size={15} />
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#2d6a4f] flex items-center justify-center font-bold">
+              <CheckCircle2 size={18} />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-light tracking-tight text-black font-serif">
+            <span className="text-3xl font-extrabold text-neutral-900 tracking-tight">
               {stats.activeProducts}
             </span>
-            <span className="text-xs text-neutral-400 font-light">Aktif Çanta</span>
+            <span className="text-xs text-neutral-400 font-medium">Yayında</span>
           </div>
-          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-light">
-            <span className="text-neutral-500">{stats.draftProducts} model taslakta bekliyor</span>
+          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs">
+            <span className="text-neutral-500">{stats.draftProducts} model taslakta</span>
             <Link
               href="/admin/products"
-              className="text-black hover:underline flex items-center gap-1"
+              className="text-[#2d6a4f] font-semibold hover:underline flex items-center gap-1"
             >
-              <span>Envanter</span>
-              <ArrowUpRight size={12} />
+              <span>Modeller</span>
+              <ArrowUpRight size={13} />
             </Link>
           </div>
         </div>
 
         {/* Toplam Koleksiyon */}
-        <div className="bg-white border border-neutral-200/80 p-5 rounded-sm shadow-2xs hover:border-neutral-300 transition-colors">
-          <div className="flex items-center justify-between text-neutral-400 mb-3">
-            <span className="text-[11px] font-mono tracking-wider uppercase">
+        <div className="bg-white border border-neutral-200/90 p-5 rounded-2xl shadow-2xs hover:border-[#2d6a4f]/50 hover:shadow-md transition-all">
+          <div className="flex items-center justify-between text-neutral-500 mb-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
               Toplam Koleksiyon
             </span>
-            <div className="w-8 h-8 rounded-full bg-neutral-100 text-neutral-600 flex items-center justify-center">
-              <Package size={15} />
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-700 flex items-center justify-center font-bold">
+              <Package size={18} />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-light tracking-tight text-black font-serif">
+            <span className="text-3xl font-extrabold text-neutral-900 tracking-tight">
               {stats.totalProducts}
             </span>
-            <span className="text-xs text-neutral-400 font-light">Tasarım</span>
+            <span className="text-xs text-neutral-400 font-medium">Model Kayıtlı</span>
           </div>
-          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-light">
-            <span className="text-neutral-500">Özel üretim & silüetler</span>
+          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs">
+            <span className="text-neutral-500">Özel üretim & toptan</span>
             <Link
               href="/admin/products/new"
-              className="text-black hover:underline flex items-center gap-1"
+              className="text-[#2d6a4f] font-semibold hover:underline flex items-center gap-1"
             >
-              <span>Yeni Ekle</span>
-              <ArrowUpRight size={12} />
+              <span>Model Ekle</span>
+              <ArrowUpRight size={13} />
             </Link>
           </div>
         </div>
 
         {/* Silüet & Kategori */}
-        <div className="bg-white border border-neutral-200/80 p-5 rounded-sm shadow-2xs hover:border-neutral-300 transition-colors">
-          <div className="flex items-center justify-between text-neutral-400 mb-3">
-            <span className="text-[11px] font-mono tracking-wider uppercase">
-              Silüet ve Kategori
+        <div className="bg-white border border-neutral-200/90 p-5 rounded-2xl shadow-2xs hover:border-[#2d6a4f]/50 hover:shadow-md transition-all">
+          <div className="flex items-center justify-between text-neutral-500 mb-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              Kategori Sayısı
             </span>
-            <div className="w-8 h-8 rounded-full bg-neutral-100 text-neutral-600 flex items-center justify-center">
-              <FolderOpen size={15} />
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-700 flex items-center justify-center font-bold">
+              <FolderOpen size={18} />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-light tracking-tight text-black font-serif">
+            <span className="text-3xl font-extrabold text-neutral-900 tracking-tight">
               {stats.categoryCount}
             </span>
-            <span className="text-xs text-neutral-400 font-light">Silüet Grubu</span>
+            <span className="text-xs text-neutral-400 font-medium">Ana Grup</span>
           </div>
-          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-light">
-            <span className="text-neutral-500">Tote, Crossbody, Clutch vb.</span>
+          <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs">
+            <span className="text-neutral-500">Bez, Sırt, Karton, Deri vb.</span>
             <Link
               href="/admin/categories"
-              className="text-black hover:underline flex items-center gap-1"
+              className="text-[#2d6a4f] font-semibold hover:underline flex items-center gap-1"
             >
               <span>Yönet</span>
-              <ArrowUpRight size={12} />
+              <ArrowUpRight size={13} />
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Son Talepler ve Son Eklenen Modeller */}
+      {/* Son Talepler ve Son Eklenen Modeller Tabloları */}
       <DashboardRecentTables
         initialInquiries={recentInquiries}
         initialProducts={recentProducts}

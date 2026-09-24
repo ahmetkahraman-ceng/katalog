@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import {
   Sparkles,
   Save,
-  CheckCircle,
-  Eye,
+  CheckCircle2,
   Sliders,
   Bell,
   Image as ImageIcon,
@@ -33,7 +32,6 @@ export default function AdminBannerPage() {
   const [heroImageUrl, setHeroImageUrl] = useState('')
 
   useEffect(() => {
-    // 1. Check local storage first for instant initialization
     try {
       const cachedHero = localStorage.getItem('site_hero_settings')
       if (cachedHero) {
@@ -105,7 +103,6 @@ export default function AdminBannerPage() {
       link: announcementLink,
     }
 
-    // Always immediately save to browser localStorage for 0ms lag
     try {
       localStorage.setItem('site_hero_settings', JSON.stringify(payloadHero))
       localStorage.setItem('site_announcement_settings', JSON.stringify(payloadAnnouncement))
@@ -140,7 +137,7 @@ export default function AdminBannerPage() {
 
   if (loading) {
     return (
-      <div className="py-20 text-center text-xs font-light text-neutral-400">
+      <div className="py-20 text-center text-xs text-neutral-400">
         Vitrin ayarları yükleniyor...
       </div>
     )
@@ -149,24 +146,24 @@ export default function AdminBannerPage() {
   return (
     <div className="space-y-8 max-w-5xl">
       {/* Üst Başlık Barı */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/80 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/90 pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Sparkles size={14} className="text-black" />
-            <span className="text-[10px] font-mono tracking-[0.25em] text-neutral-400 uppercase">
-              EDİTORYAL VİTRİN KONTROLÜ
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-light tracking-wide uppercase text-black font-serif">
+          <span className="text-[11px] font-bold tracking-wider text-[#2d6a4f] uppercase block mb-1">
+            VİTRİN & KAMPANYA YÖNETİMİ
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
             Vitrin & Banner Yönetimi
           </h1>
+          <p className="text-xs sm:text-sm text-neutral-500 mt-1">
+            Ana sayfa üst duyuru bandı ve hero manşet alanındaki başlık, görsel ve metinleri düzenleyin.
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
           <a
             href="/"
             target="_blank"
-            className="px-3.5 py-2 text-xs font-light tracking-wider uppercase border border-neutral-200 hover:border-black transition-colors inline-flex items-center gap-1.5"
+            className="px-4 py-2 text-xs font-semibold text-neutral-700 bg-white border border-neutral-200 hover:border-neutral-300 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-2xs"
           >
             <span>Canlı Vitrini Aç</span>
             <ExternalLink size={13} />
@@ -174,56 +171,52 @@ export default function AdminBannerPage() {
         </div>
       </div>
 
-      {/* Başarı & Hata Bildirimleri */}
+      {/* Bildirimler */}
       {successMsg && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-light rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle size={17} className="text-emerald-600 shrink-0" />
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-[#2d6a4f] shrink-0" />
             <span>{successMsg}</span>
           </div>
           <a
             href={`/?t=${Date.now()}`}
             target="_blank"
             rel="noreferrer"
-            className="px-3 py-1.5 bg-emerald-700 text-white text-[11px] font-mono tracking-wider uppercase hover:bg-emerald-800 transition-colors inline-flex items-center gap-1.5 shrink-0 self-start sm:self-auto rounded-xs shadow-xs"
+            className="px-3.5 py-1.5 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-xs font-semibold rounded-xl transition-colors inline-flex items-center gap-1.5 shrink-0"
           >
-            <span>Canlı URL'yi Aç</span>
+            <span>Canlı Görünümü Aç</span>
             <ExternalLink size={13} />
           </a>
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-800 text-xs font-light rounded-sm">
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold rounded-2xl shadow-2xs">
           {errorMsg}
         </div>
       )}
 
-      <form onSubmit={handleSave} className="space-y-8">
-        {/* 1. KISIM: DUYURU ÇUBUĞU (ANNOUNCEMENT BAR) */}
-        <div className="bg-white border border-neutral-200/80 p-6 sm:p-7 rounded-sm shadow-2xs space-y-5">
-          <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
-            <div className="flex items-center gap-2.5">
-              <Bell size={16} className="text-black" />
-              <div>
-                <h2 className="text-sm font-light tracking-wider uppercase text-black">
-                  Üst Duyuru Çubuğu (Announcement Bar)
-                </h2>
-                <p className="text-[11px] text-neutral-400 font-light mt-0.5">
-                  Sitenin en tepesindeki ince editoryal kampanya & teklif bandı
-                </p>
+      <form onSubmit={handleSave} className="space-y-6">
+        {/* 1. DUYURU ÇUBUĞU */}
+        <div className="bg-white border border-neutral-200/90 p-6 sm:p-7 rounded-3xl shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-[#2d6a4f]/10 text-[#2d6a4f] flex items-center justify-center font-bold">
+                <Bell size={16} />
               </div>
+              <h2 className="text-sm font-bold text-neutral-900">
+                Üst Duyuru Çubuğu (Announcement Bar)
+              </h2>
             </div>
 
-            {/* Toggle Switch */}
             <label className="flex items-center gap-2.5 cursor-pointer select-none">
-              <span className="text-xs font-mono text-neutral-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
                 {announcementEnabled ? 'GÖSTERİLİYOR' : 'GİZLİ'}
               </span>
               <div
                 onClick={() => setAnnouncementEnabled(!announcementEnabled)}
                 className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 cursor-pointer ${
-                  announcementEnabled ? 'bg-black' : 'bg-neutral-200'
+                  announcementEnabled ? 'bg-[#2d6a4f]' : 'bg-neutral-200'
                 }`}
               >
                 <div
@@ -235,136 +228,127 @@ export default function AdminBannerPage() {
             </label>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 Duyuru Metni
               </label>
               <input
                 type="text"
                 value={announcementText}
                 onChange={(e) => setAnnouncementText(e.target.value)}
-                placeholder="Örn: 2026 İlkbahar / Yaz Koleksiyonu İçin Butik & Toptan Siparişler Açıldı"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                placeholder="Örn: 2026 Koleksiyonu Toptan & Kurumsal Siparişler Açıldı • 24 Saatte Hızlı Teklif Alın"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 Yönlendirme Linki (Opsiyonel)
               </label>
               <input
                 type="text"
                 value={announcementLink}
                 onChange={(e) => setAnnouncementLink(e.target.value)}
-                placeholder="/inquiry veya #koleksiyon"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors font-mono"
+                placeholder="/inquiry veya /categories/bez-canta"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-mono text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
           </div>
         </div>
 
-        {/* 2. KISIM: HERO BAŞLIKLAR & METİNLER */}
-        <div className="bg-white border border-neutral-200/80 p-6 sm:p-7 rounded-sm shadow-2xs space-y-5">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-neutral-100">
-            <Sliders size={16} className="text-black" />
-            <div>
-              <h2 className="text-sm font-light tracking-wider uppercase text-black">
-                Ana Sayfa Manşeti (Hero Content)
-              </h2>
-              <p className="text-[11px] text-neutral-400 font-light mt-0.5">
-                Ziyaretçiyi karşılayan ana sezon manşeti, slogan ve butonlar
-              </p>
+        {/* 2. HERO BAŞLIKLAR & METİNLER */}
+        <div className="bg-white border border-neutral-200/90 p-6 sm:p-7 rounded-3xl shadow-xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-neutral-100">
+            <div className="w-8 h-8 rounded-xl bg-[#2d6a4f]/10 text-[#2d6a4f] flex items-center justify-center font-bold">
+              <Sliders size={16} />
             </div>
+            <h2 className="text-sm font-bold text-neutral-900">
+              Ana Sayfa Manşeti (Hero Content)
+            </h2>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 Üst Rozet / Koleksiyon Etiketi
               </label>
               <input
                 type="text"
                 value={heroBadge}
                 onChange={(e) => setHeroBadge(e.target.value)}
-                placeholder="SS26 ATELIER KOLEKSİYONU"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                placeholder="KURUMSAL & PROMOSYON ÇANTA ÇÖZÜMLERİ"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 Ana Manşet Başlığı
               </label>
               <input
                 type="text"
                 value={heroTitle}
                 onChange={(e) => setHeroTitle(e.target.value)}
-                placeholder="ZAMANSIZ DERİ ZANAATI & MİMARİ SİLÜETLER"
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-sm font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors font-serif tracking-wide"
+                placeholder="Markanızı Taşıyan Yüksek Kaliteli Toptan Çantalar"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-bold text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                 Alt Açıklama & Slogan
               </label>
               <textarea
                 value={heroSubtitle}
                 onChange={(e) => setHeroSubtitle(e.target.value)}
                 rows={2}
-                placeholder="Geleneksel saraç işçiliğini modern editoryal çizgilerle buluşturan el yapımı lüks çanta koleksiyonu."
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors resize-none leading-relaxed"
+                placeholder="Fuar, etkinlik, çalışan kiti ve kurumsal hediyeleriniz için firmanıza özel logo baskılı toptan çanta üretimi."
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all resize-none shadow-2xs leading-relaxed"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                   Buton Metni
                 </label>
                 <input
                   type="text"
                   value={heroCtaText}
                   onChange={(e) => setHeroCtaText(e.target.value)}
-                  placeholder="Koleksiyonu Keşfet"
-                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+                  placeholder="Kataloğu Keşfet"
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
                   Buton Hedef Linki
                 </label>
                 <input
                   type="text"
                   value={heroCtaLink}
                   onChange={(e) => setHeroCtaLink(e.target.value)}
-                  placeholder="#koleksiyon veya /inquiry"
-                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-light text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors font-mono"
+                  placeholder="/categories/bez-canta"
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-mono text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        {/* 3. KISIM: HD LÜKS ÇANTA FOTOĞRAFLARI SEÇİCİ */}
-        <div className="bg-white border border-neutral-200/80 p-6 sm:p-7 rounded-sm shadow-2xs space-y-5">
-          <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
-            <div className="flex items-center gap-2.5">
-              <ImageIcon size={16} className="text-black" />
-              <div>
-                <h2 className="text-sm font-light tracking-wider uppercase text-black">
-                  Hero Kapak Görseli (HD Editoryal Fotoğraflar)
-                </h2>
-                <p className="text-[11px] text-neutral-400 font-light mt-0.5">
-                  Aşağıdaki HD lüks çanta görsellerinden birine tıklayarak anında seçebilirsiniz
-                </p>
-              </div>
+        {/* 3. HD GÖRSEL SEÇİCİ */}
+        <div className="bg-white border border-neutral-200/90 p-6 sm:p-7 rounded-3xl shadow-xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-neutral-100">
+            <div className="w-8 h-8 rounded-xl bg-[#2d6a4f]/10 text-[#2d6a4f] flex items-center justify-center font-bold">
+              <ImageIcon size={16} />
             </div>
+            <h2 className="text-sm font-bold text-neutral-900">
+              Hero Kapak Görseli
+            </h2>
           </div>
 
-          {/* HD Önceden Seçilmiş Galeri Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
             {HD_CURATED_BAG_IMAGES.map((img) => {
               const isSelected = heroImageUrl === img.url
@@ -372,9 +356,9 @@ export default function AdminBannerPage() {
                 <div
                   key={img.id}
                   onClick={() => setHeroImageUrl(img.url)}
-                  className={`relative aspect-4/3 rounded-xs overflow-hidden border-2 cursor-pointer transition-all group ${
+                  className={`relative aspect-[4/3] rounded-2xl overflow-hidden border-2 cursor-pointer transition-all group ${
                     isSelected
-                      ? 'border-black ring-2 ring-black/20 scale-[1.02]'
+                      ? 'border-[#2d6a4f] ring-2 ring-[#2d6a4f]/20 scale-[1.02]'
                       : 'border-neutral-200 hover:border-neutral-400 opacity-80 hover:opacity-100'
                   }`}
                 >
@@ -387,13 +371,13 @@ export default function AdminBannerPage() {
                     <span className="text-[10px] font-mono text-neutral-300 uppercase tracking-tight">
                       {img.category}
                     </span>
-                    <span className="text-xs text-white font-light truncate">
+                    <span className="text-xs text-white font-medium truncate">
                       {img.title}
                     </span>
                   </div>
 
                   {isSelected && (
-                    <div className="absolute top-2 right-2 bg-black text-white p-1 rounded-full shadow-md">
+                    <div className="absolute top-2 right-2 bg-[#2d6a4f] text-white p-1 rounded-full shadow-md">
                       <Check size={12} strokeWidth={3} />
                     </div>
                   )}
@@ -402,62 +386,28 @@ export default function AdminBannerPage() {
             })}
           </div>
 
-          {/* Özel Görsel URL Girişi */}
           <div className="pt-3 border-t border-neutral-100">
-            <label className="block text-[11px] font-mono tracking-wider uppercase text-neutral-500 mb-1.5">
-              Veya Özel Görsel URL'si Girin
+            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1.5">
+              Veya Özel Görsel URL&apos;si Girin
             </label>
             <input
               type="url"
               value={heroImageUrl}
               onChange={(e) => setHeroImageUrl(e.target.value)}
               placeholder="https://images.unsplash.com/..."
-              className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 text-xs font-mono text-black placeholder:text-neutral-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
+              className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-mono text-neutral-900 focus:outline-hidden focus:border-[#2d6a4f] focus:bg-white transition-all shadow-2xs"
             />
           </div>
         </div>
 
-        {/* 4. KISIM: CANLI MİNİ ÖNİZLEME */}
-        <div className="bg-white border border-neutral-200/80 p-6 rounded-sm shadow-2xs space-y-3">
-          <span className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase block">
-            CANLI VİTRİN ÖNİZLEMESİ (MİNYATÜR)
-          </span>
-
-          <div className="relative h-64 sm:h-72 w-full rounded overflow-hidden bg-neutral-900 flex items-center justify-center text-center p-6">
-            {heroImageUrl && (
-              <img
-                src={heroImageUrl}
-                alt="Hero Preview"
-                className="absolute inset-0 w-full h-full object-cover opacity-50 filter brightness-90"
-              />
-            )}
-            <div className="relative z-10 max-w-lg space-y-2 text-white">
-              <span className="text-[10px] font-mono tracking-[0.25em] text-neutral-300 uppercase block">
-                {heroBadge || 'KOLEKSİYON'}
-              </span>
-              <h3 className="text-lg sm:text-xl font-light font-serif tracking-wider uppercase">
-                {heroTitle || 'MANŞET BAŞLIĞI'}
-              </h3>
-              <p className="text-xs text-neutral-300 font-light max-w-sm mx-auto line-clamp-2">
-                {heroSubtitle || 'Açıklama metni burada görünecektir.'}
-              </p>
-              <div className="pt-2">
-                <span className="inline-block px-4 py-1.5 bg-white text-black text-[10px] font-light tracking-widest uppercase shadow">
-                  {heroCtaText || 'Keşfet'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Kaydet Butonu */}
-        <div className="pt-2">
+        <div className="flex justify-end pt-2">
           <button
             type="submit"
             disabled={saving}
-            className="w-full sm:w-auto px-8 py-3.5 bg-black hover:bg-neutral-800 text-white text-xs font-light tracking-[0.2em] uppercase flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-md disabled:opacity-50"
+            className="px-8 py-3.5 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer flex items-center gap-2"
           >
-            <Save size={15} />
+            <Save size={16} />
             <span>{saving ? 'Kaydediliyor...' : 'Değişiklikleri Vitrine Uygula'}</span>
           </button>
         </div>
