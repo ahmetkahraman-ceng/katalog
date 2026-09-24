@@ -5,17 +5,35 @@ import Image from 'next/image'
 import { ChevronLeft, ChevronRight, ZoomIn, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+export interface ProductGalleryVariant {
+  id?: string
+  variantName: string
+  variantType?: string
+  imageUrl?: string | null
+  sortOrder?: number
+}
+
 interface ProductGalleryProps {
   images: { url: string; alt: string }[]
+  variants?: ProductGalleryVariant[]
+  selectedVariant?: ProductGalleryVariant | null
+  onSelectVariant?: (variant: ProductGalleryVariant) => void
   productName?: string
 }
 
-export function ProductGallery({ images, productName }: ProductGalleryProps) {
+export function ProductGallery({
+  images,
+  variants = [],
+  selectedVariant,
+  onSelectVariant,
+  productName,
+}: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 })
+  const [variantImageOverride, setVariantImageOverride] = useState<string | null>(null)
 
-  if (images.length === 0) {
+  if (images.length === 0 && (!variants || variants.length === 0)) {
     return (
       <div className="aspect-[3/4] bg-neutral-100 flex items-center justify-center">
         <div className="text-neutral-300">
@@ -35,6 +53,14 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
     setZoomPosition({ x, y })
   }
 
+  const currentMainUrl =
+    variantImageOverride ||
+    selectedVariant?.imageUrl ||
+    images[activeIndex]?.url ||
+    images[0]?.url ||
+    variants[0]?.imageUrl ||
+    ''
+
   return (
     <div className="flex flex-col gap-4">
       {/* Main Stage Image */}
@@ -44,23 +70,29 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setIsZoomed(false)}
       >
-        <Image
-          src={images[activeIndex]?.url || images[0].url}
-          alt={images[activeIndex]?.alt || productName || 'Çanta Görseli'}
-          fill
-          unoptimized={Boolean((images[activeIndex]?.url || images[0]?.url)?.startsWith('data:'))}
-          className={cn(
-            'object-cover object-center transition-transform duration-500 ease-out',
-            isZoomed ? 'scale-[2.2]' : 'group-hover:scale-105'
-          )}
-          style={
-            isZoomed
-              ? { transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` }
-              : undefined
-          }
-          sizes="(max-width: 1024px) 100vw, 55vw"
-          priority
-        />
+        {currentMainUrl ? (
+          <Image
+            src={currentMainUrl}
+            alt={images[activeIndex]?.alt || productName || 'Çanta Görseli'}
+            fill
+            unoptimized={Boolean(currentMainUrl.startsWith('data:'))}
+            className={cn(
+              'object-cover object-center transition-transform duration-500 ease-out',
+              isZoomed ? 'scale-[2.2]' : 'group-hover:scale-105'
+            )}
+            style={
+              isZoomed
+                ? { transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` }
+                : undefined
+            }
+            sizes="(max-width: 1024px) 100vw, 55vw"
+            priority
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-neutral-400">
+            Fotoğraf Yok
+          </div>
+        )}
 
         {/* Floating Action Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
@@ -85,6 +117,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             <button
               onClick={(e) => {
                 e.stopPropagation()
+                setVariantImageOverride(null)
                 setActiveIndex((activeIndex - 1 + images.length) % images.length)
               }}
               className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm text-black flex items-center justify-center lg:hidden z-10"
@@ -95,6 +128,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             <button
               onClick={(e) => {
                 e.stopPropagation()
+                setVariantImageOverride(null)
                 setActiveIndex((activeIndex + 1) % images.length)
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm text-black flex items-center justify-center lg:hidden z-10"
@@ -109,32 +143,107 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
       {/* Thumbnail Carousel Strip */}
       {images.length > 1 && (
         <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 select-none">
-          {images.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => setActiveIndex(index)}
-              className={cn(
-                'flex flex-col gap-1 p-1 bg-neutral-50 transition-all border text-left',
-                index === activeIndex
-                  ? 'border-black opacity-100'
-                  : 'border-transparent opacity-60 hover:opacity-100 hover:border-neutral-300'
-              )}
-            >
-              <div className="aspect-[3/4] w-full bg-neutral-100 overflow-hidden relative">
-                <Image
-                  src={image.url}
-                  alt={image.alt || `Açı ${index + 1}`}
-                  fill
-                  unoptimized={Boolean(image.url.startsWith('data:'))}
-                  className="object-cover"
-                  sizes="(max-width: 768px) 25vw, 120px"
-                />
-              </div>
-              <span className="text-[10px] tracking-wider text-neutral-600 truncate uppercase mt-0.5">
-                0{index + 1}. AÇI
+          {images.map((image, index) => {
+            const isThumbActive = !variantImageOverride && index === activeIndex
+            return (
+              <button
+                key={index}
+                onClick={() => {
+                  setVariantImageOverride(null)
+                  setActiveIndex(index)
+                }}
+                className={cn(
+                  'flex flex-col gap-1 p-1 bg-neutral-50 transition-all border text-left',
+                  isThumbActive
+                    ? 'border-black opacity-100'
+                    : 'border-transparent opacity-60 hover:opacity-100 hover:border-neutral-300'
+                )}
+              >
+                <div className="aspect-[3/4] w-full bg-neutral-100 overflow-hidden relative">
+                  <Image
+                    src={image.url}
+                    alt={image.alt || `Açı ${index + 1}`}
+                    fill
+                    unoptimized={Boolean(image.url.startsWith('data:'))}
+                    className="object-cover"
+                    sizes="(max-width: 768px) 25vw, 120px"
+                  />
+                </div>
+                <span className="text-[10px] tracking-wider text-neutral-600 truncate uppercase mt-0.5">
+                  0{index + 1}. AÇI
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Küçük Kare Renk Seçim Butonları (Fotoğraf galerisinin altında) */}
+      {variants && variants.length > 0 && (
+        <div className="space-y-2.5 pt-3 pb-1 border-t border-neutral-200">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <span className="font-light tracking-[0.15em] uppercase text-neutral-500">
+                RENK SEÇENEKLERİ:
               </span>
-            </button>
-          ))}
+              <span className="font-medium text-black uppercase">
+                {selectedVariant?.variantName || variants[0]?.variantName}
+              </span>
+            </div>
+            <span className="text-[11px] text-neutral-400 font-light">
+              ({variants.length} Renk)
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            {variants.map((v, idx) => {
+              const isSelected =
+                selectedVariant?.id
+                  ? selectedVariant.id === v.id
+                  : selectedVariant?.variantName === v.variantName
+              return (
+                <button
+                  key={v.id || idx}
+                  type="button"
+                  onClick={() => {
+                    onSelectVariant?.(v)
+                    if (v.imageUrl) setVariantImageOverride(v.imageUrl)
+                  }}
+                  className={cn(
+                    'group relative flex flex-col items-center p-1 border transition-all duration-150',
+                    isSelected
+                      ? 'border-black ring-2 ring-black bg-white scale-105 shadow-xs'
+                      : 'border-neutral-200 bg-white hover:border-neutral-400'
+                  )}
+                  title={`${v.variantName} rengini seç`}
+                >
+                  <div className="w-12 h-12 bg-neutral-100 relative overflow-hidden">
+                    {v.imageUrl ? (
+                      <Image
+                        src={v.imageUrl}
+                        alt={v.variantName}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[10px] font-medium text-neutral-500 uppercase bg-neutral-100">
+                        {v.variantName.slice(0, 3)}
+                      </div>
+                    )}
+                  </div>
+                  <span
+                    className={cn(
+                      'text-[10px] mt-1 tracking-wider uppercase truncate max-w-[56px] text-center',
+                      isSelected ? 'font-medium text-black' : 'font-light text-neutral-600'
+                    )}
+                  >
+                    {v.variantName}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 

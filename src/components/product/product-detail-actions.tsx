@@ -6,6 +6,16 @@ import { useQuote } from '@/context/quote-context'
 import { InquiryModal } from '@/components/inquiry/inquiry-modal'
 import { cn } from '@/lib/utils'
 
+import Image from 'next/image'
+
+export interface ProductDetailVariant {
+  id?: string
+  variantName: string
+  variantType?: string
+  imageUrl?: string | null
+  sortOrder?: number
+}
+
 interface ProductDetailActionsProps {
   productId: string
   productName: string
@@ -13,6 +23,9 @@ interface ProductDetailActionsProps {
   productImage?: string
   priceRange?: string
   colors?: string[]
+  variants?: ProductDetailVariant[]
+  selectedVariant?: ProductDetailVariant | null
+  onSelectVariant?: (variant: ProductDetailVariant) => void
 }
 
 export function ProductDetailActions({
@@ -22,22 +35,30 @@ export function ProductDetailActions({
   productImage,
   priceRange,
   colors = [],
+  variants = [],
+  selectedVariant,
+  onSelectVariant,
 }: ProductDetailActionsProps) {
   const { addItem, isInQuote } = useQuote()
   const [quantity, setQuantity] = useState(50)
-  const [selectedColor, setSelectedColor] = useState<string>(colors[0] || 'Standart')
+  const [internalSelectedColor, setInternalSelectedColor] = useState<string>(
+    variants[0]?.variantName || colors[0] || 'Standart'
+  )
   const [printOption, setPrintOption] = useState<'baskili' | 'baskisiz'>('baskili')
 
-  const isAlreadyInQuote = isInQuote(productId)
+  const activeColor = selectedVariant?.variantName || internalSelectedColor
+  const isAlreadyInQuote = isInQuote(productId, selectedVariant?.id || null)
 
   const handleAddToQuote = () => {
     addItem({
       id: productId,
-      name: `${productName} (${printOption === 'baskili' ? 'Baskılı' : 'Baskısız'}, ${selectedColor})`,
+      name: `${productName} (${printOption === 'baskili' ? 'Baskılı' : 'Baskısız'}, ${activeColor})`,
       slug: productSlug,
-      imageUrl: productImage,
+      imageUrl: selectedVariant?.imageUrl || productImage,
       priceRange,
-      color: selectedColor,
+      color: activeColor,
+      variantId: selectedVariant?.id || null,
+      variantName: activeColor,
       quantity,
       printOption: printOption === 'baskili' ? 'Logo Baskılı' : 'Baskısız Ham',
     })
@@ -45,7 +66,7 @@ export function ProductDetailActions({
 
   const handleWhatsAppInquiry = () => {
     const text = encodeURIComponent(
-      `Merhaba! ${productName} (Ref: ${productSlug}) modelinden yaklaşık ${quantity} adet için ${
+      `Merhaba! ${productName} (Ref: ${productSlug}) modelinden "${activeColor}" rengi için yaklaşık ${quantity} adet ${
         printOption === 'baskili' ? 'logo baskılı' : 'baskısız'
       } toptan fiyat ve termin süresi öğrenmek istiyorum.`
     )
@@ -54,24 +75,82 @@ export function ProductDetailActions({
 
   return (
     <div className="space-y-5 pt-2">
-      {/* 1. Renk Seçenekleri */}
-      {colors.length > 0 && (
+      {/* 1. Renk Seçenekleri (Varyantlar Veya Düz Renkler) */}
+      {variants.length > 0 ? (
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-light tracking-[0.15em] uppercase text-neutral-500">
               RENK SEÇENEĞİ:
             </span>
-            <span className="font-medium text-neutral-900">{selectedColor}</span>
+            <span className="font-medium text-black uppercase">{activeColor}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {variants.map((v, idx) => {
+              const isSelected =
+                selectedVariant?.id
+                  ? selectedVariant.id === v.id
+                  : activeColor === v.variantName
+              return (
+                <button
+                  key={v.id || idx}
+                  type="button"
+                  onClick={() => {
+                    onSelectVariant?.(v)
+                    setInternalSelectedColor(v.variantName)
+                  }}
+                  className={cn(
+                    'group relative flex items-center gap-2 p-1.5 border transition-all text-left',
+                    isSelected
+                      ? 'border-black bg-neutral-50 ring-1 ring-black'
+                      : 'border-neutral-200 bg-white hover:border-neutral-400'
+                  )}
+                  title={v.variantName}
+                >
+                  <div className="w-8 h-8 bg-neutral-100 relative overflow-hidden shrink-0 border border-neutral-200">
+                    {v.imageUrl ? (
+                      <Image
+                        src={v.imageUrl}
+                        alt={v.variantName}
+                        fill
+                        className="object-cover"
+                        sizes="32px"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[9px] text-neutral-400 uppercase">
+                        {v.variantName.slice(0, 2)}
+                      </div>
+                    )}
+                  </div>
+                  <span
+                    className={cn(
+                      'text-xs tracking-wider uppercase pr-1.5',
+                      isSelected ? 'font-medium text-black' : 'font-light text-neutral-700'
+                    )}
+                  >
+                    {v.variantName}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      ) : colors.length > 0 ? (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-light tracking-[0.15em] uppercase text-neutral-500">
+              RENK SEÇENEĞİ:
+            </span>
+            <span className="font-medium text-neutral-900">{activeColor}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {colors.map((color) => (
               <button
                 key={color}
                 type="button"
-                onClick={() => setSelectedColor(color)}
+                onClick={() => setInternalSelectedColor(color)}
                 className={cn(
                   'px-3.5 py-1.5 text-xs font-light tracking-wider border transition-all',
-                  selectedColor === color
+                  activeColor === color
                     ? 'border-black bg-black text-white'
                     : 'border-neutral-300 bg-white text-neutral-800 hover:border-black'
                 )}
@@ -81,7 +160,7 @@ export function ProductDetailActions({
             ))}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* 2. Baskı Seçeneği */}
       <div className="space-y-2">

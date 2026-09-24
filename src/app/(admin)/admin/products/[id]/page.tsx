@@ -9,6 +9,7 @@ import { ImageUploader } from '@/components/ui/image-uploader'
 import { slugify } from '@/lib/utils'
 import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
 import { Trash2, PlusCircle, Plus } from 'lucide-react'
+import { VariantManager, VariantItem } from '@/components/admin/variant-manager'
 
 interface CategoryItem {
   id: string
@@ -68,6 +69,7 @@ export default function EditProductPage({ params }: Props) {
   const [specs, setSpecs] = useState<SpecRow[]>([])
   const [examples, setExamples] = useState<ExampleRow[]>([])
   const [faqs, setFaqs] = useState<FaqRow[]>([])
+  const [variants, setVariants] = useState<VariantItem[]>([])
 
   useEffect(() => {
     async function loadData() {
@@ -132,6 +134,18 @@ export default function EditProductPage({ params }: Props) {
               prod.faqs.map((f: any) => ({
                 question: f.question || '',
                 answer: f.answer || '',
+              }))
+            )
+          }
+
+          if (prod.variants && prod.variants.length > 0) {
+            setVariants(
+              prod.variants.map((v: any, idx: number) => ({
+                id: v.id,
+                variantName: v.variantName || '',
+                variantType: v.variantType || 'Renk',
+                imageUrl: v.imageUrl || '',
+                sortOrder: v.sortOrder ?? idx,
               }))
             )
           }
@@ -210,6 +224,15 @@ export default function EditProductPage({ params }: Props) {
           specs: specs.filter((s) => s.specKey.trim() && s.specValue.trim()),
           examples: examples.filter((e) => e.imageUrl.trim()),
           faqs: faqs.filter((f) => f.question.trim() && f.answer.trim()),
+          variants: variants
+            .filter((v) => v.variantName.trim())
+            .map((v, idx) => ({
+              id: v.id,
+              variantName: v.variantName.trim(),
+              variantType: 'Renk',
+              imageUrl: v.imageUrl?.trim() || null,
+              sortOrder: idx,
+            })),
         }),
       })
 
@@ -580,6 +603,9 @@ export default function EditProductPage({ params }: Props) {
             ))}
           </div>
         </div>
+
+        {/* 7. RENK SEÇENEKLERİ (VARYANTLAR) */}
+        <VariantManager variants={variants} onChange={setVariants} />
 
         {/* Submit Actions */}
         <div className="flex items-center gap-4 pt-6 border-t border-neutral-200">

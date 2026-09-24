@@ -60,9 +60,19 @@ export function QuoteDrawer() {
         message: `${formData.companyName ? `Firma: ${formData.companyName}\n` : ''}${
           formData.message ? `Müşteri Notu: ${formData.message}\n` : ''
         }Seçilen Çantalar:\n${items
-          .map((i) => `- ${i.name} (${i.quantity || 50} Adet) [${i.priceRange || 'Fiyat sorulacak'}]`)
+          .map(
+            (i) =>
+              `- ${i.name}${i.variantName ? ` [Renk: ${i.variantName}]` : ''} (${i.quantity || 50} Adet) [${
+                i.priceRange || 'Fiyat sorulacak'
+              }]`
+          )
           .join('\n')}`,
         productIds: items.map((i) => i.id),
+        items: items.map((i) => ({
+          productId: i.id,
+          variantId: i.variantId || null,
+          variantName: i.variantName || i.color || null,
+        })),
       }
 
       const res = await fetch('/api/inquiries', {
@@ -183,73 +193,83 @@ export function QuoteDrawer() {
                   </div>
 
                   <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
-                    {items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex gap-3 bg-white p-3 border border-neutral-200/80 shadow-2xs items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-14 h-16 bg-neutral-100 shrink-0 overflow-hidden">
-                            {item.imageUrl ? (
-                              <Image
-                                src={item.imageUrl}
-                                alt={item.name}
-                                fill
-                                className="object-cover"
-                                sizes="56px"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-[9px] text-neutral-400">
-                                ÇANTA
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <Link
-                              href={`/products/${item.slug}`}
-                              onClick={closeDrawer}
-                              className="text-xs font-medium text-neutral-900 hover:text-neutral-600 line-clamp-1"
-                            >
-                              {item.name}
-                            </Link>
-                            <p className="text-[11px] text-neutral-500 font-light mt-0.5">
-                              {item.priceRange || 'Fiyat Sorunuz'}
-                            </p>
-                            {/* Quantity controls */}
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-[10px] text-neutral-400">Adet:</span>
-                              <div className="flex items-center border border-neutral-200 bg-neutral-50 text-[10px]">
-                                <button
-                                  type="button"
-                                  onClick={() => updateQuantity(item.id, (item.quantity || 50) - 25)}
-                                  className="px-1.5 py-0.5 hover:bg-neutral-200"
-                                >
-                                  <Minus size={10} />
-                                </button>
-                                <span className="px-2 font-mono font-medium text-neutral-800">
-                                  {item.quantity || 50}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => updateQuantity(item.id, (item.quantity || 50) + 25)}
-                                  className="px-1.5 py-0.5 hover:bg-neutral-200"
-                                >
-                                  <Plus size={10} />
-                                </button>
+                    {items.map((item) => {
+                      const itemKey = `${item.id}-${item.variantId || item.color || 'default'}`
+                      return (
+                        <div
+                          key={itemKey}
+                          className="flex gap-3 bg-white p-3 border border-neutral-200/80 shadow-2xs items-center justify-between"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-14 h-16 bg-neutral-100 shrink-0 overflow-hidden">
+                              {item.imageUrl ? (
+                                <Image
+                                  src={item.imageUrl}
+                                  alt={item.name}
+                                  fill
+                                  className="object-cover"
+                                  sizes="56px"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[9px] text-neutral-400">
+                                  ÇANTA
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <Link
+                                href={`/products/${item.slug}`}
+                                onClick={closeDrawer}
+                                className="text-xs font-medium text-neutral-900 hover:text-neutral-600 line-clamp-1"
+                              >
+                                {item.name}
+                              </Link>
+                              {(item.variantName || item.color) && (
+                                <div className="mt-0.5">
+                                  <span className="text-[10px] font-normal text-neutral-700 bg-neutral-100 px-1.5 py-0.5 rounded-xs">
+                                    Renk: {item.variantName || item.color}
+                                  </span>
+                                </div>
+                              )}
+                              <p className="text-[11px] text-neutral-500 font-light mt-0.5">
+                                {item.priceRange || 'Fiyat Sorunuz'}
+                              </p>
+                              {/* Quantity controls */}
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] text-neutral-400">Adet:</span>
+                                <div className="flex items-center border border-neutral-200 bg-neutral-50 text-[10px]">
+                                  <button
+                                    type="button"
+                                    onClick={() => updateQuantity(item.id, (item.quantity || 50) - 25, item.variantId)}
+                                    className="px-1.5 py-0.5 hover:bg-neutral-200"
+                                  >
+                                    <Minus size={10} />
+                                  </button>
+                                  <span className="px-2 font-mono font-medium text-neutral-800">
+                                    {item.quantity || 50}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateQuantity(item.id, (item.quantity || 50) + 25, item.variantId)}
+                                    className="px-1.5 py-0.5 hover:bg-neutral-200"
+                                  >
+                                    <Plus size={10} />
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
 
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          className="p-1.5 text-neutral-300 hover:text-red-500 transition-colors"
-                          title="Listeden Çıkar"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    ))}
+                          <button
+                            onClick={() => removeItem(item.id, item.variantId)}
+                            className="p-1.5 text-neutral-300 hover:text-red-500 transition-colors"
+                            title="Listeden Çıkar"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
 

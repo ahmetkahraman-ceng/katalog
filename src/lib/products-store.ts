@@ -32,6 +32,14 @@ export interface StoredProductFaq {
   sortOrder?: number
 }
 
+export interface StoredProductVariant {
+  id?: string
+  variantName: string
+  variantType?: string
+  imageUrl?: string | null
+  sortOrder?: number
+}
+
 export interface StoredProduct {
   id: string
   name: string
@@ -54,6 +62,7 @@ export interface StoredProduct {
   specs?: StoredProductSpec[]
   examples?: StoredProductExample[]
   faqs?: StoredProductFaq[]
+  variants?: StoredProductVariant[]
   createdAt: string
   updatedAt: string
 }
@@ -134,6 +143,29 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
         sortOrder: 1,
       },
     ],
+    variants: [
+      {
+        id: 'var-el-1',
+        variantName: 'Ham Bej',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 0,
+      },
+      {
+        id: 'var-el-2',
+        variantName: 'Siyah',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 1,
+      },
+      {
+        id: 'var-el-3',
+        variantName: 'Lacivert',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 2,
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -196,6 +228,29 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
         sortOrder: 0,
       },
     ],
+    variants: [
+      {
+        id: 'var-sirt-1',
+        variantName: 'Siyah',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 0,
+      },
+      {
+        id: 'var-sirt-2',
+        variantName: 'Antrasit Gri',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 1,
+      },
+      {
+        id: 'var-sirt-3',
+        variantName: 'Lacivert',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 2,
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -237,6 +292,22 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
       { specKey: 'Baskı Alanı', specValue: 'Ön kapak merkez (12 x 8 cm logo alanı)', sortOrder: 3 },
       { specKey: 'Minimum Sipariş', specValue: '50 Adet', sortOrder: 4 },
     ],
+    variants: [
+      {
+        id: 'var-evrak-1',
+        variantName: 'Siyah',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 0,
+      },
+      {
+        id: 'var-evrak-2',
+        variantName: 'Koyu Gri',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 1,
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -276,6 +347,29 @@ export const INITIAL_PRODUCTS: StoredProduct[] = [
       { specKey: 'Ölçü Uyumluluğu', specValue: '13.3 inç - 14.1 inç ve 15.6 inç alternatifler', sortOrder: 1 },
       { specKey: 'İç Kaplama', specValue: 'Çizilmez kadife peluş iç koruma', sortOrder: 2 },
       { specKey: 'Minimum Sipariş', specValue: '50 Adet', sortOrder: 3 },
+    ],
+    variants: [
+      {
+        id: 'var-laptop-1',
+        variantName: 'Siyah',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 0,
+      },
+      {
+        id: 'var-laptop-2',
+        variantName: 'Bej',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 1,
+      },
+      {
+        id: 'var-laptop-3',
+        variantName: 'Füme',
+        variantType: 'Renk',
+        imageUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
+        sortOrder: 2,
+      },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -362,6 +456,7 @@ export async function getAllProducts(): Promise<StoredProduct[]> {
         specs: { orderBy: { sortOrder: 'asc' } },
         examples: { orderBy: { sortOrder: 'asc' } },
         faqs: { orderBy: { sortOrder: 'asc' } },
+        variants: { orderBy: { sortOrder: 'asc' } },
       },
       orderBy: { createdAt: 'desc' },
     })
@@ -411,6 +506,13 @@ export async function getAllProducts(): Promise<StoredProduct[]> {
           answer: f.answer,
           sortOrder: f.sortOrder,
         })) || [],
+        variants: (p as any).variants?.map((v: any) => ({
+          id: v.id,
+          variantName: v.variantName,
+          variantType: v.variantType,
+          imageUrl: v.imageUrl,
+          sortOrder: v.sortOrder,
+        })) || [],
         createdAt: p.createdAt.toISOString(),
         updatedAt: p.updatedAt.toISOString(),
       }))
@@ -437,6 +539,7 @@ export async function getProductByIdOrSlug(idOrSlug: string): Promise<StoredProd
         specs: { orderBy: { sortOrder: 'asc' } },
         examples: { orderBy: { sortOrder: 'asc' } },
         faqs: { orderBy: { sortOrder: 'asc' } },
+        variants: { orderBy: { sortOrder: 'asc' } },
       },
     })
 
@@ -484,6 +587,13 @@ export async function getProductByIdOrSlug(idOrSlug: string): Promise<StoredProd
           question: f.question,
           answer: f.answer,
           sortOrder: f.sortOrder,
+        })) || [],
+        variants: (p as any).variants?.map((v: any) => ({
+          id: v.id,
+          variantName: v.variantName,
+          variantType: v.variantType,
+          imageUrl: v.imageUrl,
+          sortOrder: v.sortOrder,
         })) || [],
         createdAt: p.createdAt.toISOString(),
         updatedAt: p.updatedAt.toISOString(),
@@ -539,6 +649,7 @@ export async function saveProductToStore(productData: {
   specs?: { specKey: string; specValue: string; sortOrder?: number }[]
   examples?: { imageUrl: string; title?: string | null; sortOrder?: number }[]
   faqs?: { question: string; answer: string; sortOrder?: number }[]
+  variants?: { variantName: string; variantType?: string; imageUrl?: string | null; sortOrder?: number }[]
 }): Promise<StoredProduct> {
   const newId = `prod-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
   const matchedCategory = MANUAL_CATEGORIES.find(
@@ -575,6 +686,13 @@ export async function saveProductToStore(productData: {
     specs: productData.specs || [],
     examples: productData.examples || [],
     faqs: productData.faqs || [],
+    variants: (productData.variants || []).map((v, idx) => ({
+      id: `var-${Date.now()}-${idx}`,
+      variantName: v.variantName,
+      variantType: v.variantType || 'Renk',
+      imageUrl: v.imageUrl || null,
+      sortOrder: v.sortOrder ?? idx,
+    })),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
@@ -622,6 +740,14 @@ export async function saveProductToStore(productData: {
             question: f.question,
             answer: f.answer,
             sortOrder: f.sortOrder ?? idx,
+          })),
+        } : undefined,
+        variants: productData.variants && productData.variants.length > 0 ? {
+          create: productData.variants.map((v, idx) => ({
+            variantName: v.variantName,
+            variantType: v.variantType || 'Renk',
+            imageUrl: v.imageUrl || null,
+            sortOrder: v.sortOrder ?? idx,
           })),
         } : undefined,
       },
@@ -735,6 +861,21 @@ export async function updateProductInStore(
           })
         }
       }
+
+      if (partial.variants) {
+        await prisma.productVariant.deleteMany({ where: { productId: existingDb.id } })
+        if (partial.variants.length > 0) {
+          await prisma.productVariant.createMany({
+            data: partial.variants.map((v, idx) => ({
+              productId: existingDb.id,
+              variantName: v.variantName,
+              variantType: v.variantType || 'Renk',
+              imageUrl: v.imageUrl || null,
+              sortOrder: v.sortOrder ?? idx,
+            })),
+          })
+        }
+      }
     }
   } catch (err) {
     console.warn('DB product update bypassed or failed:', err)
@@ -766,6 +907,7 @@ export async function deleteProductFromStore(id: string): Promise<boolean> {
       select: { id: true },
     })
     if (existingDb) {
+      await prisma.productVariant.deleteMany({ where: { productId: existingDb.id } }).catch(() => {})
       await prisma.productSpec.deleteMany({ where: { productId: existingDb.id } }).catch(() => {})
       await prisma.productExample.deleteMany({ where: { productId: existingDb.id } }).catch(() => {})
       await prisma.productFaq.deleteMany({ where: { productId: existingDb.id } }).catch(() => {})

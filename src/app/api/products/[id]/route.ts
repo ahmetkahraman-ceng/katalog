@@ -49,6 +49,7 @@ export async function PATCH(request: NextRequest, { params }: Props) {
       specs: body.specs,
       examples: body.examples,
       faqs: body.faqs,
+      variants: body.variants,
     })
 
     try {

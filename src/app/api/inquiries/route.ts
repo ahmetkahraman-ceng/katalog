@@ -3,6 +3,12 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { sendInquiryNotification } from '@/lib/resend'
 
+const inquiryItemInputSchema = z.object({
+  productId: z.string(),
+  variantId: z.string().optional().nullable(),
+  variantName: z.string().optional().nullable(),
+})
+
 const inquirySchema = z.object({
   customerName: z.string().min(2, 'Ad Soyad en az 2 karakter olmalıdır'),
   phone: z.string().min(10, 'Geçerli bir telefon numarası giriniz'),
@@ -10,6 +16,7 @@ const inquirySchema = z.object({
   message: z.string().optional().nullable(),
   quantityTier: z.string().optional().nullable(),
   productIds: z.array(z.string()).optional().default([]),
+  items: z.array(inquiryItemInputSchema).optional().default([]),
 })
 
 export async function GET() {
@@ -20,6 +27,7 @@ export async function GET() {
         items: {
           include: {
             product: { select: { id: true, name: true, slug: true } },
+            variant: true,
           },
         },
       },
@@ -44,23 +52,76 @@ export async function POST(request: NextRequest) {
     }
 
     // Resolve valid products from DB
-    const validProductIds: string[] = []
-    let productNames: string[] = []
+    const allProductKeys = Array.from(
+      new Set([...data.productIds, ...data.items.map((i) => i.productId)])
+    )
 
-    if (data.productIds && data.productIds.length > 0) {
-      const existingProducts = await prisma.product.findMany({
-        where: {
-          OR: [
-            { id: { in: data.productIds } },
-            { slug: { in: data.productIds } },
-          ],
-        },
-        select: { id: true, name: true },
-      })
+    const existingProducts =
+      allProductKeys.length > 0
+        ? await prisma.product.findMany({
+            where: {
+              OR: [
+                { id: { in: allProductKeys } },
+                { slug: { in: allProductKeys } },
+              ],
+            },
+            select: { id: true, name: true, slug: true },
+          })
+        : []
 
-      validProductIds.push(...existingProducts.map(p => p.id))
-      productNames = existingProducts.map(p => p.name)
+    const productMap = new Map<string, { id: string; name: string }>()
+    existingProducts.forEach((p) => {
+      productMap.set(p.id, p)
+      productMap.set(p.slug, p)
+    })
+
+    const itemsToCreate: { productId: string; variantId?: string | null; variantName?: string | null }[] = []
+
+    if (data.items && data.items.length > 0) {
+      for (const item of data.items) {
+        const matched = productMap.get(item.productId)
+        if (matched) {
+          itemsToCreate.push({
+            productId: matched.id,
+            variantId: item.variantId || null,
+            variantName: item.variantName || null,
+          })
+        }
+      }
+    } else if (data.productIds && data.productIds.length > 0) {
+      for (const pid of data.productIds) {
+        const matched = productMap.get(pid)
+        if (matched) {
+          itemsToCreate.push({
+            productId: matched.id,
+          })
+        }
+      }
     }
+
+    // Verify valid variant IDs in DB if provided
+    if (itemsToCreate.length > 0) {
+      const candidateVariantIds = itemsToCreate
+        .map((i) => i.variantId)
+        .filter(Boolean) as string[]
+
+      if (candidateVariantIds.length > 0) {
+        const validVariants = await prisma.productVariant.findMany({
+          where: { id: { in: candidateVariantIds } },
+          select: { id: true },
+        })
+        const validVariantIdSet = new Set(validVariants.map((v) => v.id))
+        for (const item of itemsToCreate) {
+          if (item.variantId && !validVariantIdSet.has(item.variantId)) {
+            item.variantId = null
+          }
+        }
+      }
+    }
+
+    const productNames = Array.from(
+      new Set(itemsToCreate.map((item) => productMap.get(item.productId)?.name || 'Çanta'))
+    )
 
     // Create inquiry with items
     const inquiry = await prisma.inquiry.create({
@@ -69,18 +130,22 @@ export async function POST(request: NextRequest) {
         phone: data.phone,
         email: data.email,
         message: fullMessage || null,
-        items: validProductIds.length > 0
-          ? {
-              create: validProductIds.map(productId => ({
-                productId,
-              })),
-            }
-          : undefined,
+        items:
+          itemsToCreate.length > 0
+            ? {
+                create: itemsToCreate.map((item) => ({
+                  productId: item.productId,
+                  variantId: item.variantId || undefined,
+                  variantName: item.variantName || undefined,
+                })),
+              }
+            : undefined,
       },
       include: {
         items: {
           include: {
             product: true,
+            variant: true,
           },
         },
       },

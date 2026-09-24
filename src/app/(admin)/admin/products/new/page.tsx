@@ -9,6 +9,7 @@ import { ImageUploader } from '@/components/ui/image-uploader'
 import { slugify } from '@/lib/utils'
 import { MANUAL_CATEGORIES } from '@/lib/categories-constants'
 import { PlusCircle, Plus, Trash2, CheckCircle, HelpCircle, Image as ImageIcon } from 'lucide-react'
+import { VariantManager, VariantItem } from '@/components/admin/variant-manager'
 
 interface CategoryItem {
   id: string
@@ -71,6 +72,9 @@ export default function NewProductPage() {
 
   // Sıkça Sorulan Sorular (FAQs)
   const [faqs, setFaqs] = useState<FaqRow[]>([])
+
+  // Renk Varyantları
+  const [variants, setVariants] = useState<VariantItem[]>([])
 
   useEffect(() => {
     async function syncExistingCategories() {
@@ -181,6 +185,14 @@ export default function NewProductPage() {
           specs: specs.filter((s) => s.specKey.trim() && s.specValue.trim()),
           examples: examples.filter((e) => e.imageUrl.trim()),
           faqs: faqs.filter((f) => f.question.trim() && f.answer.trim()),
+          variants: variants
+            .filter((v) => v.variantName.trim())
+            .map((v, idx) => ({
+              variantName: v.variantName.trim(),
+              variantType: 'Renk',
+              imageUrl: v.imageUrl?.trim() || null,
+              sortOrder: idx,
+            })),
         }),
       })
 
@@ -547,6 +559,9 @@ export default function NewProductPage() {
             </div>
           )}
         </div>
+
+        {/* 7. RENK SEÇENEKLERİ (VARYANTLAR) */}
+        <VariantManager variants={variants} onChange={setVariants} />
 
         {/* Submit Actions */}
         <div className="flex items-center gap-4 pt-6 border-t border-neutral-200">

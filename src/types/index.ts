@@ -5,6 +5,7 @@ import type {
   ProductSpec,
   ProductExample,
   ProductFaq,
+  ProductVariant,
   Inquiry,
   InquiryItem,
   ProductStatus,
@@ -18,6 +19,7 @@ export type {
   ProductSpec,
   ProductExample,
   ProductFaq,
+  ProductVariant,
   Inquiry,
   InquiryItem,
   ProductStatus,
@@ -35,6 +37,7 @@ export type ProductWithCategory = Product & {
   specs?: ProductSpec[]
   examples?: ProductExample[]
   faqs?: ProductFaq[]
+  variants?: ProductVariant[]
 }
 
 export type ProductDetail = Product & {
@@ -43,12 +46,14 @@ export type ProductDetail = Product & {
   specs: ProductSpec[]
   examples: ProductExample[]
   faqs: ProductFaq[]
+  variants: ProductVariant[]
 }
 
 // Inquiry with relations
 export type InquiryWithItems = Inquiry & {
   items: (InquiryItem & {
     product: ProductWithImages
+    variant?: ProductVariant | null
   })[]
 }
 
@@ -59,6 +64,11 @@ export interface InquiryFormData {
   email: string
   message?: string
   productIds: string[]
+  items?: {
+    productId: string
+    variantId?: string | null
+    variantName?: string | null
+  }[]
   companyName?: string
   estimatedQuantity?: string
 }

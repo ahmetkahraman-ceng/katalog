@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       specs: body.specs || [],
       examples: body.examples || [],
       faqs: body.faqs || [],
+      variants: body.variants || [],
     })
 
     try {

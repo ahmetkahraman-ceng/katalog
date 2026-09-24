@@ -22,6 +22,7 @@ export default async function InquiryDetailPage({ params }: Props) {
             product: {
               include: { images: { take: 1, orderBy: { order: 'asc' } } },
             },
+            variant: true,
           },
         },
       },
@@ -76,27 +77,48 @@ export default async function InquiryDetailPage({ params }: Props) {
         {inquiry.message && (
           <div className="mb-8">
             <p className="text-xs font-light tracking-wider uppercase text-neutral-400 mb-2">Mesaj</p>
-            <p className="text-sm font-light text-neutral-600 bg-neutral-50 p-4 rounded">{inquiry.message}</p>
+            <p className="text-sm font-light text-neutral-600 bg-neutral-50 p-4 rounded whitespace-pre-wrap">{inquiry.message}</p>
           </div>
         )}
 
         {/* Products */}
         <div className="mb-8">
-          <p className="text-xs font-light tracking-wider uppercase text-neutral-400 mb-4">İlgilenilen Ürünler</p>
+          <p className="text-xs font-light tracking-wider uppercase text-neutral-400 mb-4">İlgilenilen Ürünler &amp; Renk Seçenekleri</p>
           {inquiry.items && inquiry.items.length > 0 ? (
             <div className="space-y-3">
-              {inquiry.items.map((item: any) => (
-                <div key={item.id} className="flex items-center gap-4 p-3 bg-neutral-50 rounded">
-                  <div className="w-12 h-16 bg-neutral-200 rounded overflow-hidden flex-shrink-0">
-                    {item.product?.images?.[0] && (
-                      <img src={item.product.images[0].url} alt={item.product.name} className="w-full h-full object-cover" />
-                    )}
+              {inquiry.items.map((item: any) => {
+                const itemImg = item.variant?.imageUrl || item.product?.images?.[0]?.url
+                const colorName = item.variantName || item.variant?.variantName
+                return (
+                  <div key={item.id} className="flex items-center gap-4 p-3.5 bg-neutral-50 rounded border border-neutral-100">
+                    <div className="w-14 h-18 bg-neutral-200 rounded overflow-hidden shrink-0 relative">
+                      {itemImg ? (
+                        <img src={itemImg} alt={item.product?.name || 'Çanta'} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-neutral-400">ÇANTA</div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-neutral-900">{item.product?.name || 'Ürün'}</p>
+                      {colorName ? (
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="text-xs font-light text-neutral-500">Renk:</span>
+                          <span className="px-2 py-0.5 bg-neutral-900 text-white text-[11px] font-light tracking-wider uppercase rounded-xs">
+                            {colorName}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-xs font-light text-neutral-400 mt-1">Standart / Renk belirtilmedi</p>
+                      )}
+                      {item.product?.slug && (
+                        <p className="text-[10px] font-mono text-neutral-400 mt-1 uppercase">
+                          Ref: {item.product.slug}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-light">{item.product?.name || 'Ürün'}</p>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div className="p-4 bg-neutral-50 rounded text-xs font-light text-neutral-500">
