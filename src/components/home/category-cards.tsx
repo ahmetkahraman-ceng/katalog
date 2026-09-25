@@ -18,7 +18,7 @@ const categories = [
     slug: 'sirt-cantasi',
     subtitle: 'Ergonomik & Suya Dayanıklı',
     description: 'Laptop bölmeli kurumsal şirket çalışanları ve promosyon için sırt çantaları.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80',
+    image: '/products/sirt-canta-antrasit-laptop.png',
     count: '8+ Model',
   },
   {
@@ -48,15 +48,7 @@ const categories = [
     image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80',
     count: '9+ Model',
   },
-  {
-    id: 'deri-canta',
-    name: 'Deri Çanta',
-    slug: 'deri-canta',
-    subtitle: 'Hakiki & Suni Deri',
-    description: 'Yönetici hediyelikleri ve VIP kurumsal çözümler için özel üretim.',
-    image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80',
-    count: '5+ Model',
-  },
+
   {
     id: 'spor-cantasi',
     name: 'Spor & Seyahat Çantası',

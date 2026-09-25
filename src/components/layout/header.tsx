@@ -37,7 +37,7 @@ const MEGA_CATEGORIES: MegaCategory[] = [
     title: 'Sırt Çantası',
     slug: 'sirt-cantasi',
     description: 'Ergonomik, korumalı laptop bölmeli ve suya dayanıklı modeller.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80',
+    image: '/products/sirt-canta-antrasit-laptop.png',
     subItems: [
       { label: 'Kurumsal Sırt Çantası', href: '/categories/sirt-cantasi' },
       { label: 'Promosyon Sırt Çantası', href: '/categories/sirt-cantasi' },

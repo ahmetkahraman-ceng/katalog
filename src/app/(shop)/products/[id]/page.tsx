@@ -38,7 +38,7 @@ export default async function ProductDetailPage({ params }: Props) {
     : all.filter((p) => p.id !== product.id && p.status === 'ACTIVE').slice(0, 4)
 
   const categoryName = product.category?.name || 'Çanta Koleksiyonu'
-  const categorySlug = product.category?.slug || 'el-cantasi'
+  const categorySlug = product.category?.slug || 'sirt-cantasi'
   const formattedPrice = formatPriceRange(
     product.priceMin ? Number(product.priceMin) : null,
     product.priceMax ? Number(product.priceMax) : null
