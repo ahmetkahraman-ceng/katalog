@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Check, ShieldCheck } from 'lucide-react'
 import { ProductGallery, ProductGalleryVariant } from '@/components/product/product-gallery'
-import { ProductExamples } from '@/components/product/product-examples'
 import { ProductDetailActions } from '@/components/product/product-detail-actions'
 import { StoredProduct } from '@/lib/products-store'
 
@@ -32,12 +31,6 @@ export function ProductShowcase({ product, categoryName, formattedPrice }: Produ
           variants={product.variants}
           selectedVariant={selectedVariant}
           onSelectVariant={setSelectedVariant}
-          productName={product.name}
-        />
-
-        {/* Fotoğraf Galerisinin Altında Örnek Çalışmalar Bölümü */}
-        <ProductExamples
-          examples={product.examples || []}
           productName={product.name}
         />
       </div>

@@ -9,7 +9,7 @@ const categories = [
     slug: 'bez-canta',
     subtitle: 'Ham Bez, Kanvas & Gabardin',
     description: 'Çevre dostu, fuar ve kurumsal etkinlikler için baskılı bez çantalar.',
-    image: 'https://images.unsplash.com/photo-1597463510526-9f1e1a49f16b?auto=format&fit=crop&q=80',
+    image: '/products/bez-canta-kategori.jpg',
     count: '12+ Model',
   },
   {
@@ -18,7 +18,7 @@ const categories = [
     slug: 'sirt-cantasi',
     subtitle: 'Ergonomik & Suya Dayanıklı',
     description: 'Laptop bölmeli kurumsal şirket çalışanları ve promosyon için sırt çantaları.',
-    image: '/products/sirt-canta-antrasit-laptop.png',
+    image: '/products/sirt-cantasi-kategori.jpg',
     count: '8+ Model',
   },
   {
@@ -27,7 +27,7 @@ const categories = [
     slug: 'karton-canta',
     subtitle: 'Kraft & Kuşe Karton',
     description: 'Perakende mağazaları, butikler ve prestijli hediye paketlemeleri için.',
-    image: 'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&q=80',
+    image: '/products/karton-canta-kategori.jpg',
     count: '10+ Model',
   },
   {
@@ -36,7 +36,7 @@ const categories = [
     slug: 'laptop-cantasi',
     subtitle: '13"-16" Korumalı Bölmeli',
     description: 'Ofis ve iş seyahatleri için darbe emici süngerli evrak ve laptop çantaları.',
-    image: 'https://images.unsplash.com/photo-1603313011101-320f26a4f6f6?auto=format&fit=crop&q=80',
+    image: '/products/laptop-cantasi-kategori.jpg',
     count: '6+ Model',
   },
   {
@@ -45,7 +45,7 @@ const categories = [
     slug: 'fuar-kongre-cantasi',
     subtitle: 'Seminer & Konferans',
     description: 'Etkinlik ve organizasyonlar için ekonomik ve prestijli omuz askılı çantalar.',
-    image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80',
+    image: '/products/fuar-kongre-cantasi-kategori.jpg',
     count: '9+ Model',
   },
 
@@ -55,7 +55,7 @@ const categories = [
     slug: 'spor-cantasi',
     subtitle: 'Geniş Hacimli & Dayanıklı',
     description: 'Spor kulüpleri, spor salonları ve çalışan seyahatleri için silindir çantalar.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80',
+    image: '/products/spor-cantasi-kategori.jpg',
     count: '7+ Model',
   },
 ]

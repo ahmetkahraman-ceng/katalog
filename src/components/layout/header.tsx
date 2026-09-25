@@ -26,7 +26,7 @@ const MEGA_CATEGORIES: MegaCategory[] = [
     title: 'Bez Çanta',
     slug: 'bez-canta',
     description: 'Doğa dostu, fuar ve etkinlikler için promosyon bez çantalar.',
-    image: 'https://images.unsplash.com/photo-1597463510526-9f1e1a49f16b?auto=format&fit=crop&q=80',
+    image: '/products/bez-canta-kategori.jpg',
     subItems: [
       { label: 'Ham Bez Çanta', href: '/categories/bez-canta' },
       { label: 'Kanvas Çanta', href: '/categories/bez-canta' },
@@ -47,7 +47,7 @@ const MEGA_CATEGORIES: MegaCategory[] = [
     title: 'Karton Çanta',
     slug: 'karton-canta',
     description: 'Mağazalar ve kurumsal hediyeler için baskılı karton çantalar.',
-    image: 'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&q=80',
+    image: '/products/karton-canta-kategori.jpg',
     subItems: [
       { label: 'Kraft Karton Çanta', href: '/categories/karton-canta' },
       { label: 'Kuşe Karton Çanta', href: '/categories/karton-canta' },
@@ -57,7 +57,7 @@ const MEGA_CATEGORIES: MegaCategory[] = [
     title: 'Laptop Çantası',
     slug: 'laptop-cantasi',
     description: 'Kurumsal seminer, konferans ve ofis çalışanlarına özel tasarımlar.',
-    image: 'https://images.unsplash.com/photo-1603313011101-320f26a4f6f6?auto=format&fit=crop&q=80',
+    image: '/products/laptop-cantasi-kategori.jpg',
     subItems: [
       { label: '13-14 inç Laptop Çantası', href: '/categories/laptop-cantasi' },
       { label: '15.6 inç Laptop Çantası', href: '/categories/laptop-cantasi' },
@@ -67,7 +67,7 @@ const MEGA_CATEGORIES: MegaCategory[] = [
     title: 'Fuar & Kongre Çantası',
     slug: 'fuar-kongre-cantasi',
     description: 'Etkinlikleriniz için ekonomik ve prestijli çözümler.',
-    image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80',
+    image: '/products/fuar-kongre-cantasi-kategori.jpg',
     subItems: [
       { label: 'Seminer Çantası', href: '/categories/fuar-kongre-cantasi' },
       { label: 'Evrak Çantası', href: '/categories/fuar-kongre-cantasi' },
@@ -77,7 +77,7 @@ const MEGA_CATEGORIES: MegaCategory[] = [
     title: 'Deri Çanta',
     slug: 'deri-canta',
     description: 'Yönetici ve VIP hediyelik hakiki ve suni deri çanta modelleri.',
-    image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80',
+    image: '/products/laptop-cantasi-kategori.jpg',
     subItems: [
       { label: 'Hakiki Deri Çanta', href: '/categories/deri-canta' },
       { label: 'Suni Deri Çanta', href: '/categories/deri-canta' },
@@ -87,7 +87,7 @@ const MEGA_CATEGORIES: MegaCategory[] = [
     title: 'Spor Çantası',
     slug: 'spor-cantasi',
     description: 'Spor salonları, takımlar ve kulüpler için geniş hacimli çantalar.',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80',
+    image: '/products/spor-cantasi-kategori.jpg',
     subItems: [
       { label: 'Silindir Spor Çantası', href: '/categories/spor-cantasi' },
       { label: 'Spor & Seyahat Çantası', href: '/categories/spor-cantasi' },
